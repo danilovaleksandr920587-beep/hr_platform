@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerLab - Vacancies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav-wrap">
+      <a href="index.html" class="logo"><span class="logo-mark">C</span>CareerLab</a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="vacancies.html" class="active-link">Vacancies</a>
+        <a href="#">Resume AI</a>
+        <a href="#">Interview Prep</a>
+        <a href="#">Mentorship</a>
+        <a href="#">Knowledge Base</a>
+        <a href="#">Research</a>
+        <a href="office.html">Personal Office</a>
+      </nav>
+      <a class="btn btn-dark" href="office.html">Open Office</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <article class="panel panel-lime">
+          <h1 class="page-title">Vacancy Base</h1>
+          <p class="hero-text">Find internships and junior jobs with transparent filters and AI-based matching.</p>
+          <div class="search-line">
+            <input class="search-input" type="text" placeholder="Search by role, company, or skill">
+            <button class="btn btn-coral">Search</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container layout-2col">
+        <aside class="panel filter-panel">
+          <h2>Filters</h2>
+          <label class="filter-item">
+            Role
+            <select>
+              <option>Any role</option>
+              <option>Frontend</option>
+              <option>Backend</option>
+              <option>Analytics</option>
+              <option>Product</option>
+            </select>
+          </label>
+          <label class="filter-item">
+            City
+            <select>
+              <option>Any city</option>
+              <option>Remote</option>
+              <option>Moscow</option>
+              <option>Saint Petersburg</option>
+            </select>
+          </label>
+          <label class="filter-item">
+            Employment
+            <select>
+              <option>Any type</option>
+              <option>Internship</option>
+              <option>Part-time</option>
+              <option>Full-time</option>
+            </select>
+          </label>
+          <label class="filter-item">
+            Salary from
+            <input type="number" placeholder="500">
+          </label>
+          <div class="quick-stack">
+            <button class="btn btn-light btn-small">Remote only</button>
+            <button class="btn btn-light btn-small">No experience</button>
+            <button class="btn btn-light btn-small">Paid internship</button>
+          </div>
+          <button class="btn btn-dark">Apply filters</button>
+        </aside>
+
+        <div>
+          <div class="results-head">
+            <h2>Found 2,314 vacancies</h2>
+            <a href="#" class="text-link">Save this filter set</a>
+          </div>
+
+          <div class="results-list">
+            <article class="result-card">
+              <div>
+                <p class="company">Nova Bank</p>
+                <h3>Junior Product Analyst</h3>
+                <p>Hybrid, part-time, 80 000-110 000 RUB</p>
+              </div>
+              <div class="score">Match 93%</div>
+              <a class="btn btn-coral btn-small" href="#">Apply</a>
+            </article>
+
+            <article class="result-card">
+              <div>
+                <p class="company">Orbit Tech</p>
+                <h3>Frontend Intern (React)</h3>
+                <p>Remote, internship, paid</p>
+              </div>
+              <div class="score">Match 88%</div>
+              <a class="btn btn-coral btn-small" href="#">Apply</a>
+            </article>
+
+            <article class="result-card">
+              <div>
+                <p class="company">Data Core</p>
+                <h3>Data Analyst Trainee</h3>
+                <p>Office, full-time, mentorship track</p>
+              </div>
+              <div class="score">Match 85%</div>
+              <a class="btn btn-coral btn-small" href="#">Apply</a>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
