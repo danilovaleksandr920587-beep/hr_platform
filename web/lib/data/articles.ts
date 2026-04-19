@@ -19,7 +19,7 @@ export async function listArticles(
   let q = supabase
     .from("articles")
     .select("*")
-    .eq("published", true)
+    .eq("is_published", true)
     .order("published_at", { ascending: false });
 
   if (filters.category && filters.category !== "all") {
@@ -56,7 +56,7 @@ export async function getArticleBySlug(
     .from("articles")
     .select("*")
     .eq("slug", slug)
-    .eq("published", true)
+    .eq("is_published", true)
     .maybeSingle();
   if (error) {
     console.error("getArticleBySlug", error.message);

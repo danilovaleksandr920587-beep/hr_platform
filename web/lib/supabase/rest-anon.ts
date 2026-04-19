@@ -19,7 +19,7 @@ export async function listPublishedSlugsFromRest(
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!base?.length || !key?.length) return [];
 
-  const url = `${base}/rest/v1/${table}?select=slug&published=eq.true`;
+  const url = `${base}/rest/v1/${table}?select=slug&is_published=eq.true`;
   const res = await fetch(url, {
     headers: anonHeaders(),
     cache: "no-store",

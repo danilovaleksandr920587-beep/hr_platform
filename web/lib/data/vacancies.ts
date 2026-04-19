@@ -23,7 +23,7 @@ export async function listVacancies(
   let q = supabase
     .from("vacancies")
     .select("*")
-    .eq("published", true)
+    .eq("is_published", true)
     .order("featured", { ascending: false })
     .order("published_at", { ascending: false });
 
@@ -79,7 +79,7 @@ export async function getVacancyBySlug(
     .from("vacancies")
     .select("*")
     .eq("slug", slug)
-    .eq("published", true)
+    .eq("is_published", true)
     .maybeSingle();
   if (error) {
     console.error("getVacancyBySlug", error.message);

@@ -17,11 +17,11 @@ create table if not exists public.vacancies (
   salary_max integer,
   search_document text not null default '',
   featured boolean not null default false,
-  published boolean not null default true,
+  is_published boolean not null default true,
   published_at timestamptz not null default now()
 );
 
-create index if not exists vacancies_published_idx on public.vacancies (published, published_at desc);
+create index if not exists vacancies_is_published_idx on public.vacancies (is_published, published_at desc);
 create index if not exists vacancies_sphere_idx on public.vacancies (sphere);
 create index if not exists vacancies_exp_idx on public.vacancies (exp);
 create index if not exists vacancies_format_idx on public.vacancies (format);
@@ -40,26 +40,26 @@ create table if not exists public.articles (
   is_new boolean not null default false,
   cat_slug text not null default 'resume' check (cat_slug in ('resume', 'interview', 'test', 'salary')),
   layout text default null,
-  published boolean not null default true,
+  is_published boolean not null default true,
   published_at timestamptz not null default now()
 );
 
-create index if not exists articles_published_idx on public.articles (published, published_at desc);
+create index if not exists articles_is_published_idx on public.articles (is_published, published_at desc);
 create index if not exists articles_category_idx on public.articles (category);
 
 -- RLS ---------------------------------------------------------------------
 alter table public.vacancies enable row level security;
 alter table public.articles enable row level security;
 
-create policy "Public read published vacancies"
+create policy vacancies_select_published
   on public.vacancies for select
   to anon, authenticated
-  using (published = true);
+  using (is_published = true);
 
-create policy "Public read published articles"
+create policy articles_select_published
   on public.articles for select
   to anon, authenticated
-  using (published = true);
+  using (is_published = true);
 
 -- Service role bypasses RLS by default in Supabase
 
