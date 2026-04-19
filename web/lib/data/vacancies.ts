@@ -1,4 +1,5 @@
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
+import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { listPublishedSlugsFromRest } from "@/lib/supabase/rest-anon";
 import type { VacancyRow } from "@/lib/types";
 
@@ -12,17 +13,10 @@ export type VacancyFilters = {
   salaryTo?: number | null;
 };
 
-function configured() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.length &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
-  );
-}
-
 export async function listVacancies(
   filters: VacancyFilters = {},
 ): Promise<VacancyRow[]> {
-  if (!configured()) return [];
+  if (!isPublicSupabaseConfigured()) return [];
 
   const supabase = createPublicSupabaseClient();
   if (!supabase) return [];
@@ -78,7 +72,7 @@ export async function listVacancies(
 export async function getVacancyBySlug(
   slug: string,
 ): Promise<VacancyRow | null> {
-  if (!configured() || !slug) return null;
+  if (!isPublicSupabaseConfigured() || !slug) return null;
   const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
   const { data, error } = await supabase
@@ -95,6 +89,6 @@ export async function getVacancyBySlug(
 }
 
 export async function listVacancySlugs(): Promise<string[]> {
-  if (!configured()) return [];
+  if (!isPublicSupabaseConfigured()) return [];
   return listPublishedSlugsFromRest("vacancies");
 }

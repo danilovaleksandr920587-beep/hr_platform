@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 
 export const metadata: Metadata = {
   title: "Личный кабинет",
@@ -9,10 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OfficePage() {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL?.length ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length
-  ) {
+  if (!isPublicSupabaseConfigured()) {
     return (
       <main className="section">
         <div className="container" style={{ maxWidth: 640 }}>

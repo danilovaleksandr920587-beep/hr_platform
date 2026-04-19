@@ -1,13 +1,7 @@
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
+import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { listPublishedSlugsFromRest } from "@/lib/supabase/rest-anon";
 import type { ArticleRow } from "@/lib/types";
-
-function configured() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.length &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
-  );
-}
 
 export type ArticleFilters = {
   q?: string;
@@ -18,7 +12,7 @@ export type ArticleFilters = {
 export async function listArticles(
   filters: ArticleFilters = {},
 ): Promise<ArticleRow[]> {
-  if (!configured()) return [];
+  if (!isPublicSupabaseConfigured()) return [];
 
   const supabase = createPublicSupabaseClient();
   if (!supabase) return [];
@@ -55,7 +49,7 @@ export async function listArticles(
 export async function getArticleBySlug(
   slug: string,
 ): Promise<ArticleRow | null> {
-  if (!configured() || !slug) return null;
+  if (!isPublicSupabaseConfigured() || !slug) return null;
   const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
   const { data, error } = await supabase
@@ -72,6 +66,6 @@ export async function getArticleBySlug(
 }
 
 export async function listArticleSlugs(): Promise<string[]> {
-  if (!configured()) return [];
+  if (!isPublicSupabaseConfigured()) return [];
   return listPublishedSlugsFromRest("articles");
 }

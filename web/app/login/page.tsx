@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/LoginForm";
+import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { optionalString } from "@/lib/searchParams";
 
 export const metadata: Metadata = {
@@ -19,10 +20,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
     ? nextRaw
     : "/office";
   const err = optionalString(sp, "error");
-  const configured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.length &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
-  );
+  const configured = isPublicSupabaseConfigured();
 
   return (
     <main className="section">

@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
 import { listVacancies } from "@/lib/data/vacancies";
+import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { multiParam, optionalInt, optionalString } from "@/lib/searchParams";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
     salaryTo: optionalInt(sp, "salary_to"),
   };
 
+  const supabaseEnvOk = isPublicSupabaseConfigured();
   const rows = await listVacancies(filters);
   const count = rows.length;
   const noun =
@@ -103,11 +105,25 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
 
               {rows.length === 0 ? (
                 <p className="vacancies-empty">
-                  По выбранным условиям вакансий нет — снимите часть фильтров или
-                  измените зарплату. Убедитесь, что миграции Supabase применены и
-                  в проекте заданы{" "}
-                  <code>NEXT_PUBLIC_SUPABASE_URL</code> и{" "}
-                  <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
+                  {!supabaseEnvOk ? (
+                    <>
+                      Сервер не видит переменные Supabase: задайте в Vercel{" "}
+                      <code>NEXT_PUBLIC_SUPABASE_URL</code> и{" "}
+                      <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> для того же
+                      типа деплоя, что и эта страница (для ссылок вида{" "}
+                      <code>*.vercel.app</code> с длинным именем включите
+                      переменные для{" "}
+                      <strong>Preview</strong>, не только Production), затем
+                      Redeploy.
+                    </>
+                  ) : (
+                    <>
+                      По выбранным фильтрам ничего не найдено — сбросьте фильтры
+                      или измените диапазон зарплаты. Если список должен быть
+                      полным, проверьте таблицу <code>vacancies</code> в Supabase
+                      и миграции в <code>web/supabase/migrations/</code>.
+                    </>
+                  )}
                 </p>
               ) : (
                 <div className="jobs-list">

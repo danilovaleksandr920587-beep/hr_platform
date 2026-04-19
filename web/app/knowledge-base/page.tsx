@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ArticleCard } from "@/components/ArticleCard";
 import { KnowledgeBaseFilters } from "@/components/KnowledgeBaseFilters";
 import { listArticles } from "@/lib/data/articles";
+import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { optionalString } from "@/lib/searchParams";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
   const category = rawCat || "all";
   const level = rawLevel || "all";
 
+  const supabaseEnvOk = isPublicSupabaseConfigured();
   const rows = await listArticles({
     q: q || undefined,
     category: category === "all" ? undefined : category,
@@ -221,8 +223,22 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
               <div className="kb-empty-panel">
                 <p className="kb-empty-title">Ничего не нашли</p>
                 <p className="kb-empty-text">
-                  Попробуйте другой запрос или снимите фильтры. Проверьте, что в
-                  проекте заданы переменные Supabase и применены миграции.
+                  {!supabaseEnvOk ? (
+                    <>
+                      Сервер не видит <code>NEXT_PUBLIC_SUPABASE_URL</code> и{" "}
+                      <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> — в Vercel
+                      добавьте их для <strong>Preview</strong> и{" "}
+                      <strong>Production</strong> (для preview-URL это частая
+                      причина пустого списка), затем Redeploy.
+                    </>
+                  ) : (
+                    <>
+                      Попробуйте другой запрос или снимите фильтры. Если
+                      материалов всё равно нет, проверьте таблицу{" "}
+                      <code>articles</code> и миграции в{" "}
+                      <code>web/supabase/migrations/</code>.
+                    </>
+                  )}
                 </p>
               </div>
             ) : (
