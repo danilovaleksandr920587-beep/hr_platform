@@ -4,11 +4,16 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ArticleBody } from "@/components/ArticleBody";
-import { getArticleBySlug } from "@/lib/data/articles";
+import { getArticleBySlug, listArticleSlugs } from "@/lib/data/articles";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type PageProps = { params: Promise<{ slug: string }> };
+
+export async function generateStaticParams() {
+  const slugs = await listArticleSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 const ctagFor: Record<string, string> = {
   resume: "ctag-resume",

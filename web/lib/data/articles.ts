@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 import type { ArticleRow } from "@/lib/types";
 
 function configured() {
@@ -19,7 +19,8 @@ export async function listArticles(
 ): Promise<ArticleRow[]> {
   if (!configured()) return [];
 
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
   let q = supabase
     .from("articles")
     .select("*")
@@ -54,7 +55,8 @@ export async function getArticleBySlug(
   slug: string,
 ): Promise<ArticleRow | null> {
   if (!configured() || !slug) return null;
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("articles")
     .select("*")
@@ -70,7 +72,8 @@ export async function getArticleBySlug(
 
 export async function listArticleSlugs(): Promise<string[]> {
   if (!configured()) return [];
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("articles")
     .select("slug")

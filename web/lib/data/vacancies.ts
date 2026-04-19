@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 import type { VacancyRow } from "@/lib/types";
 
 export type VacancyFilters = {
@@ -23,7 +23,8 @@ export async function listVacancies(
 ): Promise<VacancyRow[]> {
   if (!configured()) return [];
 
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
   let q = supabase
     .from("vacancies")
     .select("*")
@@ -77,7 +78,8 @@ export async function getVacancyBySlug(
   slug: string,
 ): Promise<VacancyRow | null> {
   if (!configured() || !slug) return null;
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("vacancies")
     .select("*")
@@ -93,7 +95,8 @@ export async function getVacancyBySlug(
 
 export async function listVacancySlugs(): Promise<string[]> {
   if (!configured()) return [];
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("vacancies")
     .select("slug")
