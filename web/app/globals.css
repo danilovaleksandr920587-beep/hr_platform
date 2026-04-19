@@ -2,6 +2,34 @@ body.careerlab-site {
   font-family: var(--font-golos), "Golos Text", "Onest", sans-serif;
 }
 
+/* Шапка/футер: gap без flex не работает (в careerlab-ui не задан display). */
+body.careerlab-site header.topbar .nav-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+body.careerlab-site .nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+body.careerlab-site .footer-wrap.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+body.careerlab-site .footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
