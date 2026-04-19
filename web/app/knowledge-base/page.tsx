@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Гайды по резюме, откликам, тестовым заданиям и переговорам о зарплате.",
 };
 
-export const revalidate = 120;
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

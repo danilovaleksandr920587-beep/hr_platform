@@ -3,16 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getVacancyBySlug, listVacancySlugs } from "@/lib/data/vacancies";
+import { getVacancyBySlug } from "@/lib/data/vacancies";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 type PageProps = { params: Promise<{ slug: string }> };
-
-export async function generateStaticParams() {
-  const slugs = await listVacancySlugs();
-  return slugs.map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({
   params,

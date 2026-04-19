@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Стажировки и junior: фильтры по сфере, опыту, формату и зарплате. Поиск по названию и компании.",
 };
 
-export const revalidate = 120;
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
