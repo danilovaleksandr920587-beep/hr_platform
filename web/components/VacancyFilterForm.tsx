@@ -1,3 +1,9 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useRef } from "react";
+
 const spheres = [
   { value: "it", label: "IT" },
   { value: "design", label: "Дизайн" },
@@ -15,8 +21,6 @@ const formats = [
   { value: "hybrid", label: "Гибрид" },
   { value: "office", label: "Офис" },
 ];
-import Link from "next/link";
-
 const types = [
   { value: "internship", label: "Стажировка" },
   { value: "project", label: "Проектная работа" },
@@ -36,6 +40,22 @@ type Props = {
 };
 
 export function VacancyFilterForm({ selected }: Props) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const pushFromForm = useCallback(() => {
+    const form = formRef.current;
+    if (!form) return;
+    const fd = new FormData(form);
+    const params = new URLSearchParams();
+    for (const [key, val] of fd.entries()) {
+      if (val === "") continue;
+      params.append(key, String(val));
+    }
+    const qs = params.toString();
+    router.push(qs ? `/vacancies?${qs}` : "/vacancies", { scroll: false });
+  }, [router]);
+
   return (
     <aside className="filter-panel filter-panel-sticky">
       <div className="filter-panel-inner">
@@ -48,7 +68,18 @@ export function VacancyFilterForm({ selected }: Props) {
             <span>Сбросить фильтры</span>
           </Link>
         </div>
-        <form className="filter-form" action="/vacancies" method="get">
+        <form
+          ref={formRef}
+          className="filter-form"
+          action="/vacancies"
+          method="get"
+          onChange={(e) => {
+            const t = e.target;
+            if (t instanceof HTMLInputElement && t.type === "checkbox") {
+              pushFromForm();
+            }
+          }}
+        >
           <div className="filter-groups">
             <div className="filter-group">
               <p className="filter-group-title" id="filter-sphere">
@@ -131,7 +162,8 @@ export function VacancyFilterForm({ selected }: Props) {
                 Зарплата
               </p>
               <p className="filter-salary-hint">
-                Пустые поля — без фильтра по сумме.
+                Пустые поля — без фильтра по сумме. Уход с поля или Enter —
+                применить.
               </p>
               <div className="filter-salary-row">
                 <label className="filter-salary-field">
@@ -146,6 +178,10 @@ export function VacancyFilterForm({ selected }: Props) {
                     placeholder="—"
                     defaultValue={selected.salaryFrom}
                     aria-labelledby="filter-salary"
+                    onBlur={pushFromForm}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") pushFromForm();
+                    }}
                   />
                   <span className="filter-salary-currency">₽</span>
                 </label>
@@ -161,6 +197,10 @@ export function VacancyFilterForm({ selected }: Props) {
                     placeholder="—"
                     defaultValue={selected.salaryTo}
                     aria-labelledby="filter-salary"
+                    onBlur={pushFromForm}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") pushFromForm();
+                    }}
                   />
                   <span className="filter-salary-currency">₽</span>
                 </label>
@@ -169,8 +209,12 @@ export function VacancyFilterForm({ selected }: Props) {
           </div>
           <div className="filter-bottom-actions">
             <input type="hidden" name="q" value={selected.q} />
-            <button type="submit" className="btn btn-dark filter-submit-btn">
-              Искать
+            <button
+              type="button"
+              className="btn btn-dark filter-submit-btn"
+              onClick={pushFromForm}
+            >
+              Применить зарплату
             </button>
           </div>
         </form>

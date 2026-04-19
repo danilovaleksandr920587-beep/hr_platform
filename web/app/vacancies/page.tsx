@@ -44,6 +44,16 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
         ? "вакансии"
         : "вакансий";
 
+  const filterFormKey = [
+    [...filters.sphere].sort().join(","),
+    [...filters.exp].sort().join(","),
+    [...filters.format].sort().join(","),
+    [...filters.type].sort().join(","),
+    q,
+    String(filters.salaryFrom ?? ""),
+    String(filters.salaryTo ?? ""),
+  ].join("|");
+
   return (
     <>
       <SiteHeader active="/vacancies" />
@@ -72,6 +82,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
         <section className="jl-section">
           <div className="jl-grid">
             <VacancyFilterForm
+              key={filterFormKey}
               selected={{
                 sphere: filters.sphere,
                 exp: filters.exp,

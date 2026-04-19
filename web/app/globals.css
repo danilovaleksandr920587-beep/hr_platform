@@ -298,3 +298,236 @@ body.careerlab-site .container {
   color: var(--muted);
   line-height: 1.5;
 }
+
+/* Фильтры: список чекбоксов и строка зарплаты */
+body.careerlab-site .filter-check-list {
+  display: flex;
+  flex-direction: column;
+}
+
+body.careerlab-site .filter-salary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: flex-end;
+}
+
+body.careerlab-site .filter-salary-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+body.careerlab-site .filter-salary-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted2);
+}
+
+/* Заголовок вакансии в карточке — не как ссылка по умолчанию */
+body.careerlab-site .job-title a,
+body.careerlab-site .job-title a:link,
+body.careerlab-site .job-title a:visited {
+  color: var(--dark);
+  text-decoration: none;
+}
+
+body.careerlab-site .job-title a:hover {
+  color: var(--dark);
+  text-decoration: none;
+}
+
+body.careerlab-site .job-title a:active {
+  color: var(--dark);
+}
+
+body.careerlab-site .job-title a:focus-visible {
+  outline: 2px solid var(--lime-dim);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Главная: дополнительные блоки */
+.home-strip-muted {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted2);
+  margin: 0 0 0.5rem;
+}
+
+.home-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0 2.5rem;
+  max-width: 720px;
+}
+
+@media (max-width: 640px) {
+  .home-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-stat {
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  border: 1px solid var(--border);
+}
+
+.home-stat-num {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.home-stat-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.home-logos {
+  padding: 1.25rem 0 2rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.home-logos-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.home-logos-row span:first-child {
+  font-weight: 700;
+  color: var(--muted2);
+  margin-right: 0.5rem;
+}
+
+.home-audience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+@media (max-width: 720px) {
+  .home-audience-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-audience-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.35rem 1.4rem;
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.home-audience-card:hover {
+  border-color: var(--lime-dim);
+  transform: translateY(-2px);
+}
+
+.home-audience-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--muted2);
+  margin-bottom: 0.35rem;
+}
+
+.home-audience-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.05rem;
+}
+
+.home-audience-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.home-journey {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .home-journey {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-journey-step {
+  padding: 1.2rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  border: 1px solid var(--border);
+}
+
+.home-journey-step h3 {
+  margin: 0.35rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.home-journey-step p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.home-journey-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lime-dim);
+}
+
+.home-preview-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1rem;
+}
+
+.home-preview-head a {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--dark);
+  text-decoration: none;
+}
+
+.home-preview-head a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
