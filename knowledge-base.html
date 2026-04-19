@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerLab — гайды по карьере и первой работе</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="careerlab-ui.css">
+</head>
+<body class="careerlab-site">
+  <header class="topbar">
+    <div class="container nav-wrap">
+      <a href="index.html" class="logo"><span class="logo-mark">C</span>CareerLab</a>
+      <nav class="nav">
+        <a href="index.html">Главная</a>
+        <a href="vacancies.html">Вакансии</a>
+        <a href="knowledge-base.html" class="active-link">База знаний</a>
+        <a href="research.html">Исследования</a>
+        <a href="office.html">Личный кабинет</a>
+      </nav>
+      <a class="btn btn-dark" href="office.html">В кабинет</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-header page-header--kb">
+      <div class="ph-glow" aria-hidden="true"></div>
+      <div class="ph-glow2" aria-hidden="true"></div>
+      <div class="page-header-inner">
+        <p class="ph-eyebrow">Практические материалы</p>
+        <h1 class="ph-title">Гайды, которые<br><span>сразу применяются</span></h1>
+        <p class="ph-sub">Резюме, отклики, собеседования и первые месяцы на работе — выбирайте тему или ищите, читайте без лишнего шума.</p>
+        <div class="ph-search" role="search">
+          <label class="visually-hidden" for="kb-search">Поиск по материалам</label>
+          <input id="kb-search" type="search" placeholder="Например: сопроводительное письмо, зарплата, чек-лист…" autocomplete="off">
+          <button type="button" id="kb-search-btn">Найти материал</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stats-row-inner">
+        <div class="stat-item">
+          <span class="stat-num" id="kb-stat-count">8</span>
+          <span class="stat-label">материалов</span>
+        </div>
+        <span class="stat-sep" aria-hidden="true"></span>
+        <div class="stat-item">
+          <span class="stat-num" id="kb-stat-read">~70</span>
+          <span class="stat-label">минут чтения</span>
+        </div>
+        <span class="stat-sep" aria-hidden="true"></span>
+        <div class="stat-item">
+          <span class="stat-num">4</span>
+          <span class="stat-label">темы</span>
+        </div>
+        <span class="stat-sep" aria-hidden="true"></span>
+        <div class="stats-row-meta">Обновлено в 2026</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-bar-inner">
+        <span class="fb-label">Тема:</span>
+        <div class="fb-pills" id="kb-tabs" role="tablist" aria-label="Категории материалов">
+          <button type="button" class="fb-pill active" role="tab" aria-selected="true" data-category="all">Все</button>
+          <button type="button" class="fb-pill cat-resume" role="tab" aria-selected="false" data-category="Резюме">
+            <span class="fb-dot" style="background:var(--c-resume-accent)"></span>Резюме
+          </button>
+          <button type="button" class="fb-pill cat-interview" role="tab" aria-selected="false" data-category="Собеседование">
+            <span class="fb-dot" style="background:var(--c-interview-accent)"></span>Собеседование
+          </button>
+          <button type="button" class="fb-pill cat-test" role="tab" aria-selected="false" data-category="Тестовые">
+            <span class="fb-dot" style="background:var(--c-test-accent)"></span>Тестовые
+          </button>
+          <button type="button" class="fb-pill cat-salary" role="tab" aria-selected="false" data-category="Зарплата">
+            <span class="fb-dot" style="background:var(--c-salary-accent)"></span>Зарплата
+          </button>
+        </div>
+        <span class="fb-sep" aria-hidden="true"></span>
+        <span class="fb-label">Уровень:</span>
+        <div id="kb-level-tabs" role="tablist" aria-label="Уровень материала">
+          <button type="button" class="level-pill active" data-level="all">Все</button>
+          <button type="button" class="level-pill" data-level="Новичок">Новичок</button>
+          <button type="button" class="level-pill" data-level="Продвинутый">Продвинутый</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="page-body-inner">
+        <a class="featured-article" id="kb-featured" href="kb-article.html?id=kb-r1" hidden>
+          <div class="featured-content">
+            <div>
+              <div class="featured-meta">
+                <span class="ctag ctag-resume">Резюме</span>
+                <span style="font-size:12px;color:var(--muted2);">8 мин</span>
+                <span style="font-size:12px;color:var(--muted2);">·</span>
+                <span style="font-size:12px;color:var(--muted2);">Новичок</span>
+              </div>
+              <h2 class="featured-title">Студенческое резюме: проекты, которые рекрутеры читают</h2>
+              <p class="featured-desc">Шаблон блоков под системы отбора и живой просмотр рекрутера. Разбираем, что писать в каждом разделе, если за плечами только учёба и пет-проекты.</p>
+            </div>
+            <div class="featured-footer">
+              <span class="featured-read-btn">Читать гайд →</span>
+              <span class="featured-time">⏱ 8 минут</span>
+            </div>
+          </div>
+          <div class="featured-panel fp-resume">
+            <span class="fp-icon" aria-hidden="true">📄</span>
+            <div class="fp-checklist">
+              <div class="fp-item"><span class="fp-item-dot" style="background:var(--c-resume-accent)"></span>Блок «Опыт» без реального опыта</div>
+              <div class="fp-item"><span class="fp-item-dot" style="background:var(--c-resume-accent)"></span>Проекты: что считать и как описать</div>
+              <div class="fp-item"><span class="fp-item-dot" style="background:var(--c-resume-accent)"></span>ATS-проверка за 2 минуты</div>
+            </div>
+          </div>
+        </a>
+
+        <div class="section-hdr">
+          <h2 class="section-hdr-title">Все материалы</h2>
+          <span class="section-hdr-count" id="kb-grid-meta">8 из 8</span>
+        </div>
+
+        <div id="kb-empty" class="kb-empty-panel" hidden>
+          <p class="kb-empty-title">Ничего не нашли</p>
+          <p class="kb-empty-text">Попробуйте другой запрос или переключите категорию и уровень — так быстрее найдёте нужный гайд.</p>
+        </div>
+
+        <div class="articles-grid" id="kb-articles"></div>
+
+        <button type="button" class="load-more" disabled title="Скоро">Загрузить ещё материалы</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer section">
+    <div class="container footer-wrap">
+      <p>CareerLab, 2026</p>
+      <div class="footer-links">
+        <a href="index.html">О платформе</a>
+        <a href="knowledge-base.html">Вопросы и ответы</a>
+        <a href="office.html">Контакты</a>
+        <a href="research.html">Как мы считаем данные</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    (function () {
+      var SUPABASE_URL = "https://qrxcfawhhycdhbhgqwdk.supabase.co";
+      var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyeGNmYXdoaHljZGhiaGdxd2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjA2MDYsImV4cCI6MjA5MjA5NjYwNn0.2ydIH5_h9xgheTC476BfxK89GDK6V-mW9OnIKhj_SnM";
+
+      var createClient = window.supabase && window.supabase.createClient;
+      if (!createClient) {
+        console.error("Supabase SDK не загружен.");
+        return;
+      }
+      var sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      var articlesEl = document.getElementById("kb-articles");
+      var tabsEl = document.getElementById("kb-tabs");
+      var levelEl = document.getElementById("kb-level-tabs");
+      var searchInput = document.getElementById("kb-search");
+      var searchBtn = document.getElementById("kb-search-btn");
+      var emptyEl = document.getElementById("kb-empty");
+      var featuredEl = document.getElementById("kb-featured");
+      var gridMetaEl = document.getElementById("kb-grid-meta");
+      var statCountEl = document.getElementById("kb-stat-count");
+      var statReadEl = document.getElementById("kb-stat-read");
+
+      var activeCategory = "all";
+      var activeLevel = "all";
+      var totalPublishedCount = null;
+      var totalReadMinutes = null;
+      var filterTimer = null;
+      var filterDebounceMs = 240;
+
+      function escapeIlikePattern(s) {
+        return s.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").replace(/,/g, " ");
+      }
+
+      /**
+       * Материалы из Supabase: категория и уровень — .eq(); поиск — .ilike() по title, excerpt, body.
+       */
+      function fetchArticlesFromSupabase(criteria) {
+        var q = sb
+          .from("articles")
+          .select("slug,title,category,level,read_time,is_new,excerpt,cat_slug,tags,layout,visual_icon,visual_stat,body")
+          .eq("is_published", true);
+
+        if (criteria.category && criteria.category !== "all") {
+          q = q.eq("category", criteria.category);
+        }
+        if (criteria.level && criteria.level !== "all") {
+          q = q.eq("level", criteria.level);
+        }
+        if (criteria.searchRaw) {
+          var pat = "%" + escapeIlikePattern(criteria.searchRaw) + "%";
+          q = q.or("title.ilike." + pat + ",excerpt.ilike." + pat + ",body.ilike." + pat);
+        }
+
+        q = q.order("published_at", { ascending: false });
+        return q;
+      }
+
+      async function ensureGlobalStats() {
+        if (totalPublishedCount != null) return;
+        var countRes = await sb.from("articles").select("*", { count: "exact", head: true }).eq("is_published", true);
+        if (!countRes.error) totalPublishedCount = countRes.count || 0;
+
+        var rt = await sb.from("articles").select("read_time").eq("is_published", true);
+        if (!rt.error && rt.data) {
+          totalReadMinutes = rt.data.reduce(function (s, r) {
+            return s + (r.read_time || 0);
+          }, 0);
+        }
+        if (statCountEl && totalPublishedCount != null) statCountEl.textContent = String(totalPublishedCount);
+        if (statReadEl && totalReadMinutes != null) statReadEl.textContent = "~" + totalReadMinutes;
+      }
+
+      function articleHref(slug) {
+        return "kb-article.html?id=" + encodeURIComponent(slug);
+      }
+
+      function setActiveCategory(cat) {
+        activeCategory = cat;
+        if (!tabsEl) return;
+        tabsEl.querySelectorAll(".fb-pill").forEach(function (btn) {
+          var on = btn.getAttribute("data-category") === cat;
+          btn.classList.toggle("active", on);
+          btn.setAttribute("aria-selected", on ? "true" : "false");
+        });
+      }
+
+      function setActiveLevel(lvl) {
+        activeLevel = lvl;
+        if (!levelEl) return;
+        levelEl.querySelectorAll(".level-pill").forEach(function (btn) {
+          var on = btn.getAttribute("data-level") === lvl;
+          btn.classList.toggle("active", on);
+        });
+      }
+
+      function ctagClass(slug) {
+        return "ctag-" + slug;
+      }
+
+      function cvClass(slug) {
+        return "cv-" + slug;
+      }
+
+      function toggleSave(btn) {
+        var on = btn.getAttribute("aria-pressed") === "true";
+        btn.setAttribute("aria-pressed", on ? "false" : "true");
+        btn.textContent = on ? "♡" : "♥";
+      }
+
+      function syncFeaturedBlock(row) {
+        if (!featuredEl || !row) return;
+        featuredEl.href = articleHref(row.slug);
+        var title = featuredEl.querySelector(".featured-title");
+        var desc = featuredEl.querySelector(".featured-desc");
+        if (title) title.textContent = row.title;
+        if (desc) desc.textContent = row.excerpt || "";
+        var meta = featuredEl.querySelector(".featured-meta");
+        if (meta) {
+          meta.innerHTML = "";
+          var c0 = document.createElement("span");
+          c0.className = "ctag " + ctagClass(row.cat_slug || "resume");
+          c0.textContent = row.category;
+          meta.appendChild(c0);
+          var t1 = document.createElement("span");
+          t1.style.fontSize = "12px";
+          t1.style.color = "var(--muted2)";
+          t1.textContent = row.read_time + " мин";
+          meta.appendChild(t1);
+          var dot = document.createElement("span");
+          dot.style.fontSize = "12px";
+          dot.style.color = "var(--muted2)";
+          dot.textContent = " · ";
+          meta.appendChild(dot);
+          var t2 = document.createElement("span");
+          t2.style.fontSize = "12px";
+          t2.style.color = "var(--muted2)";
+          t2.textContent = row.is_new ? "Новое" : row.level;
+          meta.appendChild(t2);
+        }
+        var ft = featuredEl.querySelector(".featured-time");
+        if (ft) ft.textContent = "⏱ " + row.read_time + " минут";
+        var fp = featuredEl.querySelector(".fp-icon");
+        if (fp) fp.textContent = row.visual_icon || "📄";
+      }
+
+      function buildCard(article) {
+        var catKey = article.cat_slug || "resume";
+        var card = document.createElement("article");
+        card.className = "article-card";
+        card.tabIndex = 0;
+        card.setAttribute("role", "link");
+        card.setAttribute("aria-label", article.title);
+        if (article.layout === "wide") card.classList.add("wide");
+        if (article.layout === "wide-checklist") card.classList.add("wide", "checklist-card");
+        card.addEventListener("click", function (e) {
+          if (e.target.closest(".card-save")) return;
+          window.location.href = articleHref(article.slug);
+        });
+        card.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            window.location.href = articleHref(article.slug);
+          }
+        });
+
+        var visual = document.createElement("div");
+        visual.className = "card-visual " + cvClass(catKey);
+        if (article.layout === "wide-checklist") visual.style.height = "100px";
+        if (article.slug === "kb-z2") visual.style.height = "140px";
+
+        var icon = document.createElement("span");
+        icon.className = "card-visual-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = article.visual_icon || "📄";
+
+        var previewLines = document.createElement("div");
+        previewLines.className = "card-visual-preview";
+        previewLines.appendChild(line("long"));
+        previewLines.appendChild(line("mid"));
+        previewLines.appendChild(line("short"));
+        if (article.layout === "wide" || article.layout === "wide-checklist") previewLines.appendChild(line("long"));
+
+        var stat = document.createElement("div");
+        stat.className = "card-visual-stat";
+        if (article.slug === "kb-z2") stat.style.fontSize = "40px";
+        stat.textContent = article.visual_stat || "";
+
+        visual.appendChild(icon);
+        visual.appendChild(previewLines);
+        visual.appendChild(stat);
+
+        var body = document.createElement("div");
+        body.className = "card-body";
+
+        var tags = document.createElement("div");
+        tags.className = "card-tags";
+        var c1 = document.createElement("span");
+        c1.className = "ctag " + ctagClass(catKey);
+        c1.textContent = article.category;
+        tags.appendChild(c1);
+        var c2 = document.createElement("span");
+        c2.className = "ctag ctag-time";
+        c2.textContent = article.read_time + " мин";
+        tags.appendChild(c2);
+        if (article.is_new) {
+          var cn = document.createElement("span");
+          cn.className = "ctag ctag-new";
+          cn.textContent = "Новое";
+          tags.appendChild(cn);
+        } else {
+          var cl = document.createElement("span");
+          cl.className = "ctag ctag-level";
+          cl.textContent = article.level;
+          tags.appendChild(cl);
+        }
+
+        if (article.layout === "wide-checklist") {
+          var checklist = document.createElement("div");
+          checklist.className = "checklist-items";
+          checklist.innerHTML =
+            '<div class="cl-item"><div class="cl-check cl-done">✓</div>Оцени объём реально, а не оптимистично</div>' +
+            '<div class="cl-item"><div class="cl-check cl-done">✓</div>Добавь буфер 30% на непредвиденное</div>' +
+            '<div class="cl-item"><div class="cl-check cl-todo"></div>Напиши письмо с уточнением требований</div>';
+          body.appendChild(visual);
+          body.appendChild(tags);
+          var h3c = document.createElement("h3");
+          h3c.className = "card-title";
+          h3c.textContent = article.title;
+          body.appendChild(h3c);
+          body.appendChild(checklist);
+        } else {
+          body.appendChild(visual);
+          body.appendChild(tags);
+          var h3 = document.createElement("h3");
+          h3.className = "card-title";
+          h3.textContent = article.title;
+          body.appendChild(h3);
+          var desc = document.createElement("p");
+          desc.className = "card-desc";
+          desc.textContent = article.excerpt || "";
+          body.appendChild(desc);
+          if (article.slug === "kb-z2") {
+            var extra = document.createElement("div");
+            extra.style.marginBottom = "12px";
+            extra.innerHTML =
+              '<div style="font-size:11px;color:var(--muted2);margin-bottom:6px;">В этом гайде</div>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted);">' +
+              "<span>📋 Таблица сравнения</span><span>·</span><span>🧮 Калькулятор</span><span>·</span><span>✅ Чек-лист</span></div>";
+            body.appendChild(extra);
+          }
+        }
+
+        var foot = document.createElement("div");
+        foot.className = "card-footer";
+        var read = document.createElement("span");
+        read.className = "card-read-btn";
+        read.textContent = "Читать →";
+        var save = document.createElement("button");
+        save.type = "button";
+        save.className = "card-save";
+        save.textContent = "♡";
+        save.setAttribute("aria-label", "Сохранить в избранное");
+        save.setAttribute("aria-pressed", "false");
+        save.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSave(save);
+        });
+        foot.appendChild(read);
+        foot.appendChild(save);
+        body.appendChild(foot);
+
+        card.appendChild(body);
+        return card;
+      }
+
+      function line(size) {
+        var d = document.createElement("div");
+        d.className = "cvp-line cvp-line-" + size;
+        return d;
+      }
+
+      function readCriteria() {
+        return {
+          category: activeCategory,
+          level: activeLevel,
+          searchRaw: (searchInput && searchInput.value ? searchInput.value : "").trim()
+        };
+      }
+
+      async function render() {
+        if (articlesEl) {
+          articlesEl.innerHTML = '<p class="muted">Загрузка материалов…</p>';
+        }
+        await ensureGlobalStats();
+
+        var criteria = readCriteria();
+        var result = await fetchArticlesFromSupabase(criteria);
+
+        if (articlesEl) articlesEl.innerHTML = "";
+
+        if (result.error) {
+          console.error(result.error);
+          if (emptyEl) {
+            emptyEl.querySelector(".kb-empty-title").textContent = "Ошибка загрузки";
+            emptyEl.querySelector(".kb-empty-text").textContent =
+              "Проверьте ключ anon в Supabase и политики RLS для таблицы articles.";
+            emptyEl.hidden = false;
+          }
+          if (featuredEl) featuredEl.hidden = true;
+          return;
+        }
+
+        var all = result.data || [];
+        var featuredRow = null;
+        all.forEach(function (r) {
+          if (r.slug === "kb-r1") featuredRow = r;
+        });
+        var showFeatured = !!featuredRow;
+        if (featuredEl) {
+          featuredEl.hidden = !showFeatured;
+          if (showFeatured) syncFeaturedBlock(featuredRow);
+        }
+
+        var gridSource = showFeatured ? all.filter(function (a) { return a.slug !== "kb-r1"; }) : all;
+
+        if (articlesEl) {
+          gridSource.forEach(function (article) {
+            articlesEl.appendChild(buildCard(article));
+          });
+        }
+
+        if (emptyEl) emptyEl.hidden = all.length > 0;
+
+        if (gridMetaEl) {
+          var y = totalPublishedCount != null ? totalPublishedCount : all.length;
+          gridMetaEl.textContent = all.length + " из " + y;
+        }
+      }
+
+      function scheduleRender() {
+        clearTimeout(filterTimer);
+        filterTimer = setTimeout(function () {
+          void render();
+        }, filterDebounceMs);
+      }
+
+      if (tabsEl) {
+        tabsEl.addEventListener("click", function (e) {
+          var btn = e.target.closest(".fb-pill");
+          if (!btn || !tabsEl.contains(btn)) return;
+          var cat = btn.getAttribute("data-category");
+          if (cat == null) return;
+          setActiveCategory(cat);
+          void render();
+        });
+      }
+
+      if (levelEl) {
+        levelEl.addEventListener("click", function (e) {
+          var btn = e.target.closest(".level-pill");
+          if (!btn || !levelEl.contains(btn)) return;
+          var lvl = btn.getAttribute("data-level");
+          if (lvl == null) return;
+          setActiveLevel(lvl);
+          void render();
+        });
+      }
+
+      if (searchInput) searchInput.addEventListener("input", scheduleRender);
+      if (searchBtn) searchBtn.addEventListener("click", function () { void render(); });
+
+      void render();
+    })();
+  </script>
+</body>
+</html>

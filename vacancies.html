@@ -1,130 +1,664 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CareerLab - Vacancies</title>
+  <title>CareerLab — вакансии и стажировки для студентов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="careerlab-ui.css">
 </head>
-<body>
+<body class="careerlab-site">
   <header class="topbar">
     <div class="container nav-wrap">
       <a href="index.html" class="logo"><span class="logo-mark">C</span>CareerLab</a>
       <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="vacancies.html" class="active-link">Vacancies</a>
-        <a href="#">Resume AI</a>
-        <a href="#">Interview Prep</a>
-        <a href="#">Mentorship</a>
-        <a href="#">Knowledge Base</a>
-        <a href="#">Research</a>
-        <a href="office.html">Personal Office</a>
+        <a href="index.html">Главная</a>
+        <a href="vacancies.html" class="active-link">Вакансии</a>
+        <a href="knowledge-base.html">База знаний</a>
+        <a href="research.html">Исследования</a>
+        <a href="office.html">Личный кабинет</a>
       </nav>
-      <a class="btn btn-dark" href="office.html">Open Office</a>
+      <a class="btn btn-dark" href="office.html">В кабинет</a>
     </div>
   </header>
 
   <main>
-    <section class="section">
-      <div class="container">
-        <article class="panel panel-lime">
-          <h1 class="page-title">Vacancy Base</h1>
-          <p class="hero-text">Find internships and junior jobs with transparent filters and AI-based matching.</p>
-          <div class="search-line">
-            <input class="search-input" type="text" placeholder="Search by role, company, or skill">
-            <button class="btn btn-coral">Search</button>
-          </div>
-        </article>
+    <div class="page-header">
+      <div class="page-header-inner">
+        <p class="ph-eyebrow">Стажировки и junior-позиции</p>
+        <h1 class="ph-title">Вакансии, где вас ждут</h1>
+        <div class="ph-search" role="search">
+          <label class="visually-hidden" for="vacancy-q">Поиск по вакансиям</label>
+          <input id="vacancy-q" type="search" placeholder="Например: аналитик, Python, удалённо…" autocomplete="off">
+          <button type="button" id="vacancy-search-btn">Найти вакансии</button>
+        </div>
       </div>
-    </section>
+    </div>
 
-    <section class="section">
-      <div class="container layout-2col">
-        <aside class="panel filter-panel">
-          <h2>Filters</h2>
-          <label class="filter-item">
-            Role
-            <select>
-              <option>Any role</option>
-              <option>Frontend</option>
-              <option>Backend</option>
-              <option>Analytics</option>
-              <option>Product</option>
-            </select>
-          </label>
-          <label class="filter-item">
-            City
-            <select>
-              <option>Any city</option>
-              <option>Remote</option>
-              <option>Moscow</option>
-              <option>Saint Petersburg</option>
-            </select>
-          </label>
-          <label class="filter-item">
-            Employment
-            <select>
-              <option>Any type</option>
-              <option>Internship</option>
-              <option>Part-time</option>
-              <option>Full-time</option>
-            </select>
-          </label>
-          <label class="filter-item">
-            Salary from
-            <input type="number" placeholder="500">
-          </label>
-          <div class="quick-stack">
-            <button class="btn btn-light btn-small">Remote only</button>
-            <button class="btn btn-light btn-small">No experience</button>
-            <button class="btn btn-light btn-small">Paid internship</button>
+    <section class="jl-section">
+      <div class="jl-grid">
+        <aside class="filter-panel filter-panel-sticky">
+          <div class="filter-panel-inner">
+          <div class="filter-panel-header">
+            <h2 class="filter-panel-heading">Фильтры</h2>
+            <button type="button" class="filter-reset-link" id="filters-reset-btn" aria-label="Сбросить фильтры">
+              <span class="filter-reset-icon" aria-hidden="true">✕</span>
+              <span>Сбросить фильтры</span>
+            </button>
           </div>
-          <button class="btn btn-dark">Apply filters</button>
+          <form class="filter-form" id="vacancy-filters" action="#" method="get">
+            <div class="filter-groups">
+              <div class="filter-group">
+                <p class="filter-group-title" id="filter-sphere">Сфера</p>
+                <button type="button" class="filter-select-all">Выбрать все</button>
+                <div class="filter-check-list" role="group" aria-labelledby="filter-sphere">
+                  <label class="filter-check">
+                    <input type="checkbox" name="sphere" value="it">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>IT</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="sphere" value="design">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Дизайн</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="sphere" value="marketing">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Маркетинг</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="sphere" value="analytics">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Аналитика</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <p class="filter-group-title" id="filter-exp">Опыт</p>
+                <button type="button" class="filter-select-all">Выбрать все</button>
+                <div class="filter-check-list" role="group" aria-labelledby="filter-exp">
+                  <label class="filter-check">
+                    <input type="checkbox" name="exp" value="none">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Без опыта</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="exp" value="lt1">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>До 1 года</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="exp" value="1-3">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>1–3 года</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="exp" value="gte3">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>От 3 лет</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <p class="filter-group-title" id="filter-format">Формат</p>
+                <button type="button" class="filter-select-all">Выбрать все</button>
+                <div class="filter-check-list" role="group" aria-labelledby="filter-format">
+                  <label class="filter-check">
+                    <input type="checkbox" name="format" value="remote">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Удалёнка</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="format" value="hybrid">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Гибрид</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="format" value="office">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Офис</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <p class="filter-group-title" id="filter-type">Тип</p>
+                <button type="button" class="filter-select-all">Выбрать все</button>
+                <div class="filter-check-list" role="group" aria-labelledby="filter-type">
+                  <label class="filter-check">
+                    <input type="checkbox" name="type" value="internship">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Стажировка</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="type" value="project">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Проектная работа</span>
+                  </label>
+                  <label class="filter-check">
+                    <input type="checkbox" name="type" value="parttime">
+                    <span class="filter-check-box" aria-hidden="true"></span>
+                    <span>Подработка</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="filter-group filter-group--salary">
+                <p class="filter-group-title" id="filter-salary">Зарплата</p>
+                <button type="button" class="filter-select-all">Выбрать все</button>
+                <p class="filter-salary-hint">Пустые поля — без фильтра по сумме. «Выбрать все» сбрасывает диапазон.</p>
+                <div class="filter-salary-row">
+                  <label class="filter-salary-field">
+                    <span class="filter-salary-label">От</span>
+                    <input id="salary-from" class="filter-salary-input" type="number" name="salary_from" min="0" step="1000" inputmode="numeric" placeholder="—" aria-labelledby="filter-salary">
+                    <span class="filter-salary-currency">₽</span>
+                  </label>
+                  <label class="filter-salary-field">
+                    <span class="filter-salary-label">До</span>
+                    <input id="salary-to" class="filter-salary-input" type="number" name="salary_to" min="0" step="1000" inputmode="numeric" placeholder="—" aria-labelledby="filter-salary">
+                    <span class="filter-salary-currency">₽</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="filter-bottom-actions">
+              <button type="button" class="btn btn-dark filter-submit-btn" id="filters-apply-btn">Искать</button>
+            </div>
+
+          </form>
+          </div>
         </aside>
 
-        <div>
-          <div class="results-head">
-            <h2>Found 2,314 vacancies</h2>
-            <a href="#" class="text-link">Save this filter set</a>
+        <div class="vacancies-main jl-results">
+          <div class="results-meta">
+            <h2 class="results-count">Найдено <span id="vacancy-count">—</span> <span id="vacancy-count-label">вакансий</span> <span class="muted">по вашим условиям</span></h2>
+            <select class="sort-select" aria-label="Сортировка" disabled title="Скоро">
+              <option>Сначала новые</option>
+              <option>По зарплате ↑</option>
+              <option>По зарплате ↓</option>
+              <option>По релевантности</option>
+            </select>
           </div>
 
-          <div class="results-list">
-            <article class="result-card">
-              <div>
-                <p class="company">Nova Bank</p>
-                <h3>Junior Product Analyst</h3>
-                <p>Hybrid, part-time, 80 000-110 000 RUB</p>
-              </div>
-              <div class="score">Match 93%</div>
-              <a class="btn btn-coral btn-small" href="#">Apply</a>
-            </article>
-
-            <article class="result-card">
-              <div>
-                <p class="company">Orbit Tech</p>
-                <h3>Frontend Intern (React)</h3>
-                <p>Remote, internship, paid</p>
-              </div>
-              <div class="score">Match 88%</div>
-              <a class="btn btn-coral btn-small" href="#">Apply</a>
-            </article>
-
-            <article class="result-card">
-              <div>
-                <p class="company">Data Core</p>
-                <h3>Data Analyst Trainee</h3>
-                <p>Office, full-time, mentorship track</p>
-              </div>
-              <div class="score">Match 85%</div>
-              <a class="btn btn-coral btn-small" href="#">Apply</a>
-            </article>
+          <div class="active-chips" id="active-filters" hidden>
+            <span class="active-filters-kicker">Активные фильтры</span>
+            <ul class="active-filters-list" id="active-filters-list" aria-label="Активные фильтры"></ul>
           </div>
+
+          <p class="vacancies-empty" id="vacancies-empty" hidden>Ничего не нашли, попробуй изменить фильтры.</p>
+
+          <div class="jobs-list" id="vacancies-list"></div>
         </div>
       </div>
     </section>
   </main>
+
+  <footer class="footer section">
+    <div class="container footer-wrap">
+      <p>CareerLab, 2026</p>
+      <div class="footer-links">
+        <a href="index.html">О платформе</a>
+        <a href="knowledge-base.html">Вопросы и ответы</a>
+        <a href="office.html">Контакты</a>
+        <a href="research.html">Как мы считаем данные</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    (function () {
+      var SUPABASE_URL = "https://qrxcfawhhycdhbhgqwdk.supabase.co";
+      var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyeGNmYXdoaHljZGhiaGdxd2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjA2MDYsImV4cCI6MjA5MjA5NjYwNn0.2ydIH5_h9xgheTC476BfxK89GDK6V-mW9OnIKhj_SnM";
+
+      var createClient = window.supabase && window.supabase.createClient;
+      if (!createClient || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error("Supabase SDK или ключи не загружены.");
+        return;
+      }
+      var sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      var form = document.getElementById("vacancy-filters");
+      var list = document.getElementById("vacancies-list");
+      var countEl = document.getElementById("vacancy-count");
+      var countLabelEl = document.getElementById("vacancy-count-label");
+      var emptyEl = document.getElementById("vacancies-empty");
+      var qInput = document.getElementById("vacancy-q");
+      var searchBtn = document.getElementById("vacancy-search-btn");
+      var filtersResetBtn = document.getElementById("filters-reset-btn");
+      var filtersApplyBtn = document.getElementById("filters-apply-btn");
+      var filterPanel = document.querySelector(".filter-panel-sticky");
+      var vacanciesMain = document.querySelector(".vacancies-main");
+      var activeFiltersWrap = document.getElementById("active-filters");
+      var activeFiltersList = document.getElementById("active-filters-list");
+
+      var filterDebounceMs = 240;
+      var filterTimer = null;
+
+      var EXP_LABEL = { none: "Без опыта", lt1: "До 1 года", "1-3": "1–3 года", gte3: "От 3 лет" };
+      var FORMAT_LABEL = { remote: "Удалённо", hybrid: "Гибрид", office: "Офис" };
+      var TYPE_CLASS = { internship: "jtag-type-intern", project: "jtag-type-project", parttime: "jtag-type-project" };
+      var TYPE_LABEL = { internship: "Стажировка", project: "Проект", parttime: "Подработка" };
+      var BONUS_LABEL = {
+        mentor: "Ментор внутри",
+        "paid-intern": "Оплачиваемая стажировка",
+        "edu-pay": "Доплата за обучение"
+      };
+
+      function checkedValues(name) {
+        if (!form) return [];
+        return Array.prototype.map.call(
+          form.querySelectorAll('input[name="' + name + '"]:checked'),
+          function (i) {
+            return i.value;
+          }
+        );
+      }
+
+      function parseSalaryInput(el) {
+        if (!el || el.value === "" || el.value === null) return null;
+        var n = parseInt(el.value, 10);
+        return isNaN(n) ? null : n;
+      }
+
+      function ruVacanciesWord(n) {
+        n = Math.abs(n) % 100;
+        var n1 = n % 10;
+        if (n > 10 && n < 20) return "вакансий";
+        if (n1 > 1 && n1 < 5) return "вакансии";
+        if (n1 === 1) return "вакансия";
+        return "вакансий";
+      }
+
+      function groupPrefixForInput(name) {
+        var map = { sphere: "Сфера", exp: "Опыт", format: "Формат", type: "Тип" };
+        return map[name] || "";
+      }
+
+      function labelTextForCheckbox(cb) {
+        var lab = cb.closest("label");
+        if (!lab) return cb.value;
+        var spans = lab.querySelectorAll("span");
+        if (!spans.length) return cb.value;
+        return spans[spans.length - 1].textContent.trim() || cb.value;
+      }
+
+      function formatRub(n) {
+        return n.toLocaleString("ru-RU");
+      }
+
+      function escapeIlikePattern(s) {
+        return s.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").replace(/,/g, " ");
+      }
+
+      /**
+       * Загрузка вакансий из Supabase: фильтры сфера / опыт / формат / тип — через .eq() и .or(eq…);
+       * пересечение по зарплате — .lte() / .gte(); поиск — .ilike() по title, company, description.
+       */
+      function fetchVacanciesFromSupabase(criteria) {
+        var q = sb.from("vacancies").select("*").eq("is_published", true);
+
+        if (criteria.spheres.length === 1) {
+          q = q.eq("sphere", criteria.spheres[0]);
+        } else if (criteria.spheres.length > 1) {
+          q = q.or(criteria.spheres.map(function (s) { return "sphere.eq." + s; }).join(","));
+        }
+
+        if (criteria.exps.length === 1) {
+          q = q.eq("exp", criteria.exps[0]);
+        } else if (criteria.exps.length > 1) {
+          q = q.or(criteria.exps.map(function (s) { return "exp.eq." + s; }).join(","));
+        }
+
+        if (criteria.formats.length === 1) {
+          q = q.eq("format", criteria.formats[0]);
+        } else if (criteria.formats.length > 1) {
+          q = q.or(criteria.formats.map(function (s) { return "format.eq." + s; }).join(","));
+        }
+
+        if (criteria.types.length === 1) {
+          q = q.eq("employment_type", criteria.types[0]);
+        } else if (criteria.types.length > 1) {
+          q = q.or(criteria.types.map(function (s) { return "employment_type.eq." + s; }).join(","));
+        }
+
+        if (criteria.salaryFilterOn) {
+          q = q
+            .not("salary_min", "is", null)
+            .not("salary_max", "is", null)
+            .lte("salary_min", criteria.userHi)
+            .gte("salary_max", criteria.userLo);
+        }
+
+        if (criteria.searchRaw) {
+          var pat = "%" + escapeIlikePattern(criteria.searchRaw) + "%";
+          q = q.or(
+            "title.ilike." + pat + ",company.ilike." + pat + ",description.ilike." + pat
+          );
+        }
+
+        q = q.order("is_featured", { ascending: false }).order("published_at", { ascending: false });
+
+        return q;
+      }
+
+      function relativePublishedLabel(iso) {
+        var d = new Date(iso);
+        var now = new Date();
+        var diffMs = now.getTime() - d.getTime();
+        var days = Math.floor(diffMs / 86400000);
+        if (days <= 0) return "Сегодня";
+        if (days === 1) return "Вчера";
+        if (days < 7) return days + " дн. назад";
+        if (days < 14) return "1 неделю назад";
+        if (days < 30) return "2 недели назад";
+        if (days < 45) return "1 месяц назад";
+        return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+      }
+
+      function salaryBlockHtml(row) {
+        if (row.salary_min != null && row.salary_max != null) {
+          return (
+            '<div class="job-salary">' +
+            formatRub(row.salary_min) +
+            "&nbsp;— " +
+            formatRub(row.salary_max) +
+            "&nbsp;₽</div>"
+          );
+        }
+        return '<div class="job-salary na">Не указана</div>';
+      }
+
+      function buildVacancyCard(row) {
+        var root = document.createElement("article");
+        root.className = "job-card vacancy-card-modern";
+        if (row.is_featured) {
+          root.classList.add("featured");
+        }
+        root.dataset.slug = row.slug;
+        root.dataset.sphere = row.sphere;
+        root.dataset.exp = row.exp;
+        root.dataset.format = row.format;
+        root.dataset.type = row.employment_type;
+        if (row.salary_min != null) root.setAttribute("data-salary-min", String(row.salary_min));
+        if (row.salary_max != null) root.setAttribute("data-salary-max", String(row.salary_max));
+
+        var detailHref = "vacancy.html?slug=" + encodeURIComponent(row.slug);
+
+        var html = "";
+        if (row.is_featured) {
+          html += '<span class="featured-badge">Рекомендуем</span>';
+        }
+        html += '<div class="job-card-top"><div class="job-card-left">';
+        html += '<div class="job-co"></div><h3 class="job-title"></h3></div>';
+        html += '<div class="job-salary-block">' + salaryBlockHtml(row) + "</div></div>";
+        html += '<ul class="job-tags" aria-label="Условия"></ul>';
+        html += '<p class="job-desc"></p><footer class="job-card-bottom"><div class="job-actions">';
+        html +=
+          '<a class="job-btn-primary vacancy-card-btn" href="office.html">Откликнуться</a>' +
+          '<a class="job-btn-secondary vacancy-card-btn" href="' +
+          detailHref +
+          '">Подробнее</a></div>';
+        html += '<div class="job-meta-right"></div></footer>';
+
+        root.innerHTML = html;
+        root.querySelector(".job-co").textContent = row.company;
+        root.querySelector(".job-title").textContent = row.title;
+        root.querySelector(".job-desc").textContent = row.description;
+
+        var tags = root.querySelector(".job-tags");
+        function addTag(className, text) {
+          var li = document.createElement("li");
+          var span = document.createElement("span");
+          span.className = className;
+          span.textContent = text;
+          li.appendChild(span);
+          tags.appendChild(li);
+        }
+        addTag("jtag jtag-exp", EXP_LABEL[row.exp] || row.exp);
+        if (/junior/i.test(row.title)) {
+          addTag("jtag jtag-type-junior", "Junior");
+        }
+        addTag("jtag " + (TYPE_CLASS[row.employment_type] || "jtag-type-intern"), TYPE_LABEL[row.employment_type] || row.employment_type);
+        addTag("jtag jtag-format", FORMAT_LABEL[row.format] || row.format);
+        (row.bonus_tags || []).forEach(function (b) {
+          if (BONUS_LABEL[b]) addTag("jtag jtag-format", BONUS_LABEL[b]);
+        });
+
+        var meta = root.querySelector(".job-meta-right");
+        if (row.is_new) {
+          var nb = document.createElement("span");
+          nb.className = "job-new-badge";
+          nb.textContent = "Новая";
+          meta.appendChild(nb);
+        }
+        var dateEl = document.createElement("span");
+        dateEl.className = "job-date";
+        dateEl.textContent = relativePublishedLabel(row.published_at);
+        meta.appendChild(dateEl);
+
+        return root;
+      }
+
+      function updateActiveFiltersUI() {
+        if (!form || !activeFiltersWrap || !activeFiltersList) return;
+        activeFiltersList.innerHTML = "";
+
+        Array.prototype.forEach.call(form.querySelectorAll('input[type="checkbox"]:checked'), function (cb) {
+          var li = document.createElement("li");
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "active-filter-pill";
+          btn.setAttribute("aria-label", "Убрать фильтр: " + groupPrefixForInput(cb.name) + " " + labelTextForCheckbox(cb));
+          btn.textContent = groupPrefixForInput(cb.name) + ": " + labelTextForCheckbox(cb);
+          btn.addEventListener("click", function () {
+            cb.checked = false;
+            applyFilters();
+          });
+          li.appendChild(btn);
+          activeFiltersList.appendChild(li);
+        });
+
+        var fromEl = form.querySelector('[name="salary_from"]');
+        var toEl = form.querySelector('[name="salary_to"]');
+        var sf = parseSalaryInput(fromEl);
+        var st = parseSalaryInput(toEl);
+        if (sf !== null || st !== null) {
+          var parts = [];
+          if (sf !== null) parts.push("от " + formatRub(sf) + " ₽");
+          if (st !== null) parts.push("до " + formatRub(st) + " ₽");
+          var li = document.createElement("li");
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "active-filter-pill";
+          btn.setAttribute("aria-label", "Убрать фильтр по зарплате");
+          btn.textContent = "Зарплата: " + parts.join(" — ");
+          btn.addEventListener("click", function () {
+            if (fromEl) fromEl.value = "";
+            if (toEl) toEl.value = "";
+            applyFilters();
+          });
+          li.appendChild(btn);
+          activeFiltersList.appendChild(li);
+        }
+
+        if (qInput && qInput.value.trim()) {
+          var qRaw = qInput.value.trim();
+          var li = document.createElement("li");
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "active-filter-pill";
+          btn.setAttribute("aria-label", "Убрать поиск");
+          btn.textContent = "Поиск: " + qRaw;
+          btn.addEventListener("click", function () {
+            qInput.value = "";
+            applyFilters();
+          });
+          li.appendChild(btn);
+          activeFiltersList.appendChild(li);
+        }
+
+        activeFiltersWrap.hidden = activeFiltersList.children.length === 0;
+      }
+
+      function readCriteria() {
+        var fromEl = form && form.querySelector('[name="salary_from"]');
+        var toEl = form && form.querySelector('[name="salary_to"]');
+        var salaryFrom = parseSalaryInput(fromEl);
+        var salaryTo = parseSalaryInput(toEl);
+        return {
+          spheres: checkedValues("sphere"),
+          exps: checkedValues("exp"),
+          formats: checkedValues("format"),
+          types: checkedValues("type"),
+          salaryFilterOn: salaryFrom !== null || salaryTo !== null,
+          userLo: salaryFrom !== null ? salaryFrom : 0,
+          userHi: salaryTo !== null ? salaryTo : 900000000,
+          searchRaw: (qInput && qInput.value ? qInput.value : "").trim()
+        };
+      }
+
+      async function reloadVacancies(preservePanelPosition) {
+        if (!list) return;
+        var shouldPreserve = preservePanelPosition !== false;
+        var panelTopBefore = null;
+        if (shouldPreserve && filterPanel) {
+          panelTopBefore = filterPanel.getBoundingClientRect().top;
+        }
+
+        list.innerHTML = '<p class="muted" id="vacancies-loading">Загрузка вакансий…</p>';
+        updateActiveFiltersUI();
+
+        var criteria = readCriteria();
+        var result = await fetchVacanciesFromSupabase(criteria);
+
+        list.innerHTML = "";
+        if (result.error) {
+          console.error(result.error);
+          if (emptyEl) {
+            emptyEl.textContent = "Не удалось загрузить вакансии. Проверьте ключ anon в Supabase и политики RLS.";
+            emptyEl.hidden = false;
+          }
+          if (countEl) countEl.textContent = "0";
+          if (countLabelEl) countLabelEl.textContent = ruVacanciesWord(0);
+          return;
+        }
+
+        var rows = result.data || [];
+        if (countEl) countEl.textContent = String(rows.length);
+        if (countLabelEl) countLabelEl.textContent = ruVacanciesWord(rows.length);
+        if (emptyEl) {
+          emptyEl.textContent = "Ничего не нашли, попробуй изменить фильтры.";
+          emptyEl.hidden = rows.length > 0;
+        }
+
+        rows.forEach(function (row) {
+          list.appendChild(buildVacancyCard(row));
+        });
+
+        updateActiveFiltersUI();
+
+        if (shouldPreserve && filterPanel && panelTopBefore !== null) {
+          var panelTopAfter = filterPanel.getBoundingClientRect().top;
+          var shift = panelTopAfter - panelTopBefore;
+          if (Math.abs(shift) > 0.5) {
+            window.scrollBy(0, shift);
+          }
+        }
+      }
+
+      function applyFilters(preservePanelPosition) {
+        clearTimeout(filterTimer);
+        var immediate = preservePanelPosition === false;
+        filterTimer = setTimeout(
+          function () {
+            void reloadVacancies(preservePanelPosition);
+          },
+          immediate ? 0 : filterDebounceMs
+        );
+      }
+
+      document.querySelectorAll(".filter-select-all").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var group = btn.closest(".filter-group");
+          if (!group) return;
+          if (group.classList.contains("filter-group--salary")) {
+            group.querySelectorAll(".filter-salary-input").forEach(function (input) {
+              input.value = "";
+            });
+          } else {
+            var boxes = group.querySelectorAll('.filter-check-list input[type="checkbox"]');
+            if (!boxes.length) return;
+            var allChecked = Array.prototype.every.call(boxes, function (c) {
+              return c.checked;
+            });
+            Array.prototype.forEach.call(boxes, function (c) {
+              c.checked = !allChecked;
+            });
+          }
+          applyFilters();
+        });
+      });
+
+      if (form) {
+        form.addEventListener("change", function () {
+          applyFilters();
+        });
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          applyFilters();
+        });
+        form.querySelectorAll(".filter-salary-input").forEach(function (inp) {
+          inp.addEventListener("input", function () {
+            applyFilters();
+          });
+        });
+      }
+
+      if (qInput) {
+        qInput.addEventListener("input", function () {
+          applyFilters();
+        });
+      }
+
+      if (searchBtn) {
+        searchBtn.addEventListener("click", function () {
+          applyFilters();
+        });
+      }
+
+      if (filtersResetBtn && form) {
+        filtersResetBtn.addEventListener("click", function () {
+          form.querySelectorAll('input[type="checkbox"]').forEach(function (input) {
+            input.checked = false;
+          });
+          form.querySelectorAll(".filter-salary-input").forEach(function (input) {
+            input.value = "";
+          });
+          if (qInput) qInput.value = "";
+          applyFilters();
+        });
+      }
+
+      if (filtersApplyBtn) {
+        filtersApplyBtn.addEventListener("click", function () {
+          applyFilters();
+          if (vacanciesMain) {
+            vacanciesMain.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }
+
+      applyFilters(false);
+    })();
+  </script>
+
+
 </body>
 </html>

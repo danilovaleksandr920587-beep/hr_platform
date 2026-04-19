@@ -1,29 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CareerLab - Personal Office</title>
+  <title>CareerLab — личный кабинет</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="careerlab-ui.css">
 </head>
-<body>
+<body class="careerlab-site">
   <header class="topbar">
     <div class="container nav-wrap">
       <a href="index.html" class="logo"><span class="logo-mark">C</span>CareerLab</a>
       <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="vacancies.html">Vacancies</a>
-        <a href="#">Resume AI</a>
-        <a href="#">Interview Prep</a>
-        <a href="#">Mentorship</a>
-        <a href="#">Knowledge Base</a>
-        <a href="#">Research</a>
-        <a href="office.html" class="active-link">Personal Office</a>
+        <a href="index.html">Главная</a>
+        <a href="vacancies.html">Вакансии</a>
+        <a href="knowledge-base.html">База знаний</a>
+        <a href="research.html">Исследования</a>
+        <a href="office.html" class="active-link">Личный кабинет</a>
       </nav>
-      <a class="btn btn-dark" href="#">Logout</a>
+      <a class="btn btn-dark" href="index.html">Выйти</a>
     </div>
   </header>
 
@@ -31,8 +29,22 @@
     <section class="section">
       <div class="container">
         <article class="panel panel-lime">
-          <h1 class="page-title">Personal Office</h1>
-          <p class="hero-text">Your single control center for resume, applications, interview prep, and mentorship.</p>
+          <h1 class="page-title">Всё по карьере — в одном окне</h1>
+          <p class="hero-text">Резюме, отклики, тренировки и менторы рядом: меньше табов в браузере, больше ясности, что сделать сегодня.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <article class="panel next-step">
+          <p class="kicker">С чего начать сегодня</p>
+          <h2>Три целевых отклика — и резюме под них</h2>
+          <p class="muted">Сначала подтяните резюме под одну-две вакансии из избранного, потом отправьте три отклика: так выше шанс ответа в течение недели.</p>
+          <div class="hero-actions">
+            <a href="knowledge-base.html" class="btn btn-dark btn-small">Открыть гайд по резюме</a>
+            <a href="vacancies.html" class="btn btn-light btn-small">Открыть подборку</a>
+          </div>
         </article>
       </div>
     </section>
@@ -40,24 +52,24 @@
     <section class="section">
       <div class="container office-dashboard">
         <article class="widget">
-          <h3>Profile completion</h3>
+          <h3>Профиль</h3>
           <p class="big-metric">78%</p>
-          <p>Add portfolio and preferred salary to unlock better recommendations.</p>
-          <a href="#" class="btn btn-light btn-small">Complete profile</a>
+          <p>Добавьте портфолио и желаемую вилку — подбор вакансий станет точнее.</p>
+          <a href="#" class="btn btn-light btn-small">Дополнить профиль</a>
         </article>
 
         <article class="widget">
-          <h3>Resume AI score</h3>
+          <h3>Резюме с ИИ</h3>
           <p class="big-metric">84/100</p>
-          <p>3 issues found for Product Analyst roles.</p>
-          <a href="#" class="btn btn-light btn-small">Optimize resume</a>
+          <p>Три быстрых правки усилят совпадение с вакансиями продуктового аналитика.</p>
+          <a href="#" class="btn btn-light btn-small">Открыть правки</a>
         </article>
 
         <article class="widget">
-          <h3>Applications</h3>
+          <h3>Отклики</h3>
           <p class="big-metric">19</p>
-          <p>5 in review, 2 interviews scheduled.</p>
-          <a href="#" class="btn btn-light btn-small">Open pipeline</a>
+          <p>Пять в работе у работодателей, два интервью в календаре.</p>
+          <a href="#" class="btn btn-light btn-small">Смотреть воронку</a>
         </article>
       </div>
     </section>
@@ -65,30 +77,62 @@
     <section class="section">
       <div class="container duo">
         <article class="panel">
-          <h2>Interview Preparation</h2>
+          <h2>Собеседования</h2>
           <div class="list-row">
-            <p>Mock interviews completed</p>
+            <p>Тренировок с разбором</p>
             <strong>7</strong>
           </div>
           <div class="list-row">
-            <p>Case tasks solved</p>
+            <p>Кейсов закрыто</p>
             <strong>14</strong>
           </div>
           <div class="list-row">
-            <p>Top weak topic</p>
-            <strong>SQL joins</strong>
+            <p>Сейчас прокачать</p>
+            <strong>SQL и JOIN</strong>
           </div>
-          <a href="#" class="btn btn-coral btn-small">Continue training</a>
+          <a href="#" class="btn btn-coral btn-small">Продолжить подготовку</a>
         </article>
 
         <article class="panel panel-coral">
-          <h2>Mentorship</h2>
-          <p>Next session: Tuesday, 18:00 with Anna (Senior Product Manager).</p>
-          <p>Focus: product metrics cases and interview communication.</p>
-          <a href="#" class="btn btn-light btn-small">Open mentorship</a>
+          <h2>Ментор</h2>
+          <p>Следующая встреча: вт 18:00, Анна (Senior Product Manager).</p>
+          <p>Тема: метрики продукта и уверенная подача на ответах.</p>
+          <a href="#" class="btn btn-light btn-small">К расписанию</a>
         </article>
       </div>
     </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">Быстрые переходы</h2>
+        <div class="pillars-mini">
+          <a href="knowledge-base.html" class="pillar-card">
+            <h3>Резюме с ИИ</h3>
+            <p>Проверка и версии под каждый отклик.</p>
+          </a>
+          <a href="vacancies.html" class="pillar-card">
+            <h3>Вакансии</h3>
+            <p>Подбор и насколько вы подходите роли.</p>
+          </a>
+          <a href="knowledge-base.html" class="pillar-card">
+            <h3>Собеседования</h3>
+            <p>Тренировки и вопросы по направлению.</p>
+          </a>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer section">
+    <div class="container footer-wrap">
+      <p>CareerLab, 2026</p>
+      <div class="footer-links">
+        <a href="index.html">О платформе</a>
+        <a href="knowledge-base.html">Вопросы и ответы</a>
+        <a href="office.html">Контакты</a>
+        <a href="research.html">Как мы считаем данные</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

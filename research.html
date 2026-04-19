@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerLab — зарплаты и рынок для junior</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="careerlab-ui.css">
+</head>
+<body class="careerlab-site">
+  <header class="topbar">
+    <div class="container nav-wrap">
+      <a href="index.html" class="logo"><span class="logo-mark">C</span>CareerLab</a>
+      <nav class="nav">
+        <a href="index.html">Главная</a>
+        <a href="vacancies.html">Вакансии</a>
+        <a href="knowledge-base.html">База знаний</a>
+        <a href="research.html" class="active-link">Исследования</a>
+        <a href="office.html">Личный кабинет</a>
+      </nav>
+      <a class="btn btn-dark" href="office.html">В кабинет</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <article class="panel panel-lime">
+          <h1 class="page-title">Зарплаты и рынок: смотрите на цифры перед разговором</h1>
+          <p class="hero-text page-lead">
+            Ориентиры по junior и стажировкам — чтобы обсуждать компенсацию спокойно и не продешевить. Ниже пример среза: в продукте подставьте свои опросы и данные по вакансиям.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-coral" href="#data">Смотреть пример таблицы</a>
+            <a class="btn btn-light" href="knowledge-base.html">Как читать такие данные</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="panel filters-inline">
+          <label class="filter-inline">
+            Город
+            <select>
+              <option>Все</option>
+              <option>Москва</option>
+              <option>Санкт-Петербург</option>
+              <option>Удалённо</option>
+            </select>
+          </label>
+          <label class="filter-inline">
+            Направление
+            <select>
+              <option>Все</option>
+              <option>Инженерия</option>
+              <option>Данные</option>
+              <option>Продукт</option>
+            </select>
+          </label>
+          <label class="filter-inline">
+            Когорта
+            <select>
+              <option>Выпуск 2024</option>
+              <option>Выпуск 2025</option>
+              <option>Стажировка</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-dark">Обновить срез</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="data">
+      <div class="container">
+        <h2 class="section-title">Медианная месячная компенсация (пример)</h2>
+        <p class="muted methodology">Иллюстрация для макета. Замените на свои выборки из опросов и вакансий и укажите дату обновления в кабинете.</p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Группа вузов</th>
+                <th>Инженерия</th>
+                <th>Данные</th>
+                <th>Продукт</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Топ STEM (сводно)</td>
+                <td>180–240 тыс. ₽</td>
+                <td>160–220 тыс. ₽</td>
+                <td>150–200 тыс. ₽</td>
+              </tr>
+              <tr>
+                <td>Сильные региональные</td>
+                <td>120–170 тыс. ₽</td>
+                <td>110–150 тыс. ₽</td>
+                <td>100–140 тыс. ₽</td>
+              </tr>
+              <tr>
+                <td>Стажировка (крупный IT)</td>
+                <td>80–120 тыс. ₽</td>
+                <td>70–110 тыс. ₽</td>
+                <td>70–100 тыс. ₽</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <article class="panel key-insights">
+          <h3>Что из этого следует для вас</h3>
+          <ul>
+            <li>Разрыв между «топ STEM» и сильными региональными вузами по junior часто на уровне десятков тысяч ₽ в месяц — закладывайте это в переговоры.</li>
+            <li>Платные стажировки в крупном IT дают самый заметный старт по деньгам в первый год.</li>
+            <li>В продукте на собеседовании чаще всего «продают» кейсы и аналитическое мышло — без этого цифры по зарплате редко закрывают оффер.</li>
+          </ul>
+          <div class="hero-actions">
+            <a class="btn btn-dark btn-small" href="knowledge-base.html">Как обсуждать зарплату</a>
+            <a class="btn btn-light btn-small" href="vacancies.html">Смотреть вакансии в этом диапазоне</a>
+          </div>
+        </article>
+        <div class="panel panel-coral promo-block">
+          <h3>Полный отчёт в кабинете</h3>
+          <p class="muted">Разбивки по размеру компании, стеку и этапам отбора — после входа, в одном файле или дашборде.</p>
+          <a class="btn btn-light" href="office.html">Открыть кабинет</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer section">
+    <div class="container footer-wrap">
+      <p>CareerLab, 2026</p>
+      <div class="footer-links">
+        <a href="index.html">О платформе</a>
+        <a href="knowledge-base.html">Вопросы и ответы</a>
+        <a href="office.html">Контакты</a>
+        <a href="research.html">Как мы считаем данные</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

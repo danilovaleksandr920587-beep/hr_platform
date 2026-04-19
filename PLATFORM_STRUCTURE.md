@@ -1,72 +1,38 @@
 # Career Platform Structure
 
-## Product map
+## Static site map (current)
 
-- `Home` (`index.html`): marketing + dashboard entry
-- `Vacancies` (`vacancies.html`): search, filters, smart recommendations
-- `Personal Office` (`office.html`): user hub and progress control
-- Future modules:
-  - `resume-ai.html`
-  - `interview-prep.html`
-  - `mentorship.html`
-  - `knowledge-base.html`
-  - `research.html`
+| Page | File | Purpose |
+|------|------|---------|
+| Home | `index.html` | Marketing, market stats, quick CTAs, module tiles |
+| Vacancies | `vacancies.html` | Filters, results, smart selection sidebar |
+| Resume AI | `resume-ai.html` | Upload/paste, score panel, optimizer checklist |
+| Interview prep | `interview-prep.html` | Mocks, cases, question bank |
+| Mentorship | `mentorship.html` | Mentor discovery and booking CTAs |
+| Knowledge base | `knowledge-base.html` | Article grid, categories, SEO funnel |
+| Research | `research.html` | Salary/outcomes tables, filters |
+| Personal office | `office.html` | Dashboard, progress, module shortcuts |
 
-## Main navigation
+Shared styles: `styles.css`
 
-- Home
-- Vacancies
-- Resume AI
-- Interview Prep
-- Mentorship
-- Knowledge Base
-- Research
-- Personal Office
+## Main navigation (all pages)
 
-## Information architecture
-
-### 1) Home page
-- Hero with platform value
-- Market stats dashboard
-- Quick action buttons
-- Top vacancies preview
-- Product pillars grid
-- CTA to signup and go to personal office
-
-### 2) Vacancies page
-- Search bar
-- Filter panel:
-  - role
-  - city
-  - salary range
-  - format (remote/hybrid/office)
-  - employment type
-- Vacancy cards list
-- AI smart match sidebar
-- Saved filters and alerts CTA
-
-### 3) Personal office page
-- Profile completion and score
-- Resume versions and ATS scores
-- Application pipeline
-- Interview prep progress
-- Mentor sessions widget
-- Weekly recommendations
-
-## Growth and SEO model
-
-- Knowledge Base articles target informational queries
-- Salary Research targets analytical and authority queries
-- Every article/report includes CTA into:
-  - Resume AI
-  - Vacancies
-  - Interview Prep
+Home · Vacancies · Resume AI · Interview Prep · Mentorship · Knowledge · Research · Personal Office
 
 ## Product loop
 
-1. User lands on Home and signs up
-2. Completes profile and resume
-3. Gets smart vacancies and applies
-4. Trains with interview prep
-5. Uses mentorship for weak areas
-6. Receives weekly recommendations and improves outcomes
+1. Land on Home → sign in (office)
+2. Complete profile and resume (Resume AI)
+3. Search and apply (Vacancies + smart match)
+4. Train (Interview prep)
+5. Get help (Mentorship)
+6. Read and share (Knowledge + Research)
+
+## Next engineering steps (beyond static HTML)
+
+- Backend auth and user profile API
+- Vacancy ingestion and real search
+- Resume parser and scoring service
+- Interview session scheduling and recording
+- CMS or database for knowledge base articles
+- Research data pipeline and charts

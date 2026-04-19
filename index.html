@@ -1,159 +1,360 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CareerLab - Student Career Dashboard</title>
+  <title>CareerLab — первая работа и стажировки для студентов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="home-redesign.css">
 </head>
-<body>
-  <header class="topbar">
-    <div class="container nav-wrap">
-      <a href="#" class="logo">
-        <span class="logo-mark">C</span>
-        CareerLab
+<body class="home-careerlab">
+
+  <header class="cl-topbar">
+    <div class="cl-topbar-inner">
+      <a href="index.html" class="cl-brand" aria-label="CareerLab — на главную">
+        <span class="cl-brand-mark">C</span>
+        <span class="cl-brand-name">CareerLab</span>
       </a>
-      <nav class="nav">
-        <a href="index.html" class="active-link">Home</a>
-        <a href="vacancies.html">Vacancies</a>
-        <a href="#knowledge">Knowledge</a>
-        <a href="office.html">Personal Office</a>
+      <nav class="cl-topbar-nav" aria-label="Меню">
+        <a href="index.html" class="cl-topbar-link cl-topbar-link--active">Главная</a>
+        <a href="vacancies.html" class="cl-topbar-link">Вакансии</a>
+        <a href="knowledge-base.html" class="cl-topbar-link">База знаний</a>
+        <a href="research.html" class="cl-topbar-link">Исследования</a>
+        <a href="office.html" class="cl-topbar-link">Личный кабинет</a>
       </nav>
-      <a class="btn btn-dark" href="office.html">Sign In</a>
+      <a class="cl-topbar-cta" href="office.html">В кабинет</a>
     </div>
   </header>
 
   <main>
-    <section class="hero section" id="dashboard">
-      <div class="container">
-        <div class="hero-layout">
-          <article class="hero-main panel panel-lime">
-            <h1>Student Career Laboratory</h1>
-            <p class="hero-text">
-              A clear and practical way to find internships, junior roles, and first job offers.
-              Dashboard analytics show where the market is moving right now.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-coral" href="#resume">Create Resume</a>
-              <a class="btn btn-light" href="#vacancies">Find Vacancies</a>
-            </div>
-          </article>
+    <section class="cl-hero" aria-labelledby="cl-hero-title">
+      <div class="cl-hero-blob" aria-hidden="true"></div>
+      <div class="cl-hero-blob2" aria-hidden="true"></div>
 
-          <aside class="hero-stats">
-            <article class="panel panel-coral mini">
-              <p class="mini-label">Market growth</p>
-              <p class="mini-value">+18%</p>
-            </article>
-            <article class="panel panel-lime mini">
-              <p class="mini-label">Open student vacancies</p>
-              <p class="mini-value">12,480</p>
-            </article>
-            <article class="panel panel-lime metric">
-              <p class="mini-label">How many vacancies are there on the market?</p>
-              <p class="metric-value">100+</p>
-              <p class="mini-note">Top employers publish roles every week.</p>
-            </article>
-          </aside>
+      <a href="vacancies.html" class="cl-hero-float">
+        <div class="cl-hf-label">Свежие стажировки</div>
+        <div class="cl-hf-row">
+          <div>
+            <div class="cl-hf-job">Frontend-стажёр</div>
+            <div class="cl-hf-meta">Orbit Tech · Удалённо</div>
+          </div>
+          <span class="cl-hf-tag cl-hf-tag--lime">45–55 тыс</span>
+        </div>
+        <div class="cl-hf-row">
+          <div>
+            <div class="cl-hf-job">Продуктовый аналитик</div>
+            <div class="cl-hf-meta">Nova Bank · Гибрид</div>
+          </div>
+          <span class="cl-hf-tag cl-hf-tag--gray">80–100 тыс</span>
+        </div>
+        <div class="cl-hf-row">
+          <div>
+            <div class="cl-hf-job">Data Engineer</div>
+            <div class="cl-hf-meta">Stream Analytics · Офис</div>
+          </div>
+          <span class="cl-hf-tag cl-hf-tag--gray">120–150 тыс</span>
+        </div>
+      </a>
+
+      <p class="cl-hero-eyebrow">для студентов и выпускников</p>
+      <h1 id="cl-hero-title" class="cl-hero-title">Всё для<br>первого<br><em>оффера.</em></h1>
+      <p class="cl-hero-sub">Стажировки и junior-вакансии, зарплатные ориентиры и гайды к интервью — в одном месте.</p>
+      <div class="cl-hero-search-wrap">
+        <form class="cl-hero-search" action="vacancies.html" method="get" role="search">
+          <label class="visually-hidden" for="cl-hero-q">Поиск вакансии</label>
+          <input id="cl-hero-q" name="q" type="search" autocomplete="off" placeholder="Найти стажировку или junior-вакансию…">
+          <button type="submit">Найти</button>
+        </form>
+      </div>
+      <div class="cl-hero-stats">
+        <div class="cl-hero-stat">
+          <div class="cl-hero-stat-num">12 000+</div>
+          <div class="cl-hero-stat-label">вакансий в базе</div>
+        </div>
+        <div class="cl-hero-stat">
+          <div class="cl-hero-stat-num">2 400+</div>
+          <div class="cl-hero-stat-label">стажировок в 2026</div>
+        </div>
+        <div class="cl-hero-stat">
+          <div class="cl-hero-stat-num">+67%</div>
+          <div class="cl-hero-stat-label">рост рынка за год</div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="vacancies">
-      <div class="container">
-        <div class="panel panel-lime">
-          <h2>Vacancies from top employers</h2>
-          <div class="vacancy-row">
-            <article class="vacancy-card">
-              <p class="company">Nova Bank</p>
-              <h3>Junior Product Analyst</h3>
-              <p>Part-time, hybrid</p>
-              <a href="#" class="btn btn-light btn-small">Apply</a>
-            </article>
-            <article class="vacancy-card">
-              <p class="company">Orbit Tech</p>
-              <h3>Frontend Intern</h3>
-              <p>Remote, paid internship</p>
-              <a href="#" class="btn btn-light btn-small">Apply</a>
-            </article>
-            <article class="vacancy-card">
-              <p class="company">Data Core</p>
-              <h3>Data Trainee</h3>
-              <p>Office, mentorship track</p>
-              <a href="#" class="btn btn-light btn-small">Apply</a>
-            </article>
+    <div class="cl-logos-strip" aria-label="Работодатели">
+      <span class="cl-logos-label">Работодатели</span>
+      <div class="cl-logos-items">
+        <span class="cl-logos-item">Сбер</span>
+        <span class="cl-logos-item">Яндекс</span>
+        <span class="cl-logos-item">Т‑Банк</span>
+        <span class="cl-logos-item">ВТБ</span>
+        <span class="cl-logos-item">МТС</span>
+        <span class="cl-logos-item">Газпром нефть</span>
+        <span class="cl-logos-item">Авито</span>
+        <span class="cl-logos-item">Ozon</span>
+      </div>
+    </div>
+
+    <section class="cl-audience-section" aria-labelledby="cl-aud-title">
+      <div class="cl-audience-inner">
+        <div class="cl-audience-left cl-reveal">
+          <p class="cl-sec-eyebrow">с чего начать</p>
+          <h2 id="cl-aud-title" class="cl-sec-title">Найди своё</h2>
+          <p class="cl-audience-desc">Два пути к первому офферу — выбери сценарий и переходи к подборке вакансий и материалам.</p>
+        </div>
+        <div class="cl-audience-right">
+          <a href="vacancies.html" class="cl-aud-card cl-reveal cl-reveal-d1">
+            <div>
+              <div class="cl-aud-card-num">01</div>
+              <div class="cl-aud-card-title">Я студент</div>
+              <div class="cl-aud-card-desc">Ищу стажировку параллельно с учёбой — оплачиваемую, с гибким графиком и ментором внутри.</div>
+              <div class="cl-aud-pills">
+                <span class="cl-pill cl-pill--lime">Стажировки</span>
+                <span class="cl-pill cl-pill--outline">Частичная занятость</span>
+                <span class="cl-pill cl-pill--outline">Без опыта</span>
+              </div>
+            </div>
+            <div class="cl-aud-arrow" aria-hidden="true">→</div>
+          </a>
+          <a href="vacancies.html" class="cl-aud-card cl-reveal cl-reveal-d2">
+            <div>
+              <div class="cl-aud-card-num">02</div>
+              <div class="cl-aud-card-title">Я выпускник / джун</div>
+              <div class="cl-aud-card-desc">Уже есть база, хочу первую полноценную работу с нормальной зарплатой и ростом.</div>
+              <div class="cl-aud-pills">
+                <span class="cl-pill cl-pill--lime">Junior-позиции</span>
+                <span class="cl-pill cl-pill--outline">Полная занятость</span>
+                <span class="cl-pill cl-pill--outline">От 80 тыс ₽</span>
+              </div>
+            </div>
+            <div class="cl-aud-arrow" aria-hidden="true">→</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cl-directions-section" aria-labelledby="cl-dir-title">
+      <div class="cl-shell">
+        <p class="cl-sec-eyebrow">куда расти</p>
+        <h2 id="cl-dir-title" class="cl-sec-title" style="margin-bottom:36px">Выбери направление</h2>
+        <div class="cl-bento cl-reveal">
+          <a href="vacancies.html" class="cl-bento-card cl-bento-card--large cl-bento-card--featured">
+            <span class="cl-bento-icon" aria-hidden="true">💻</span>
+            <span class="cl-bento-name">IT и разработка</span>
+            <span class="cl-bento-count">4 200 вакансий</span>
+            <span class="cl-bento-num">01</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">📊</span>
+            <span class="cl-bento-name">Аналитика</span>
+            <span class="cl-bento-count">1 800 вакансий</span>
+            <span class="cl-bento-num">02</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">🏦</span>
+            <span class="cl-bento-name">Финансы</span>
+            <span class="cl-bento-count">1 400 вакансий</span>
+            <span class="cl-bento-num">03</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">📣</span>
+            <span class="cl-bento-name">Маркетинг</span>
+            <span class="cl-bento-count">980 вакансий</span>
+            <span class="cl-bento-num">04</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">⚙️</span>
+            <span class="cl-bento-name">Инженерия</span>
+            <span class="cl-bento-count">890 вакансий</span>
+            <span class="cl-bento-num">05</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">🧪</span>
+            <span class="cl-bento-name">QA / тестирование</span>
+            <span class="cl-bento-count">760 вакансий</span>
+            <span class="cl-bento-num">06</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">🎨</span>
+            <span class="cl-bento-name">Дизайн</span>
+            <span class="cl-bento-count">520 вакансий</span>
+            <span class="cl-bento-num">07</span>
+          </a>
+          <a href="vacancies.html" class="cl-bento-card">
+            <span class="cl-bento-icon" aria-hidden="true">📋</span>
+            <span class="cl-bento-name">Менеджмент</span>
+            <span class="cl-bento-count">640 вакансий</span>
+            <span class="cl-bento-num">08</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cl-journey-section" aria-labelledby="cl-journey-title">
+      <div class="cl-journey-inner">
+        <p class="cl-sec-eyebrow">твой путь</p>
+        <h2 id="cl-journey-title" class="cl-sec-title cl-reveal">Как получить первый оффер</h2>
+        <div class="cl-journey-path">
+          <div class="cl-journey-step cl-reveal cl-reveal-d1">
+            <div class="cl-journey-dot cl-journey-dot--lime">01</div>
+            <div class="cl-journey-tag">шаг первый</div>
+            <div class="cl-journey-title">Найди вакансию</div>
+            <p class="cl-journey-desc">Стажировки и junior: уровень, формат и зарплата — в одном списке на странице вакансий.</p>
+            <a class="cl-journey-cta" href="vacancies.html">Смотреть вакансии →</a>
+          </div>
+          <div class="cl-journey-step cl-reveal cl-reveal-d2">
+            <div class="cl-journey-dot cl-journey-dot--outline">02</div>
+            <div class="cl-journey-tag">шаг второй</div>
+            <div class="cl-journey-title">Узнай свою цену</div>
+            <p class="cl-journey-desc">Медианы по направлениям — чтобы называть цифру уверенно и не продешевить.</p>
+            <a class="cl-journey-cta" href="research.html">Смотреть зарплаты →</a>
+          </div>
+          <div class="cl-journey-step cl-reveal cl-reveal-d3">
+            <div class="cl-journey-dot cl-journey-dot--outline">03</div>
+            <div class="cl-journey-tag">шаг третий</div>
+            <div class="cl-journey-title">Подготовься</div>
+            <p class="cl-journey-desc">Резюме, интервью, тестовые задания — короткие гайды с чек-листами, без воды.</p>
+            <a class="cl-journey-cta" href="knowledge-base.html">Читать статьи →</a>
+          </div>
+          <div class="cl-journey-step cl-reveal cl-reveal-d4">
+            <div class="cl-journey-dot cl-journey-dot--dark" aria-hidden="true">🏆</div>
+            <div class="cl-journey-tag cl-journey-tag--dark">финал</div>
+            <div class="cl-journey-title cl-journey-title--lg">Получи оффер</div>
+            <p class="cl-journey-desc">В среднем студенты CareerLab находят первый оффер за 6–8 недель активного поиска.</p>
+            <span class="cl-journey-badge">6–8 недель</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="duo">
-          <article class="panel panel-lime story">
-            <p class="kicker">Student stories</p>
-            <h2>We share stories from colleagues at top companies</h2>
-            <p>Learn how students got offers and built strong resumes from scratch.</p>
-            <a class="btn btn-coral" href="#">Read stories</a>
-          </article>
-          <article class="panel panel-coral image-box" aria-hidden="true">
-            <span class="shape shape-one"></span>
-            <span class="shape shape-two"></span>
-          </article>
+    <section class="cl-jobs-section" aria-labelledby="cl-jobs-title">
+      <div class="cl-jobs-inner">
+        <div class="cl-jobs-header cl-reveal">
+          <div>
+            <p class="cl-sec-eyebrow">актуально</p>
+            <h2 id="cl-jobs-title" class="cl-sec-title">Свежие вакансии</h2>
+          </div>
+          <a class="cl-jobs-see-all" href="vacancies.html">Все вакансии →</a>
+        </div>
+        <div class="cl-jobs-grid">
+          <a href="vacancies.html" class="cl-job-card cl-reveal cl-reveal-d1">
+            <span class="cl-job-co">Nova Bank</span>
+            <span class="cl-job-title">Младший продуктовый аналитик</span>
+            <span class="cl-job-meta">Гибрид · Стажировка</span>
+            <span class="cl-job-salary">80–100 000 ₽</span>
+            <div class="cl-job-footer">
+              <span class="cl-pill cl-pill--outline">Ментор внутри</span>
+            </div>
+          </a>
+          <a href="vacancies.html" class="cl-job-card cl-reveal cl-reveal-d2">
+            <span class="cl-job-co">Orbit Tech</span>
+            <span class="cl-job-title">Стажёр Frontend (React)</span>
+            <span class="cl-job-meta">Удалённо · Оплачивается</span>
+            <span class="cl-job-salary">45–55 000 ₽</span>
+            <div class="cl-job-footer">
+              <span class="cl-pill cl-pill--lime">Без опыта</span>
+            </div>
+          </a>
+          <a href="vacancies.html" class="cl-job-card cl-reveal cl-reveal-d3">
+            <span class="cl-job-co">Stream Analytics</span>
+            <span class="cl-job-title">Data Engineer (проект)</span>
+            <span class="cl-job-meta">Офис · 3 мес.</span>
+            <span class="cl-job-salary">120–150 000 ₽</span>
+            <div class="cl-job-footer">
+              <span class="cl-pill cl-pill--outline">От 3 лет</span>
+            </div>
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="section" id="resume">
-      <div class="container">
-        <div class="duo reverse">
-          <article class="panel panel-coral image-box" aria-hidden="true">
-            <span class="shape shape-three"></span>
-          </article>
-          <article class="panel panel-lime story">
-            <p class="kicker">Resume block</p>
-            <h2>And we know exactly how your resume should look</h2>
-            <p>Use our builder to structure experience, projects, and skills for real recruiters.</p>
-            <a class="btn btn-coral" href="#">Build resume</a>
-          </article>
+    <section class="cl-stats-section" aria-labelledby="cl-stats-title">
+      <div class="cl-stats-inner">
+        <p class="cl-sec-eyebrow">данные рынка</p>
+        <h2 id="cl-stats-title" class="cl-sec-title cl-reveal">Рынок стажировок 2026</h2>
+        <div class="cl-stats-kpi cl-reveal">
+          <div class="cl-kpi-card">
+            <div class="cl-kpi-num">+67%<span class="cl-kpi-badge" aria-hidden="true">↑</span></div>
+            <div class="cl-kpi-label">рост числа стажировок за год</div>
+          </div>
+          <div class="cl-kpi-card">
+            <div class="cl-kpi-num">50 000 ₽</div>
+            <div class="cl-kpi-label">медианная зарплата стажёра</div>
+          </div>
+          <div class="cl-kpi-card">
+            <div class="cl-kpi-num">×3</div>
+            <div class="cl-kpi-label">рост в банковской сфере</div>
+          </div>
+        </div>
+        <div class="cl-stats-tabs cl-reveal" role="tablist" aria-label="Графики рынка">
+          <button type="button" class="cl-stab cl-stab--active" role="tab" aria-selected="true" aria-controls="cl-chart-salary" id="tab-salary" onclick="clSwitchStat('salary',this)">Зарплаты по сферам</button>
+          <button type="button" class="cl-stab" role="tab" aria-selected="false" aria-controls="cl-chart-growth" id="tab-growth" onclick="clSwitchStat('growth',this)">Рост вакансий</button>
+        </div>
+        <div id="cl-chart-salary" class="cl-reveal" role="tabpanel" aria-labelledby="tab-salary">
+          <div class="cl-bar-row"><span class="cl-bar-label">IT / разработка</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:80%;background:var(--cl-lime)"><span>60–120 тыс ₽</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Инженерия</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:70%;background:var(--cl-lime)"><span>55–100 тыс ₽</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Аналитика</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:62%;background:var(--cl-lime)"><span>40–90 тыс ₽</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Финансы / банки</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:50%;background:var(--cl-lime)"><span>35–78 тыс ₽</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Маркетинг</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:36%;background:var(--cl-lime)"><span>25–60 тыс ₽</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Дизайн</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:30%;background:var(--cl-lime)"><span>25–55 тыс ₽</span></div></div></div>
+          <p class="cl-chart-src">Источники: ГородРабот.ру, Авито Работа, hh.ru — данные за 2026 год</p>
+        </div>
+        <div id="cl-chart-growth" class="cl-reveal" role="tabpanel" aria-labelledby="tab-growth" hidden>
+          <div class="cl-bar-row"><span class="cl-bar-label">Банки / финансы</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:90%;background:var(--cl-lime)"><span>×3 за год</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Инженерия</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:76%;background:var(--cl-lime)"><span>×2.6 за год</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Торговля / ретейл</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:60%;background:var(--cl-lime)"><span>+81%</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">IT / разработка</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:52%;background:var(--cl-lime)"><span>+67%</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Клиентский сервис</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:38%;background:var(--cl-lime)"><span>+48%</span></div></div></div>
+          <div class="cl-bar-row"><span class="cl-bar-label">Маркетинг</span><div class="cl-bar-track"><div class="cl-bar-fill" style="width:24%;background:var(--cl-lime)"><span>+28%</span></div></div></div>
+          <p class="cl-chart-src">Источник: исследование Авито Работа, апрель 2026</p>
         </div>
       </div>
     </section>
 
-    <section class="section" id="knowledge">
-      <div class="container">
-        <article class="panel panel-lime center">
-          <h2>We built a knowledge base</h2>
-          <p>
-            More than 100 guides on internships, interview prep, test tasks,
-            portfolio strategy, and resume examples that get responses.
-          </p>
-          <a class="btn btn-coral" href="#">Open guides</a>
-        </article>
+    <section class="cl-trust-section" aria-labelledby="cl-trust-title">
+      <div class="cl-trust-inner">
+        <div class="cl-trust-left cl-reveal">
+          <p class="cl-sec-eyebrow">истории</p>
+          <h2 id="cl-trust-title" class="cl-sec-title">Уже нашли</h2>
+          <p>Реальные студенты, реальные результаты — без приукрашиваний.</p>
+        </div>
+        <div class="cl-trust-cards">
+          <blockquote class="cl-trust-card cl-reveal cl-reveal-d1">
+            <p class="cl-trust-quote">Нашла стажировку в Т‑Банке через 3 недели. Использовала зарплатный ориентир — и не продешевила.</p>
+            <footer class="cl-trust-person">
+              <span class="cl-trust-av cl-trust-av--lime">МС</span>
+              <span>
+                <span class="cl-trust-name">Маша Смирнова</span><br>
+                <span class="cl-trust-role">3 курс ВШЭ · Продакт-стажёр</span>
+              </span>
+            </footer>
+          </blockquote>
+          <blockquote class="cl-trust-card cl-reveal cl-reveal-d2">
+            <p class="cl-trust-quote">Отправил резюме по гайду с чек-листом — позвали на интервью с первого отклика. Оффер получил через месяц.</p>
+            <footer class="cl-trust-person">
+              <span class="cl-trust-av cl-trust-av--blue">АК</span>
+              <span>
+                <span class="cl-trust-name">Артём Козлов</span><br>
+                <span class="cl-trust-role">Выпускник · Junior Backend</span>
+              </span>
+            </footer>
+          </blockquote>
+        </div>
       </div>
     </section>
 
-    <section class="section" id="office">
-      <div class="container">
-        <div class="office-grid">
-          <article class="office-item">
-            <h3>Personal office</h3>
-            <p>Your profile, resume versions, and saved vacancies in one dashboard.</p>
-            <a class="btn btn-coral btn-small" href="#">Open office</a>
-          </article>
-          <article class="office-item">
-            <h3>Application tracker</h3>
-            <p>Track statuses and responses from recruiters in real time.</p>
-            <a class="btn btn-coral btn-small" href="#">View tracker</a>
-          </article>
-          <article class="office-item">
-            <h3>Telegram alerts</h3>
-            <p>Get instant updates when new student vacancies appear.</p>
-            <a class="btn btn-coral btn-small" href="#">Connect</a>
-          </article>
-        </div>
+    <section class="cl-cta-section" aria-labelledby="cl-cta-title">
+      <div class="cl-cta-bg1" aria-hidden="true"></div>
+      <div class="cl-cta-bg2" aria-hidden="true"></div>
+      <div class="cl-cta-bg3" aria-hidden="true"></div>
+      <div class="cl-cta-inner cl-reveal">
+        <h2 id="cl-cta-title" class="cl-cta-title">Начните с одной<br>вакансии</h2>
+        <p class="cl-cta-sub">Студенты находят первый оффер в среднем за 6–8 недель активного поиска</p>
+        <a class="cl-cta-btn" href="vacancies.html">Смотреть вакансии →</a>
       </div>
     </section>
   </main>
@@ -162,11 +363,40 @@
     <div class="container footer-wrap">
       <p>CareerLab, 2026</p>
       <div class="footer-links">
-        <a href="#">About</a>
-        <a href="#">Contacts</a>
-        <a href="#">Help</a>
+        <a href="vacancies.html">Вакансии</a>
+        <a href="research.html">Зарплаты</a>
+        <a href="knowledge-base.html">Статьи</a>
       </div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) e.target.classList.add("cl-reveal--visible");
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll(".cl-reveal").forEach(function (el) { obs.observe(el); });
+    })();
+
+    function clSwitchStat(tab, el) {
+      document.querySelectorAll(".cl-stab").forEach(function (b) {
+        b.classList.remove("cl-stab--active");
+        b.setAttribute("aria-selected", "false");
+      });
+      el.classList.add("cl-stab--active");
+      el.setAttribute("aria-selected", "true");
+      var sal = document.getElementById("cl-chart-salary");
+      var gr = document.getElementById("cl-chart-growth");
+      if (tab === "salary") {
+        sal.hidden = false;
+        gr.hidden = true;
+      } else {
+        sal.hidden = true;
+        gr.hidden = false;
+      }
+    }
+  </script>
 </body>
 </html>

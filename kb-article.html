@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerLab — материал</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="careerlab-ui.css">
+</head>
+<body class="careerlab-site">
+  <header class="topbar">
+    <div class="container nav-wrap">
+      <a href="index.html" class="logo"><span class="logo-mark">C</span>CareerLab</a>
+      <nav class="nav">
+        <a href="index.html">Главная</a>
+        <a href="vacancies.html">Вакансии</a>
+        <a href="knowledge-base.html" class="active-link">База знаний</a>
+        <a href="research.html">Исследования</a>
+        <a href="office.html">Личный кабинет</a>
+      </nav>
+      <a class="btn btn-dark" href="office.html">В кабинет</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section section-kb-article">
+      <div class="container kb-article-wrap">
+        <p class="kb-article-back">
+          <a class="text-link" href="knowledge-base.html">← К материалам</a>
+        </p>
+        <article class="panel kb-article-sheet" id="kb-article-root" hidden>
+          <header class="kb-article-header">
+            <div class="kb-meta-trio kb-meta-trio--article" id="kb-article-chips"></div>
+            <h1 class="kb-article-h1" id="kb-article-title"></h1>
+            <p class="kb-article-lead" id="kb-article-lead"></p>
+          </header>
+          <div class="kb-article-body" id="kb-article-body"></div>
+        </article>
+        <div class="panel kb-article-missing" id="kb-article-missing" hidden>
+          <h1 class="page-title">Материал не найден</h1>
+          <p class="hero-text">Проверьте ссылку или вернитесь в базу знаний.</p>
+          <a class="btn btn-coral" href="knowledge-base.html">В базу знаний</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer section">
+    <div class="container footer-wrap">
+      <p>CareerLab, 2026</p>
+      <div class="footer-links">
+        <a href="index.html">О платформе</a>
+        <a href="knowledge-base.html">Вопросы и ответы</a>
+        <a href="office.html">Контакты</a>
+        <a href="research.html">Как мы считаем данные</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    (function () {
+      var SUPABASE_URL = "https://qrxcfawhhycdhbhgqwdk.supabase.co";
+      var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyeGNmYXdoaHljZGhiaGdxd2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjA2MDYsImV4cCI6MjA5MjA5NjYwNn0.2ydIH5_h9xgheTC476BfxK89GDK6V-mW9OnIKhj_SnM";
+      var createClient = window.supabase && window.supabase.createClient;
+      if (!createClient) return;
+      var sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      var params = new URLSearchParams(window.location.search);
+      var slug = params.get("id");
+
+      var root = document.getElementById("kb-article-root");
+      var missing = document.getElementById("kb-article-missing");
+      var chipsEl = document.getElementById("kb-article-chips");
+      var titleEl = document.getElementById("kb-article-title");
+      var leadEl = document.getElementById("kb-article-lead");
+      var bodyEl = document.getElementById("kb-article-body");
+
+      function paragraphsFromBody(body) {
+        if (!body) return [];
+        return body
+          .split(/\n\n+/)
+          .map(function (p) {
+            return p.trim();
+          })
+          .filter(Boolean);
+      }
+
+      async function load() {
+        if (!slug || !root || !chipsEl || !titleEl || !leadEl || !bodyEl) {
+          if (missing) missing.hidden = false;
+          if (root) root.hidden = true;
+          document.title = "Материал не найден — CareerLab";
+          return;
+        }
+
+        var res = await sb.from("articles").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
+        if (res.error || !res.data) {
+          if (missing) missing.hidden = false;
+          if (root) root.hidden = true;
+          document.title = "Материал не найден — CareerLab";
+          return;
+        }
+
+        var data = res.data;
+        document.title = data.title + " — CareerLab";
+
+        chipsEl.innerHTML = "";
+        function addChip(text, mod) {
+          var s = document.createElement("span");
+          s.className = "kb-meta-chip" + (mod ? " " + mod : "");
+          s.textContent = text;
+          chipsEl.appendChild(s);
+        }
+        addChip(data.category, "kb-meta-chip--cat");
+        addChip(data.read_time + " мин", "kb-meta-chip--time");
+        addChip(data.is_new ? "Новое" : data.level, data.is_new ? "kb-meta-chip--new" : "kb-meta-chip--level");
+
+        titleEl.textContent = data.title;
+        leadEl.textContent = data.excerpt || "";
+
+        bodyEl.innerHTML = "";
+        paragraphsFromBody(data.body).forEach(function (p) {
+          var el = document.createElement("p");
+          el.textContent = p;
+          bodyEl.appendChild(el);
+        });
+
+        root.hidden = false;
+        if (missing) missing.hidden = true;
+      }
+
+      void load();
+    })();
+  </script>
+</body>
+</html>
