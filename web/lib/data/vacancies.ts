@@ -1,4 +1,5 @@
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
+import { listPublishedSlugsFromRest } from "@/lib/supabase/rest-anon";
 import type { VacancyRow } from "@/lib/types";
 
 export type VacancyFilters = {
@@ -95,12 +96,5 @@ export async function getVacancyBySlug(
 
 export async function listVacancySlugs(): Promise<string[]> {
   if (!configured()) return [];
-  const supabase = createPublicSupabaseClient();
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("vacancies")
-    .select("slug")
-    .eq("published", true);
-  if (error) return [];
-  return (data ?? []).map((r: { slug: string }) => r.slug);
+  return listPublishedSlugsFromRest("vacancies");
 }
