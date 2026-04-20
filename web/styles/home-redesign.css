@@ -196,6 +196,7 @@
   color: var(--cl-ink);
   background: transparent;
   padding: 14px 18px;
+  min-height: 48px;
 }
 
 .cl-hero-search input::placeholder {
@@ -207,6 +208,10 @@
   color: #fff;
   border: none;
   padding: 14px 24px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;

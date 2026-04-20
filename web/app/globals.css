@@ -1,5 +1,6 @@
 body.careerlab-site {
   font-family: var(--font-golos), "Golos Text", "Onest", sans-serif;
+  margin: 0;
 }
 
 /* Шапка cl-topbar: внутренний ряд без переноса бренда и CTA */
