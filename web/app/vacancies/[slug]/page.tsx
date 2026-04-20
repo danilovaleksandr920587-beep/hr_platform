@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
-import { getVacancyBySlug } from "@/lib/data/vacancies";
+import { VacancyDetailClient } from "@/components/vacancies/VacancyDetailClient";
+import { getVacancyBySlug, listVacancies } from "@/lib/data/vacancies";
 import { buildVacancyStaticParams } from "@/lib/data/vacancy-static-paths";
+import "@/styles/vacancy-detail-ref.css";
 
 export const revalidate = 300;
 
@@ -35,62 +36,89 @@ const expLabels: Record<string, string> = {
   "1-3": "1–3 года",
   gte3: "От 3 лет",
 };
+
 const formatLabels: Record<string, string> = {
   remote: "Удалённо",
   hybrid: "Гибрид",
   office: "Офис",
 };
+
 const typeLabels: Record<string, string> = {
   internship: "Стажировка",
   project: "Проектная работа",
   parttime: "Подработка",
 };
 
+const sphereLabels: Record<string, string> = {
+  it: "IT",
+  design: "Дизайн",
+  marketing: "Маркетинг",
+  analytics: "Аналитика",
+};
+
+function fmtMoney(n: number) {
+  return n.toLocaleString("ru-RU");
+}
+
+function salaryMain(min: number | null, max: number | null) {
+  if (min != null && max != null) return `${fmtMoney(min)} — ${fmtMoney(max)} ₽`;
+  if (min != null) return `от ${fmtMoney(min)} ₽`;
+  if (max != null) return `до ${fmtMoney(max)} ₽`;
+  return "Не указана";
+}
+
+function salaryCompact(min: number | null, max: number | null) {
+  if (min != null && max != null) return `${Math.round(min / 1000)} — ${Math.round(max / 1000)} тыс ₽`;
+  if (min != null) return `от ${Math.round(min / 1000)} тыс ₽`;
+  if (max != null) return `до ${Math.round(max / 1000)} тыс ₽`;
+  return "Не указана";
+}
+
 export default async function VacancyDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const row = await getVacancyBySlug(slug);
   if (!row) notFound();
 
-  const salaryMissing = row.salary_min == null || row.salary_max == null;
-  const pay = salaryMissing
-    ? "Зарплата не указана"
-    : `${row.salary_min!.toLocaleString("ru-RU")} — ${row.salary_max!.toLocaleString("ru-RU")} ₽`;
+  const similarRows = (await listVacancies({ sphere: [row.sphere] }))
+    .filter((x) => x.slug !== row.slug)
+    .slice(0, 4)
+    .map((x) => {
+      const tLabel = typeLabels[x.type] ?? x.type;
+      const typeClass =
+        x.type === "internship"
+          ? "kvref-jtag-type-intern"
+          : x.type === "project"
+            ? "kvref-jtag-type-project"
+            : "kvref-jtag-type-junior";
+      return {
+        slug: x.slug,
+        company: x.company,
+        title: x.title,
+        salaryText: salaryCompact(x.salary_min, x.salary_max),
+        typeLabel: tLabel,
+        typeClass,
+      };
+    });
 
   return (
     <>
       <main>
-        <section className="section">
-          <div className="container">
-            <article className="panel">
-              <Link className="text-link" href="/vacancies">
-                ← К списку вакансий
-              </Link>
-              <h1 className="page-title" style={{ marginTop: "0.4rem" }}>
-                {row.title}
-              </h1>
-              <p className="hero-text">{row.company}</p>
-              <p className="vacancy-card-pay">{pay}</p>
-              <div className="chips chips-spaced" aria-label="Условия">
-                <span className="chip">{expLabels[row.exp] ?? row.exp}</span>
-                <span className="chip">{typeLabels[row.type] ?? row.type}</span>
-                <span className="chip">{formatLabels[row.format] ?? row.format}</span>
-              </div>
-              {row.description ? (
-                <p className="muted" style={{ lineHeight: 1.65 }}>
-                  {row.description}
-                </p>
-              ) : null}
-              <div className="hero-actions">
-                <Link className="btn btn-coral" href="/office">
-                  Откликнуться
-                </Link>
-                <Link className="btn btn-light" href="/vacancies">
-                  Вернуться к поиску
-                </Link>
-              </div>
-            </article>
-          </div>
-        </section>
+        <VacancyDetailClient
+          slug={row.slug}
+          title={row.title}
+          company={row.company}
+          sphereLabel={sphereLabels[row.sphere] ?? row.sphere}
+          salaryMain={salaryMain(row.salary_min, row.salary_max)}
+          salaryCompact={salaryCompact(row.salary_min, row.salary_max)}
+          salaryNote="до вычета налогов · ежемесячно"
+          expLabel={expLabels[row.exp] ?? row.exp}
+          typeLabel={typeLabels[row.type] ?? row.type}
+          formatLabel={formatLabels[row.format] ?? row.format}
+          description={row.description}
+          featured={row.featured}
+          publishedAt={row.published_at}
+          similar={similarRows}
+        />
       </main>
       <SiteFooter />
     </>
