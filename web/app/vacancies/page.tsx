@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
 import { listVacancies } from "@/lib/data/vacancies";
@@ -56,7 +55,6 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <SiteHeader active="/vacancies" />
       <main>
         <div className="page-header">
           <div className="page-header-inner">

@@ -1,0 +1,239 @@
+/* Единая шапка (как на главной): фиксированный бар + мобильное меню */
+
+body.careerlab-site header.cl-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  min-height: calc(60px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  background: rgba(240, 240, 232, 0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.cl-topbar-inner {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(0.75rem, 3vw, 1rem);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  flex-wrap: nowrap;
+}
+
+.cl-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.cl-brand-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: var(--lime);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--dark);
+}
+
+.cl-brand-name {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  letter-spacing: -0.02em;
+}
+
+.cl-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.cl-topbar-nav {
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 28px);
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.cl-topbar-nav--desktop {
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.cl-topbar-link {
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cl-topbar-link:hover {
+  color: var(--dark);
+}
+
+.cl-topbar-link.cl-topbar-link--active {
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.cl-topbar-cta {
+  background: var(--dark);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  transition: background 0.2s;
+  text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cl-topbar-cta:hover {
+  background: #333;
+}
+
+/* Кнопка «гамбургер» */
+.cl-topbar-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--dark);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cl-topbar-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.cl-topbar-menu-icon {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  box-shadow:
+    0 -6px 0 currentColor,
+    0 6px 0 currentColor;
+}
+
+.cl-topbar-backdrop {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(60px + env(safe-area-inset-top, 0px));
+  z-index: 198;
+  background: rgba(13, 15, 8, 0.38);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+}
+
+.cl-topbar-drawer {
+  position: fixed;
+  top: calc(60px + env(safe-area-inset-top, 0px));
+  right: 0;
+  bottom: 0;
+  z-index: 199;
+  width: min(320px, 100vw - 40px);
+  max-width: 100%;
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1rem 1.25rem;
+  overflow-y: auto;
+}
+
+.cl-topbar-drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.cl-topbar-drawer .cl-topbar-link {
+  display: block;
+  padding: 0.85rem 0.65rem;
+  border-radius: 10px;
+  white-space: normal;
+}
+
+.cl-topbar-drawer .cl-topbar-link:hover,
+.cl-topbar-drawer .cl-topbar-link:focus-visible {
+  background: rgba(0, 0, 0, 0.04);
+  outline: none;
+}
+
+.cl-topbar-drawer .cl-topbar-link.cl-topbar-link--active {
+  background: rgba(201, 241, 53, 0.25);
+}
+
+.cl-topbar-drawer-cta {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.cl-topbar-drawer-cta .cl-topbar-cta {
+  display: block;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .cl-topbar-nav--desktop {
+    display: none;
+  }
+
+  .cl-topbar-menu-btn {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 901px) {
+  .cl-topbar-backdrop,
+  .cl-topbar-drawer {
+    display: none !important;
+  }
+}

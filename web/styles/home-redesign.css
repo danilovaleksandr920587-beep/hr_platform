@@ -24,114 +24,14 @@
   overflow-x: hidden;
 }
 
-/* Top bar */
-.cl-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1rem;
-  background: rgba(240, 240, 232, 0.88);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--cl-border);
-}
-
-.cl-topbar-inner {
-  width: min(1240px, 100%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.cl-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: inherit;
-  flex-shrink: 0;
-}
-
-.cl-brand-mark {
-  width: 32px;
-  height: 32px;
-  background: var(--cl-lime);
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Unbounded", sans-serif;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--cl-dark);
-}
-
-.cl-brand-name {
-  font-family: "Unbounded", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--cl-dark);
-  letter-spacing: -0.02em;
-}
-
-.cl-topbar-nav {
-  display: flex;
-  gap: clamp(0.75rem, 2vw, 28px);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.cl-topbar-link {
-  font-size: 13px;
-  color: var(--cl-muted);
-  cursor: pointer;
-  transition: color 0.15s;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.cl-topbar-link:hover {
-  color: var(--cl-dark);
-}
-
-.cl-topbar-link.cl-topbar-link--active {
-  color: var(--cl-dark);
-  font-weight: 600;
-}
-
-.cl-topbar-cta {
-  background: var(--cl-dark);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 9px 22px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-family: "Golos Text", "Onest", sans-serif;
-  border: none;
-  transition: background 0.2s;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.cl-topbar-cta:hover {
-  background: #333;
-}
-
 /* Hero */
-.cl-hero {
+.home-careerlab-scope .cl-hero {
   min-height: 100vh;
   background: var(--cl-lime);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 72px clamp(1rem, 4vw, 60px) 64px;
+  padding: calc(72px + env(safe-area-inset-top, 0px)) clamp(1rem, 4vw, 60px) 64px;
   position: relative;
   overflow: hidden;
 }
@@ -1280,30 +1180,21 @@ a.cl-cta-btn:hover {
 }
 
 @media (max-width: 768px) {
-  .cl-topbar {
-    height: auto;
-    min-height: 60px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  .cl-topbar-inner {
-    flex-wrap: wrap;
-    row-gap: 10px;
-  }
-
-  .cl-topbar-nav {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .cl-hero-float {
     display: none;
+  }
+
+  .home-careerlab-scope .cl-hero-search {
+    flex-wrap: wrap;
+  }
+
+  .home-careerlab-scope .cl-hero-search input {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .home-careerlab-scope .cl-hero-search button {
+    width: 100%;
   }
 
   .cl-audience-inner {

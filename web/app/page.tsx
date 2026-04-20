@@ -30,34 +30,6 @@ export default async function HomePage() {
   return (
     <div className="home-careerlab-scope">
       <HomeClRevealInit />
-      <header className="cl-topbar">
-        <div className="cl-topbar-inner">
-          <Link href="/" className="cl-brand" aria-label="CareerLab — на главную">
-            <span className="cl-brand-mark">C</span>
-            <span className="cl-brand-name">CareerLab</span>
-          </Link>
-          <nav className="cl-topbar-nav" aria-label="Меню">
-            <Link href="/" className="cl-topbar-link cl-topbar-link--active">
-              Главная
-            </Link>
-            <Link href="/vacancies" className="cl-topbar-link">
-              Вакансии
-            </Link>
-            <Link href="/knowledge-base" className="cl-topbar-link">
-              База знаний
-            </Link>
-            <Link href="/research" className="cl-topbar-link">
-              Исследования
-            </Link>
-            <Link href="/office" className="cl-topbar-link">
-              Личный кабинет
-            </Link>
-          </nav>
-          <Link className="cl-topbar-cta" href="/office">
-            В кабинет
-          </Link>
-        </div>
-      </header>
 
       <main>
         <section className="cl-hero" aria-labelledby="cl-hero-title">

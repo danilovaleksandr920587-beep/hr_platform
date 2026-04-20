@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Golos_Text, Unbounded } from "next/font/google";
 import "../styles/careerlab-ui.css";
+import "../styles/cl-topbar.css";
 import "./globals.css";
+import { SiteHeader } from "@/components/SiteHeader";
 
 const golos = Golos_Text({
   subsets: ["latin", "cyrillic"],
@@ -45,6 +47,7 @@ export default function RootLayout({
       className={`${golos.variable} ${unbounded.variable}`}
     >
       <body className={`${golos.className} careerlab-site`}>
+        <SiteHeader />
         {children}
       </body>
     </html>

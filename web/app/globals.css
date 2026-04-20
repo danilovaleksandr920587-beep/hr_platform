@@ -2,19 +2,9 @@ body.careerlab-site {
   font-family: var(--font-golos), "Golos Text", "Onest", sans-serif;
 }
 
-/* Шапка/футер: gap без flex не работает (в careerlab-ui не задан display). */
-body.careerlab-site header.topbar .nav-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-}
-
-body.careerlab-site .nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+/* Шапка cl-topbar: внутренний ряд без переноса бренда и CTA */
+body.careerlab-site header.cl-topbar .cl-topbar-inner {
+  flex-wrap: nowrap;
 }
 
 body.careerlab-site .footer-wrap.container {
@@ -62,7 +52,29 @@ body.careerlab-site .card-visual-stat {
 }
 
 body.careerlab-site main > section.section:first-child {
-  padding-top: 76px;
+  padding-top: calc(76px + env(safe-area-inset-top, 0px));
+}
+
+/* Лаймовые шапки страниц: отступ под фиксированный бар + вырез iPhone */
+body.careerlab-site .page-header {
+  margin-top: calc(60px + env(safe-area-inset-top, 0px));
+}
+
+/* Поиск в шапке страницы: на узких экранах не наезжает кнопка на поле */
+@media (max-width: 520px) {
+  body.careerlab-site .ph-search {
+    flex-wrap: wrap;
+  }
+
+  body.careerlab-site .ph-search input {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  body.careerlab-site .ph-search button {
+    flex: 1 1 auto;
+    width: 100%;
+  }
 }
 
 body.careerlab-site .container {
@@ -232,6 +244,7 @@ body.careerlab-site .container {
   line-height: 1.68;
   color: #333944;
   max-width: 62ch;
+  overflow-wrap: break-word;
 }
 
 .kb-article-body p:last-child {

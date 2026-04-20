@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { getVacancyBySlug } from "@/lib/data/vacancies";
 import { buildVacancyStaticParams } from "@/lib/data/vacancy-static-paths";
 
@@ -59,7 +58,6 @@ export default async function VacancyDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <SiteHeader active="/vacancies" />
       <main>
         <section className="section">
           <div className="container">

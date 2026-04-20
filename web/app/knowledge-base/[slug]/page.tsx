@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { ArticleBody } from "@/components/ArticleBody";
 import { getArticleBySlug } from "@/lib/data/articles";
 import { buildArticleStaticParams } from "@/lib/data/article-static-paths";
@@ -47,7 +46,6 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <>
-      <SiteHeader active="/knowledge-base" />
       <main>
         <section className="section section-kb-article">
           <div className="container kb-article-wrap">

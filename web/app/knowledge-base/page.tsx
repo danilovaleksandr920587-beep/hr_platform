@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { ArticleCard } from "@/components/ArticleCard";
 import { KnowledgeBaseFilters } from "@/components/KnowledgeBaseFilters";
 import { listArticles } from "@/lib/data/articles";
@@ -41,7 +40,6 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
 
   return (
     <>
-      <SiteHeader active="/knowledge-base" />
       <main>
         <div className="page-header page-header--kb">
           <div className="ph-glow" aria-hidden="true" />
