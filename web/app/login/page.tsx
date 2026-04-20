@@ -7,6 +7,7 @@ import { optionalString } from "@/lib/searchParams";
 export const metadata: Metadata = {
   title: "Вход",
   description: "Вход в личный кабинет CareerLab через magic link.",
+  robots: { index: false, follow: false },
 };
 
 type PageProps = {

@@ -23,6 +23,7 @@ type Props = {
   body: string;
   nextArticle: RelatedArticle | null;
   related: RelatedArticle[];
+  nextSteps: Array<{ href: string; label: string }>;
 };
 
 type Heading = {
@@ -376,6 +377,19 @@ export function KnowledgeArticlePageClient(props: Props) {
                   <div className="kbad-rw-item-cat">{r.category}</div>
                   <div className="kbad-rw-item-title">{r.title}</div>
                   <div className="kbad-rw-item-time">{r.read_time} мин</div>
+                </Link>
+              ))}
+            </div>
+          ) : null}
+
+          {props.nextSteps.length ? (
+            <div className="kbad-related-widget">
+              <div className="kbad-rw-header">
+                <div className="kbad-rw-title">Следующий шаг</div>
+              </div>
+              {props.nextSteps.map((item) => (
+                <Link key={item.href} href={item.href} className="kbad-rw-item">
+                  <div className="kbad-rw-item-title">{item.label}</div>
                 </Link>
               ))}
             </div>

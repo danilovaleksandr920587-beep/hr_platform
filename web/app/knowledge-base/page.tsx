@@ -49,13 +49,14 @@ const LEVELS = [
 
 const TOPIC_PILLS: {
   category: string;
+  slug: string;
   emoji: string;
   label: string;
 }[] = [
-  { category: "Резюме", emoji: "📄", label: "Резюме" },
-  { category: "Собеседование", emoji: "🎯", label: "Собеседование" },
-  { category: "Тестовые", emoji: "💻", label: "Тестовые" },
-  { category: "Зарплата", emoji: "💰", label: "Зарплата" },
+  { category: "Резюме", slug: "resume", emoji: "📄", label: "Резюме" },
+  { category: "Собеседование", slug: "interview", emoji: "🎯", label: "Собеседование" },
+  { category: "Тестовые", slug: "test", emoji: "💻", label: "Тестовые" },
+  { category: "Зарплата", slug: "salary", emoji: "💰", label: "Зарплата" },
 ];
 
 const kickerClass: Record<string, string> = {
@@ -322,11 +323,14 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
                 {TOPIC_PILLS.map((tp) => {
                   const active = category === tp.category;
                   const n = countByCategory(forCounts, tp.category);
-                  const href = buildHref({
-                    category: tp.category,
-                    level,
-                    q,
-                  });
+                  const href =
+                    q || level !== "all"
+                      ? buildHref({
+                          category: tp.category,
+                          level,
+                          q,
+                        })
+                      : `/knowledge-base/${tp.slug}`;
                   return (
                     <Link
                       key={tp.category}

@@ -1,44 +1,64 @@
 import type { MetadataRoute } from "next";
-import { listArticleSlugs } from "@/lib/data/articles";
-import { listVacancySlugs } from "@/lib/data/vacancies";
+import { listArticles } from "@/lib/data/articles";
+import { listVacancies } from "@/lib/data/vacancies";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+type SitemapCluster = "static" | "vacancies" | "articles";
+
+export async function generateSitemaps() {
+  return [
+    { id: "static" },
+    { id: "vacancies" },
+    { id: "articles" },
+  ] as Array<{ id: SitemapCluster }>;
+}
+
+export default async function sitemap({
+  id,
+}: {
+  id: SitemapCluster;
+}): Promise<MetadataRoute.Sitemap> {
   const base =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
     "http://localhost:3000";
 
-  const [vacancySlugs, articleSlugs] = await Promise.all([
-    listVacancySlugs(),
-    listArticleSlugs(),
-  ]);
+  if (id === "static") {
+    return [
+      "",
+      "/vacancies",
+      "/knowledge-base",
+      "/knowledge-base/resume",
+      "/knowledge-base/interview",
+      "/knowledge-base/test",
+      "/knowledge-base/salary",
+      "/research",
+    ].map((path) => ({
+      url: `${base}${path}`,
+      lastModified: new Date(),
+      changeFrequency: path === "" ? "weekly" : "daily",
+      priority:
+        path === ""
+          ? 1
+          : path.startsWith("/knowledge-base/")
+            ? 0.82
+            : 0.8,
+    }));
+  }
 
-  const staticRoutes: MetadataRoute.Sitemap = [
-    "",
-    "/vacancies",
-    "/knowledge-base",
-    "/research",
-    "/office",
-    "/login",
-  ].map((path) => ({
-    url: `${base}${path}`,
-    lastModified: new Date(),
-    changeFrequency: path === "" ? "weekly" : "daily",
-    priority: path === "" ? 1 : 0.8,
-  }));
+  if (id === "vacancies") {
+    const vacancies = await listVacancies({});
+    return vacancies.map((row) => ({
+      url: `${base}/vacancies/${row.slug}`,
+      lastModified: row.published_at ? new Date(row.published_at) : new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.72,
+    }));
+  }
 
-  const vacancies = vacancySlugs.map((slug) => ({
-    url: `${base}/vacancies/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: "daily" as const,
-    priority: 0.7,
-  }));
-
-  const articles = articleSlugs.map((slug) => ({
-    url: `${base}/knowledge-base/${slug}`,
-    lastModified: new Date(),
+  const articles = await listArticles({});
+  return articles.map((row) => ({
+    url: `${base}/knowledge-base/${row.slug}`,
+    lastModified: row.published_at ? new Date(row.published_at) : new Date(),
     changeFrequency: "weekly" as const,
-    priority: 0.65,
+    priority: 0.68,
   }));
-
-  return [...staticRoutes, ...vacancies, ...articles];
 }

@@ -20,9 +20,15 @@ export async function generateMetadata({
   const { slug } = await params;
   const row = await getArticleBySlug(slug);
   if (!row) return { title: "Материал не найден" };
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+    "http://localhost:3000";
   return {
     title: row.title,
     description: row.excerpt,
+    alternates: {
+      canonical: `${base}/knowledge-base/${row.slug}`,
+    },
     openGraph: {
       title: row.title,
       description: row.excerpt,
@@ -69,9 +75,89 @@ export default async function ArticlePage({ params }: PageProps) {
       }
     : null;
 
+  const clusterByCategory: Record<string, string> = {
+    Резюме: "/knowledge-base/resume",
+    Собеседование: "/knowledge-base/interview",
+    Тестовые: "/knowledge-base/test",
+    Зарплата: "/knowledge-base/salary",
+  };
+
+  const nextSteps = [
+    {
+      href: clusterByCategory[row.category] ?? "/knowledge-base",
+      label: `Хаб по теме «${row.category}»`,
+    },
+    {
+      href: "/vacancies",
+      label: "Подобрать вакансии под этот навык",
+    },
+  ];
+
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+    "http://localhost:3000";
+  const articleUrl = `${base}/knowledge-base/${row.slug}`;
+  const datePublished = row.published_at || new Date().toISOString();
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: row.title,
+    description: row.excerpt,
+    datePublished,
+    dateModified: datePublished,
+    inLanguage: "ru-RU",
+    mainEntityOfPage: articleUrl,
+    url: articleUrl,
+    articleSection: row.category,
+    wordCount: row.body.split(/\s+/).filter(Boolean).length,
+    publisher: {
+      "@type": "Organization",
+      name: "CareerLab",
+      url: base,
+    },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Главная",
+        item: `${base}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "База знаний",
+        item: `${base}/knowledge-base`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: row.category,
+        item: `${base}${clusterByCategory[row.category] ?? "/knowledge-base"}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: row.title,
+        item: articleUrl,
+      },
+    ],
+  };
+
   return (
     <>
       <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
         <KnowledgeArticlePageClient
           slug={row.slug}
           title={row.title}
@@ -84,6 +170,7 @@ export default async function ArticlePage({ params }: PageProps) {
           body={row.body}
           nextArticle={nextArticle}
           related={related}
+          nextSteps={nextSteps}
         />
       </main>
       <SiteFooter />
