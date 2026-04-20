@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 
 const NAV = [
   { href: "/", label: "Главная", match: (p: string) => p === "/" },
@@ -66,6 +67,46 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  const mobileMenu =
+    open && typeof document !== "undefined"
+      ? createPortal(
+          <>
+            <button
+              type="button"
+              className="cl-topbar-backdrop"
+              aria-label="Закрыть меню"
+              onClick={close}
+            />
+            <div
+              id={drawerId}
+              className="cl-topbar-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Разделы сайта"
+            >
+              <nav className="cl-topbar-drawer-nav" aria-label="Меню">
+                {NAV.map(({ href, label, match }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={linkClass(match(pathname))}
+                    onClick={close}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+              <div className="cl-topbar-drawer-cta">
+                <Link className="cl-topbar-cta" href="/office" onClick={close}>
+                  В кабинет
+                </Link>
+              </div>
+            </div>
+          </>,
+          document.body,
+        )
+      : null;
+
   return (
     <header className="cl-topbar">
       <div className="cl-topbar-inner">
@@ -103,41 +144,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {open ? (
-        <>
-          <button
-            type="button"
-            className="cl-topbar-backdrop"
-            aria-label="Закрыть меню"
-            onClick={close}
-          />
-          <div
-            id={drawerId}
-            className="cl-topbar-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Разделы сайта"
-          >
-            <nav className="cl-topbar-drawer-nav" aria-label="Меню">
-              {NAV.map(({ href, label, match }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={linkClass(match(pathname))}
-                  onClick={close}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-            <div className="cl-topbar-drawer-cta">
-              <Link className="cl-topbar-cta" href="/office" onClick={close}>
-                В кабинет
-              </Link>
-            </div>
-          </div>
-        </>
-      ) : null}
+      {mobileMenu}
     </header>
   );
 }

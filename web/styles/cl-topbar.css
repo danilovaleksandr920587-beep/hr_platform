@@ -20,6 +20,8 @@ body.careerlab-site header.cl-topbar {
 }
 
 .cl-topbar-inner {
+  position: relative;
+  z-index: 210;
   width: min(1240px, 100%);
   margin: 0 auto;
   padding: 0 clamp(0.75rem, 3vw, 1rem);
@@ -161,7 +163,7 @@ body.careerlab-site header.cl-topbar {
   right: 0;
   bottom: 0;
   top: calc(60px + env(safe-area-inset-top, 0px));
-  z-index: 198;
+  z-index: 100020;
   background: rgba(13, 15, 8, 0.38);
   border: 0;
   padding: 0;
@@ -175,7 +177,7 @@ body.careerlab-site header.cl-topbar {
   top: calc(60px + env(safe-area-inset-top, 0px));
   right: 0;
   bottom: 0;
-  z-index: 199;
+  z-index: 100021;
   width: min(320px, 100vw - 40px);
   max-width: 100%;
   background: var(--white);
@@ -228,6 +230,11 @@ body.careerlab-site header.cl-topbar {
 
   .cl-topbar-menu-btn {
     display: inline-flex;
+  }
+
+  .cl-topbar-cta {
+    padding: 8px 14px;
+    font-size: 12px;
   }
 }
 

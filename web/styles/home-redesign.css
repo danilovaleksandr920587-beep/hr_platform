@@ -27,11 +27,12 @@
 /* Hero */
 .home-careerlab-scope .cl-hero {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--cl-lime);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: calc(72px + env(safe-area-inset-top, 0px)) clamp(1rem, 4vw, 60px) 64px;
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 12px) clamp(1rem, 4vw, 60px) 64px;
   position: relative;
   overflow: hidden;
 }
@@ -1176,6 +1177,35 @@ a.cl-cta-btn:hover {
 
   .cl-jobs-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-careerlab-scope .cl-hero {
+    justify-content: flex-start;
+    min-height: auto;
+    padding-top: calc(52px + env(safe-area-inset-top, 0px));
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .cl-hero-search-wrap {
+    margin-bottom: 28px;
+  }
+
+  .cl-hero-title {
+    font-size: clamp(30px, 9vw, 52px);
+    line-height: 1.05;
+    margin-bottom: 14px;
+  }
+
+  .cl-hero-sub {
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  .cl-hero-stat {
+    padding-right: 14px;
+    margin-right: 14px;
   }
 }
 
