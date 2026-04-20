@@ -153,7 +153,10 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
     category: category === "all" ? undefined : category,
     level: level === "all" ? undefined : level,
   });
-  const forCounts = await listArticles({ q: q || undefined });
+  const forCounts =
+    category === "all" && level === "all"
+      ? rows
+      : await listArticles({ q: q || undefined });
 
   const totalRead = rows.reduce((s, r) => s + (r.read_time || 0), 0);
   const { main, aside, grid } = pickFeatured(rows);

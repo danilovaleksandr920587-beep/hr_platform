@@ -79,7 +79,9 @@ export default async function VacancyDetailPage({ params }: PageProps) {
   const row = await getVacancyBySlug(slug);
   if (!row) notFound();
 
-  const similarRows = (await listVacancies({ sphere: [row.sphere] }))
+  const similarRows = (
+    await listVacancies({ sphere: [row.sphere], fields: "card", limit: 8 })
+  )
     .filter((x) => x.slug !== row.slug)
     .slice(0, 4)
     .map((x) => {

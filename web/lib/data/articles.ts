@@ -7,7 +7,17 @@ export type ArticleFilters = {
   q?: string;
   category?: string;
   level?: string;
+  includeBody?: boolean;
+  limit?: number;
 };
+
+const ARTICLE_SELECT_LIST =
+  "id,slug,title,category,level,read_time,excerpt,is_new,cat_slug,layout,published_at";
+const ARTICLE_SELECT_DETAIL = `${ARTICLE_SELECT_LIST},body`;
+
+function escapeIlikeTerm(value: string): string {
+  return value.replace(/[%_]/g, "\\$&").replace(/,/g, "\\,");
+}
 
 export async function listArticles(
   filters: ArticleFilters = {},
@@ -18,7 +28,7 @@ export async function listArticles(
   if (!supabase) return [];
   let q = supabase
     .from("articles")
-    .select("*")
+    .select(filters.includeBody ? ARTICLE_SELECT_DETAIL : ARTICLE_SELECT_LIST)
     .eq("is_published", true)
     .order("published_at", { ascending: false });
 
@@ -28,6 +38,14 @@ export async function listArticles(
   if (filters.level && filters.level !== "all") {
     q = q.eq("level", filters.level);
   }
+  const needle = filters.q?.trim();
+  if (needle) {
+    const term = `%${escapeIlikeTerm(needle)}%`;
+    q = q.or(`title.ilike.${term},excerpt.ilike.${term}`);
+  }
+  if (filters.limit && filters.limit > 0) {
+    q = q.limit(filters.limit);
+  }
 
   const { data, error } = await q;
   if (error) {
@@ -35,15 +53,7 @@ export async function listArticles(
     return [];
   }
 
-  let rows = (data ?? []) as ArticleRow[];
-  const needle = filters.q?.trim().toLowerCase();
-  if (needle) {
-    rows = rows.filter((row) => {
-      const hay = `${row.title} ${row.excerpt}`.toLowerCase();
-      return hay.includes(needle);
-    });
-  }
-  return rows;
+  return ((data ?? []) as unknown) as ArticleRow[];
 }
 
 export async function getArticleBySlug(
@@ -54,7 +64,7 @@ export async function getArticleBySlug(
   if (!supabase) return null;
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select(ARTICLE_SELECT_DETAIL)
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
@@ -62,7 +72,7 @@ export async function getArticleBySlug(
     console.error("getArticleBySlug", error.message);
     return null;
   }
-  return (data as ArticleRow) ?? null;
+  return ((data as unknown) as ArticleRow) ?? null;
 }
 
 export async function listArticleSlugs(): Promise<string[]> {

@@ -41,18 +41,25 @@ export default async function ArticlePage({ params }: PageProps) {
   const row = await getArticleBySlug(slug);
   if (!row) notFound();
 
-  const all = await listArticles({});
-  const currentIndex = all.findIndex((x) => x.slug === row.slug);
-
+  const sameCategory = await listArticles({
+    category: row.category,
+    limit: 12,
+  });
+  const recent = await listArticles({ limit: 12 });
   const nextCandidate =
-    currentIndex >= 0 && currentIndex + 1 < all.length
-      ? all[currentIndex + 1]
-      : all.find((x) => x.slug !== row.slug) ?? null;
+    sameCategory.find((x) => x.slug !== row.slug) ??
+    recent.find((x) => x.slug !== row.slug) ??
+    null;
 
-  const related = all
-    .filter((x) => x.slug !== row.slug)
+  const pool = [...sameCategory, ...recent];
+  const uniq = new Map<string, (typeof pool)[number]>();
+  for (const item of pool) {
+    if (item.slug !== row.slug && !uniq.has(item.slug)) uniq.set(item.slug, item);
+  }
+  const related = [...uniq.values()]
     .sort((a, b) => {
-      const byCategory = Number(b.category === row.category) - Number(a.category === row.category);
+      const byCategory =
+        Number(b.category === row.category) - Number(a.category === row.category);
       if (byCategory !== 0) return byCategory;
       return a.read_time - b.read_time;
     })

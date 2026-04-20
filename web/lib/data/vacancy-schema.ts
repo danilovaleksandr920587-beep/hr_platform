@@ -3,10 +3,14 @@ import type { VacancyRow } from "@/lib/types";
 /** Схема из web/supabase/migrations (поля type, featured, search_document). */
 export const VACANCY_SELECT_WEB =
   "id,slug,title,company,description,sphere,exp,format,type,salary_min,salary_max,search_document,featured,published_at";
+export const VACANCY_SELECT_WEB_CARD =
+  "id,slug,title,company,sphere,exp,format,type,salary_min,salary_max,featured,published_at";
 
 /** Схема из supabase/migrations в корне репо (employment_type, is_featured). */
 export const VACANCY_SELECT_ROOT =
   "id,slug,title,company,description,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured";
+export const VACANCY_SELECT_ROOT_CARD =
+  "id,slug,title,company,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured";
 
 export type VacancyDbShape = "web" | "root";
 

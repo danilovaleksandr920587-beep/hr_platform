@@ -6,7 +6,9 @@ import {
   isVacancySchemaMismatchError,
   normalizeVacancyRow,
   vacancyShapes,
+  VACANCY_SELECT_ROOT_CARD,
   VACANCY_SELECT_ROOT,
+  VACANCY_SELECT_WEB_CARD,
   VACANCY_SELECT_WEB,
   type VacancyDbShape,
 } from "@/lib/data/vacancy-schema";
@@ -19,7 +21,13 @@ export type VacancyFilters = {
   type?: string[];
   salaryFrom?: number | null;
   salaryTo?: number | null;
+  limit?: number;
+  fields?: "full" | "card";
 };
+
+function escapeIlikeTerm(value: string): string {
+  return value.replace(/[%_]/g, "\\$&").replace(/,/g, "\\,");
+}
 
 function applyCommonFilters<
   T extends {
@@ -65,10 +73,20 @@ export async function listVacancies(
   if (!supabase) return [];
 
   const shapes = vacancyShapes();
+  const fieldMode = filters.fields ?? "full";
+  const needle = filters.q?.trim();
+  const sb: any = supabase;
 
   for (const shape of shapes) {
-    const select = shape === "web" ? VACANCY_SELECT_WEB : VACANCY_SELECT_ROOT;
-    let q = supabase
+    const select =
+      shape === "web"
+        ? fieldMode === "card"
+          ? VACANCY_SELECT_WEB_CARD
+          : VACANCY_SELECT_WEB
+        : fieldMode === "card"
+          ? VACANCY_SELECT_ROOT_CARD
+          : VACANCY_SELECT_ROOT;
+    let q: any = sb
       .from("vacancies")
       .select(select)
       .eq("is_published", true);
@@ -83,6 +101,20 @@ export async function listVacancies(
             .order("published_at", { ascending: false });
 
     q = applyCommonFilters(q, shape, filters);
+    if (needle) {
+      const term = `%${escapeIlikeTerm(needle)}%`;
+      q =
+        shape === "web"
+          ? q.or(
+              `title.ilike.${term},company.ilike.${term},search_document.ilike.${term}`,
+            )
+          : q.or(
+              `title.ilike.${term},company.ilike.${term},description.ilike.${term}`,
+            );
+    }
+    if (filters.limit && filters.limit > 0) {
+      q = q.limit(filters.limit);
+    }
 
     const { data, error } = await q;
     if (error) {
@@ -94,17 +126,9 @@ export async function listVacancies(
     }
 
     const rawRows = (data ?? []) as unknown[];
-    let rows = rawRows.map((r) =>
+    const rows = rawRows.map((r) =>
       normalizeVacancyRow(r as Record<string, unknown>),
     );
-    const needle = filters.q?.trim().toLowerCase();
-    if (needle) {
-      rows = rows.filter((row) => {
-        const hay =
-          `${row.title} ${row.company} ${row.search_document ?? ""}`.toLowerCase();
-        return hay.includes(needle);
-      });
-    }
     return rows;
   }
 
@@ -119,9 +143,10 @@ export async function getVacancyBySlug(
   if (!supabase) return null;
 
   const shapes = vacancyShapes();
+  const sb: any = supabase;
   for (const shape of shapes) {
     const select = shape === "web" ? VACANCY_SELECT_WEB : VACANCY_SELECT_ROOT;
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("vacancies")
       .select(select)
       .eq("slug", slug)
