@@ -1,0 +1,47 @@
+.scalc { background: var(--bg, #f0f0e8); }
+.scalc .scalc-hero { margin-top: calc(60px + env(safe-area-inset-top, 0px)); background: #c9f135; padding: 48px clamp(1rem,4vw,60px) 44px; display:grid; grid-template-columns:1fr auto; gap:40px; align-items:center; }
+.scalc .hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(0,0,0,.4);margin-bottom:12px}
+.scalc .hero-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:clamp(32px,5vw,44px);font-weight:900;color:#0d0f08;line-height:1.05;margin:0 0 14px}
+.scalc .hero-sub{font-size:15px;color:rgba(0,0,0,.55);line-height:1.7;max-width:440px}
+.scalc .hero-update{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.08);border-radius:20px;padding:7px 14px;font-size:12px;color:rgba(0,0,0,.5);font-weight:500}
+.scalc .hero-update-dot{width:6px;height:6px;border-radius:50%;background:#0d0f08;opacity:.4}
+.scalc .scalc-page{padding:28px clamp(1rem,4vw,60px) 80px;display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
+.scalc .calc-panel{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;overflow:hidden;position:sticky;top:80px}
+.scalc .calc-header{padding:24px 28px;border-bottom:1px solid rgba(0,0,0,.08)}
+.scalc .calc-header-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:15px;font-weight:700;color:#0d0f08}
+.scalc .calc-header-sub{font-size:13px;color:#7a7d70}
+.scalc .calc-body{padding:24px 28px}
+.scalc .field{margin-bottom:20px}.scalc .field-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a8ab9f;margin-bottom:10px;display:block}
+.scalc .field-options{display:flex;flex-direction:column;gap:6px}
+.scalc .field-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid rgba(0,0,0,.13);border-radius:12px;cursor:pointer;font-size:13px;background:#f0f0e8}
+.scalc .field-option.selected{border-color:#0d0f08;background:#0d0f08;color:#fff}
+.scalc .fo-icon{font-size:16px}.scalc .fo-sub{font-size:11px;opacity:.55}
+.scalc .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.scalc .grid-option{padding:10px 14px;border:1.5px solid rgba(0,0,0,.13);border-radius:12px;cursor:pointer;font-size:13px;color:#7a7d70;background:#f0f0e8;text-align:center;font-weight:500}
+.scalc .grid-option.selected{border-color:#0d0f08;background:#0d0f08;color:#c9f135}
+.scalc .calc-btn{width:100%;background:#0d0f08;color:#fff;border:none;padding:14px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+.scalc .empty-state{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;padding:60px 40px;text-align:center}
+.scalc .empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}.scalc .empty-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.scalc .empty-sub{font-size:14px;color:#7a7d70;line-height:1.6}
+.scalc .salary-hero{background:#0d0f08;border-radius:24px;padding:32px 36px;margin-bottom:14px;color:#fff}
+.scalc .sh-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px}
+.scalc .sh-role{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:16px}.scalc .sh-range{display:flex;align-items:baseline;gap:12px}
+.scalc .sh-from,.scalc .sh-to{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:clamp(28px,5vw,36px);font-weight:900;letter-spacing:-.04em}
+.scalc .sh-from{color:#c9f135}.scalc .sh-dash{font-size:24px;color:rgba(255,255,255,.2)}.scalc .sh-note{font-size:12px;color:rgba(255,255,255,.3)}
+.scalc .sh-median{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+.scalc .sh-median-val{font-family:var(--font-unbounded),"Unbounded",sans-serif;color:#c9f135;font-weight:700}
+.scalc .sh-median-badge{margin-left:auto;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(201,241,53,.15);color:#c9f135}
+.scalc .range-bar-card,.scalc .ai-insight{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;padding:24px 28px;margin-bottom:14px}
+.scalc .rbc-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:14px;margin-bottom:16px}
+.scalc .range-track{height:12px;background:#f0f0e8;border-radius:6px;position:relative;margin:24px 0 8px}
+.scalc .range-fill{height:100%;background:linear-gradient(90deg,#f2facc,#c9f135);border-radius:6px;position:absolute}
+.scalc .range-median-line{position:absolute;top:-8px;bottom:-8px;width:3px;background:#0d0f08;border-radius:2px}
+.scalc .range-markers{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#0d0f08}
+.scalc .ai-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}.scalc .ai-dot{width:8px;height:8px;border-radius:50%;background:#c9f135}
+.scalc .ai-header-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:13px}.scalc .ai-text{font-size:14px;line-height:1.75;color:#1e2114}
+.scalc .tips-card{background:#0d0f08;border-radius:24px;padding:24px 28px;color:#fff}.scalc .tips-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:14px;margin-bottom:16px}
+.scalc .tips-title em{color:#c9f135;font-style:normal}.scalc .tip-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.scalc .tip-row:last-child{border-bottom:none}.scalc .tip-row-num{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:12px;color:#c9f135;opacity:.7}
+.scalc .tip-row-text{font-size:13px;color:rgba(255,255,255,.55);line-height:1.55}
+@media (max-width: 980px){.scalc .scalc-page{grid-template-columns:1fr}.scalc .calc-panel{position:static}}
+@media (max-width: 640px){.scalc .scalc-hero{grid-template-columns:1fr;gap:16px}.scalc .calc-body,.scalc .calc-header{padding-left:16px;padding-right:16px}.scalc .salary-hero,.scalc .range-bar-card,.scalc .ai-insight,.scalc .tips-card{padding:18px}}

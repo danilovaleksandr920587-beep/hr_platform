@@ -27,6 +27,9 @@ export default function ResearchPage() {
                 <Link className="btn btn-coral" href="/vacancies">
                   К вакансиям
                 </Link>
+                <Link className="btn btn-light" href="/tools/salary-calculator">
+                  Зарплатный калькулятор
+                </Link>
                 <Link className="btn btn-light" href="/knowledge-base">
                   Как читать такие данные
                 </Link>

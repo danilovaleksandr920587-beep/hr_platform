@@ -31,6 +31,8 @@ export default async function sitemap({
       "/knowledge-base/test",
       "/knowledge-base/salary",
       "/research",
+      "/tools/salary-calculator",
+      "/tools/resume-analyzer",
     ].map((path) => ({
       url: `${base}${path}`,
       lastModified: new Date(),
