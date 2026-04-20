@@ -17,6 +17,16 @@ const NAV = [
     label: "База знаний",
     match: (p: string) => p.startsWith("/knowledge-base"),
   },
+  {
+    href: "/tools/salary-calculator",
+    label: "Калькулятор ЗП",
+    match: (p: string) => p.startsWith("/tools/salary-calculator"),
+  },
+  {
+    href: "/tools/resume-analyzer",
+    label: "Разбор резюме",
+    match: (p: string) => p.startsWith("/tools/resume-analyzer"),
+  },
   { href: "/research", label: "Исследования", match: (p: string) => p === "/research" },
   {
     href: "/office",
