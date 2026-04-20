@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Golos_Text, Unbounded } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../styles/careerlab-ui.css";
 import "../styles/cl-topbar.css";
 import "./globals.css";
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body className={`${golos.className} careerlab-site`}>
         <SiteHeader />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
