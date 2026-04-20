@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
-import { ArticleBody } from "@/components/ArticleBody";
-import { getArticleBySlug } from "@/lib/data/articles";
+import { KnowledgeArticlePageClient } from "@/components/knowledge-base/KnowledgeArticlePageClient";
+import { getArticleBySlug, listArticles } from "@/lib/data/articles";
 import { buildArticleStaticParams } from "@/lib/data/article-static-paths";
+import "@/styles/knowledge-article-ref.css";
 
 export const revalidate = 300;
 
@@ -13,13 +13,6 @@ type PageProps = { params: Promise<{ slug: string }> };
 export async function generateStaticParams() {
   return buildArticleStaticParams();
 }
-
-const ctagFor: Record<string, string> = {
-  resume: "ctag-resume",
-  interview: "ctag-interview",
-  test: "ctag-test",
-  salary: "ctag-salary",
-};
 
 export async function generateMetadata({
   params,
@@ -42,33 +35,56 @@ export default async function ArticlePage({ params }: PageProps) {
   const row = await getArticleBySlug(slug);
   if (!row) notFound();
 
-  const ct = ctagFor[row.cat_slug] ?? "ctag-resume";
+  const all = await listArticles({});
+  const currentIndex = all.findIndex((x) => x.slug === row.slug);
+
+  const nextCandidate =
+    currentIndex >= 0 && currentIndex + 1 < all.length
+      ? all[currentIndex + 1]
+      : all.find((x) => x.slug !== row.slug) ?? null;
+
+  const related = all
+    .filter((x) => x.slug !== row.slug)
+    .sort((a, b) => {
+      const byCategory = Number(b.category === row.category) - Number(a.category === row.category);
+      if (byCategory !== 0) return byCategory;
+      return a.read_time - b.read_time;
+    })
+    .slice(0, 3)
+    .map((x) => ({
+      slug: x.slug,
+      title: x.title,
+      category: x.category,
+      read_time: x.read_time,
+      is_new: x.is_new,
+    }));
+
+  const nextArticle = nextCandidate
+    ? {
+        slug: nextCandidate.slug,
+        title: nextCandidate.title,
+        category: nextCandidate.category,
+        read_time: nextCandidate.read_time,
+        is_new: nextCandidate.is_new,
+      }
+    : null;
 
   return (
     <>
       <main>
-        <section className="section section-kb-article">
-          <div className="container kb-article-wrap">
-            <p className="kb-article-back">
-              <Link className="text-link" href="/knowledge-base">
-                ← К материалам
-              </Link>
-            </p>
-            <article className="panel kb-article-sheet">
-              <header className="kb-article-header">
-                <div className="kb-meta-trio kb-meta-trio--article">
-                  <span className={`ctag ${ct}`}>{row.category}</span>
-                  <span className="ctag ctag-time">{row.read_time} мин</span>
-                  <span className="ctag ctag-level">{row.level}</span>
-                  {row.is_new ? <span className="ctag ctag-new">Новое</span> : null}
-                </div>
-                <h1 className="kb-article-h1">{row.title}</h1>
-                <p className="kb-article-lead">{row.excerpt}</p>
-              </header>
-              <ArticleBody markdown={row.body} />
-            </article>
-          </div>
-        </section>
+        <KnowledgeArticlePageClient
+          slug={row.slug}
+          title={row.title}
+          category={row.category}
+          level={row.level}
+          excerpt={row.excerpt}
+          readTime={row.read_time}
+          publishedAt={row.published_at}
+          isNew={row.is_new}
+          body={row.body}
+          nextArticle={nextArticle}
+          related={related}
+        />
       </main>
       <SiteFooter />
     </>
