@@ -28,6 +28,8 @@ const kickerMap: Record<string, string> = {
   interview: "k-interv",
   test: "k-test",
   salary: "k-salary",
+  apply: "k-apply",
+  career: "k-career",
 };
 
 export function KbArticleTile({

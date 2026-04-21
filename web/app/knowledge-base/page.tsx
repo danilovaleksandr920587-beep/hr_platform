@@ -11,7 +11,7 @@ import "@/styles/knowledge-base-ref.css";
 export const metadata: Metadata = {
   title: "База знаний",
   description:
-    "Гайды по резюме, откликам, тестовым заданиям и переговорам о зарплате.",
+    "Гайды по резюме, собеседованиям, тестовым, зарплате, откликам и карьерному росту.",
 };
 
 export const revalidate = 120;
@@ -39,6 +39,8 @@ const FB_TABS: {
   { id: "Собеседование", label: "Собеседование", pip: "#8b2000" },
   { id: "Тестовые", label: "Тестовые", pip: "#4a1a80" },
   { id: "Зарплата", label: "Зарплата", pip: "#1a5a30" },
+  { id: "Отклики", label: "Отклики", pip: "#9a4b00" },
+  { id: "Карьера и рост", label: "Карьера и рост", pip: "#005a73" },
 ];
 
 const LEVELS = [
@@ -57,6 +59,8 @@ const TOPIC_PILLS: {
   { category: "Собеседование", slug: "interview", emoji: "🎯", label: "Собеседование" },
   { category: "Тестовые", slug: "test", emoji: "💻", label: "Тестовые" },
   { category: "Зарплата", slug: "salary", emoji: "💰", label: "Зарплата" },
+  { category: "Отклики", slug: "apply", emoji: "📨", label: "Отклики" },
+  { category: "Карьера и рост", slug: "career", emoji: "🚀", label: "Карьера и рост" },
 ];
 
 const kickerClass: Record<string, string> = {
@@ -64,6 +68,8 @@ const kickerClass: Record<string, string> = {
   interview: "k-interv",
   test: "k-test",
   salary: "k-salary",
+  apply: "k-apply",
+  career: "k-career",
 };
 
 function countByCategory(rows: ArticleRow[], cat: string) {
@@ -177,7 +183,7 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
                 <span>сразу работают</span>
               </h1>
               <p className="hero-sub">
-                Резюме, собеседования, зарплата и тестовые — коротко, по делу, с чек-листами.
+                Резюме, собеседования, тестовые, зарплата, отклики и карьерный рост — коротко, по делу, с чек-листами.
               </p>
             </div>
             <div className="hero-right">
@@ -209,7 +215,7 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
                   <div className="hero-stat-label">минут чтения</div>
                 </div>
                 <div className="hero-stat">
-                  <div className="hero-stat-num">4</div>
+                  <div className="hero-stat-num">6</div>
                   <div className="hero-stat-label">темы</div>
                 </div>
               </div>

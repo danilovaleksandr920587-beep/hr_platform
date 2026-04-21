@@ -30,6 +30,8 @@ export default async function sitemap({
       "/knowledge-base/interview",
       "/knowledge-base/test",
       "/knowledge-base/salary",
+      "/knowledge-base/apply",
+      "/knowledge-base/career",
       "/research",
       "/tools/salary-calculator",
       "/tools/resume-analyzer",

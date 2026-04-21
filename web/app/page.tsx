@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeClRevealInit } from "@/components/home/HomeClRevealInit";
 import { HomeStatsTabs } from "@/components/home/HomeStatsTabs";
+import { SiteFooter } from "@/components/SiteFooter";
 import { listVacancies } from "@/lib/data/vacancies";
 import type { VacancyRow } from "@/lib/types";
 import "@/styles/home-redesign.css";
@@ -471,16 +472,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer className="footer section">
-        <div className="container footer-wrap">
-          <p>CareerLab, 2026</p>
-          <div className="footer-links">
-            <Link href="/vacancies">Вакансии</Link>
-            <Link href="/research">Зарплаты</Link>
-            <Link href="/knowledge-base">Статьи</Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -87,6 +87,8 @@ export default async function ArticlePage({ params }: PageProps) {
     Собеседование: "/knowledge-base/interview",
     Тестовые: "/knowledge-base/test",
     Зарплата: "/knowledge-base/salary",
+    Отклики: "/knowledge-base/apply",
+    "Карьера и рост": "/knowledge-base/career",
   };
 
   const nextSteps = [

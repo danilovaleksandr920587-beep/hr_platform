@@ -10,9 +10,39 @@ export async function KnowledgeClusterPage({
   const rows = await listArticles({ category: cluster.category });
   const featured = rows[0] ?? null;
   const rest = rows.slice(1);
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+    "http://localhost:3000";
+  const clusterUrl = `${base}/knowledge-base/${cluster.slug}`;
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: cluster.title,
+    description: cluster.description,
+    url: clusterUrl,
+    inLanguage: "ru-RU",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "CareerLab",
+      url: base,
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: rows.slice(0, 12).map((row, idx) => ({
+        "@type": "ListItem",
+        position: idx + 1,
+        url: `${base}/knowledge-base/${row.slug}`,
+        name: row.title,
+      })),
+    },
+  };
 
   return (
     <main className="kc-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
       <section className="kc-hero">
         <div className="kc-hero-inner">
           <p className="kc-eyebrow">Тематический хаб</p>

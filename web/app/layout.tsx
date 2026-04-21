@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../styles/careerlab-ui.css";
 import "../styles/cl-topbar.css";
 import "./globals.css";
+import { CookieBanner } from "@/components/CookieBanner";
 import { SiteHeader } from "@/components/SiteHeader";
 
 const golos = Golos_Text({
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body className={`${golos.className} careerlab-site`}>
         <SiteHeader />
         {children}
+        <CookieBanner />
         <SpeedInsights />
       </body>
     </html>

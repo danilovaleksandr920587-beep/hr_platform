@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 function safeNextPath(raw: string | undefined) {
@@ -21,6 +22,7 @@ export function LoginForm({
     "idle" | "loading" | "sent" | "error"
   >("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,11 +76,32 @@ export function LoginForm({
           }}
         />
       </label>
+      <label
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 8,
+          marginTop: "0.75rem",
+          color: "var(--muted)",
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          style={{ marginTop: 2 }}
+        />
+        <span>
+          Я соглашаюсь с{" "}
+          <Link href="/privacy-policy">Политикой конфиденциальности</Link> и даю согласие на
+          обработку персональных данных
+        </span>
+      </label>
       <div className="hero-actions">
         <button
           type="submit"
           className="btn btn-coral"
-          disabled={status === "loading"}
+          disabled={status === "loading" || !consent}
         >
           {status === "loading" ? "Отправка…" : "Войти по ссылке"}
         </button>
