@@ -2,9 +2,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME } from "./cookies";
 import { tryParseAuthSession } from "./token";
 
+function isAuthOfficePath(pathname: string): boolean {
+  if (pathname === "/office") return true;
+  if (pathname.startsWith("/office/")) return true;
+  return false;
+}
+
 export async function officeGuard(request: NextRequest): Promise<NextResponse> {
   const path = request.nextUrl.pathname;
-  if (!path.startsWith("/office")) {
+  if (!isAuthOfficePath(path)) {
     return NextResponse.next({ request });
   }
 
