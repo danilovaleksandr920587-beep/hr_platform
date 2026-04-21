@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "kb:replace-from-md": "node scripts/replace-kb-from-md.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
@@ -23,5 +24,19 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "typescript": "^5"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 111",
+      "edge >= 111",
+      "firefox >= 113",
+      "safari >= 16.4",
+      "ios_saf >= 16.4"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

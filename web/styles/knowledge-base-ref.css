@@ -160,6 +160,10 @@
 .kbref .k-test .kip { background: #4a1a80; }
 .kbref .k-salary .kip, .kbref .k-salary { color: #1a5a30; }
 .kbref .k-salary .kip { background: #1a5a30; }
+.kbref .k-apply .kip, .kbref .k-apply { color: #9a4b00; }
+.kbref .k-apply .kip { background: #9a4b00; }
+.kbref .k-career .kip, .kbref .k-career { color: #005a73; }
+.kbref .k-career .kip { background: #005a73; }
 
 .kbref .feat-title {
   font-family: var(--font-unbounded), "Unbounded", sans-serif;
@@ -400,16 +404,6 @@
 .kbref .sec-head,
 .kbref .articles,
 .kbref .promo {
-  padding-left: clamp(1rem, 4vw, 60px);
-  padding-right: clamp(1rem, 4vw, 60px);
-}
-
-.kbref .fbar {
-  padding-left: clamp(1rem, 4vw, 60px);
-  padding-right: clamp(1rem, 4vw, 60px);
-}
-
-.kbref .hero {
   padding-left: clamp(1rem, 4vw, 60px);
   padding-right: clamp(1rem, 4vw, 60px);
 }
