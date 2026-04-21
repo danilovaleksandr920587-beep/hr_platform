@@ -126,6 +126,7 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
   const fullName = fullNamePlaceholder(email, displayName);
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [resumeEvaluated, setResumeEvaluated] = useState(true);
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
 
@@ -162,6 +163,16 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
 
   const closeModalBg = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) setModalOpen(false);
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/";
+    } catch {
+      setLoggingOut(false);
+    }
   }, []);
 
   const fpHeaderStyle = useMemo(
@@ -273,6 +284,22 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
                       {count ? <span className="nav-count">{count}</span> : null}
                     </button>
                   ))}
+                  <div
+                    style={{
+                      marginTop: 12,
+                      paddingTop: 12,
+                      borderTop: "1px solid var(--border2)",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="office-nav-link"
+                      onClick={() => void handleLogout()}
+                      disabled={loggingOut}
+                    >
+                      <span className="nav-icon">⎋</span> {loggingOut ? "Выход…" : "Выйти"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

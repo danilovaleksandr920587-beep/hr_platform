@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { officeGuard } from "@/lib/auth/office-guard";
 
 function legacyHtmlRedirect(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
@@ -30,7 +30,7 @@ function legacyHtmlRedirect(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const legacy = legacyHtmlRedirect(request);
   if (legacy) return legacy;
-  return await updateSession(request);
+  return await officeGuard(request);
 }
 
 export const config = {

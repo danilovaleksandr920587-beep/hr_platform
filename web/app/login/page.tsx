@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/LoginForm";
-import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
+import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { optionalString } from "@/lib/searchParams";
 
 export const metadata: Metadata = {
   title: "Вход",
-  description: "Вход в личный кабинет CareerLab через magic link.",
+  description: "Вход и регистрация в личном кабинете CareerLab по email и паролю.",
   robots: { index: false, follow: false },
 };
 
@@ -21,19 +21,19 @@ export default async function LoginPage({ searchParams }: PageProps) {
     ? nextRaw
     : "/office";
   const err = optionalString(sp, "error");
-  const configured = isPublicSupabaseConfigured();
+  const configured = isPasswordAuthConfigured();
 
   return (
     <main className="section">
       <div className="container" style={{ maxWidth: 520 }}>
         <h1 className="page-title">Вход</h1>
         <p className="hero-text">
-          Введите email — отправим одноразовую ссылку. После входа откроется{" "}
+          Войдите или зарегистрируйтесь — после входа откроется{" "}
           <Link href="/office">личный кабинет</Link>.
         </p>
         {err === "auth" ? (
           <p className="hero-text" style={{ color: "var(--coral)" }}>
-            Не удалось подтвердить вход. Попробуйте запросить ссылку ещё раз.
+            Сессия недействительна или истекла. Войдите снова.
           </p>
         ) : null}
         <LoginForm nextPath={nextPath} configured={configured} />

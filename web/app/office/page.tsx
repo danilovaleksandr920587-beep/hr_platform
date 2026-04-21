@@ -3,8 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { OfficeDashboard } from "@/components/office/OfficeDashboard";
-import { createClient } from "@/lib/supabase/server";
-import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
+import { isPasswordAuthConfigured } from "@/lib/auth/config";
+import { getSessionFromCookies } from "@/lib/auth/session";
 import "@/styles/office-mockup.css";
 
 export const metadata: Metadata = {
@@ -12,20 +12,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-function displayNameFromUser(user: {
-  user_metadata?: Record<string, unknown>;
-}): string | null {
-  const m = user.user_metadata;
-  if (!m) return null;
-  const full = m.full_name;
-  if (typeof full === "string" && full.trim()) return full.trim();
-  const name = m.name;
-  if (typeof name === "string" && name.trim()) return name.trim();
-  return null;
-}
-
 export default async function OfficePage() {
-  if (!isPublicSupabaseConfigured()) {
+  if (!isPasswordAuthConfigured()) {
     return (
       <>
         <main className="section">
@@ -33,10 +21,10 @@ export default async function OfficePage() {
             <div className="panel">
               <h1 className="page-title">Кабинет</h1>
               <p className="hero-text">
-                Supabase ещё не подключён: добавьте{" "}
-                <code>NEXT_PUBLIC_SUPABASE_URL</code> и{" "}
-                <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> в окружение (например,
-                в Vercel → Settings → Environment Variables).
+                Вход по email и паролю: задайте в окружении{" "}
+                <code>DATABASE_URL</code> (Postgres, тот же что у Supabase/Beget) и{" "}
+                <code>AUTH_SECRET</code> — случайная строка не короче 32 символов для подписи
+                сессии. Примените миграцию с таблицей <code>careerlab_accounts</code>.
               </p>
               <p className="hero-text">
                 <Link className="text-link" href="/">
@@ -51,21 +39,14 @@ export default async function OfficePage() {
     );
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const session = await getSessionFromCookies();
+  if (!session) {
     redirect("/login?next=/office");
   }
 
-  const email = user.email ?? user.id;
-  const displayName = displayNameFromUser(user);
-
   return (
     <>
-      <OfficeDashboard email={email} displayName={displayName} />
+      <OfficeDashboard email={session.email} displayName={session.displayName} />
       <SiteFooter />
     </>
   );
