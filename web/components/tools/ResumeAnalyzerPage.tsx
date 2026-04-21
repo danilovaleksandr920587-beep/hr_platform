@@ -151,7 +151,7 @@ export function ResumeAnalyzerPage() {
           </div>
 
           {step === 1 ? (
-            <div className="panel active">
+            <div className="ra-panel">
               <div className="panel-title">Добавьте резюме</div>
               <div className="panel-sub">Загрузите файл или вставьте текст.</div>
               <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
@@ -179,7 +179,7 @@ export function ResumeAnalyzerPage() {
           ) : null}
 
           {step === 2 ? (
-            <div className="panel active">
+            <div className="ra-panel">
               <div className="panel-title">Добавьте вакансию</div>
               <div className="panel-sub">Вставьте текст вакансии или выберите пример.</div>
               <textarea className="resume-textarea" style={{ minHeight: 220 }} value={vacancyText} onChange={(e) => setVacancyText(e.target.value)} placeholder="Вставьте описание вакансии" />
@@ -197,7 +197,7 @@ export function ResumeAnalyzerPage() {
           ) : null}
 
           {step === 3 ? (
-            <div className="panel active">
+            <div className="ra-panel">
               {loading ? (
                 <div className="loading-state">
                   <div className="loader" />
