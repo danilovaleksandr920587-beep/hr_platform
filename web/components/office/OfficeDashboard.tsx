@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SAVED_ITEMS_EVENT, readSavedSnapshot } from "@/lib/client/saved-items";
-import { loadResumeAnalysis } from "@/lib/client/resume-analysis";
-import type { ResumeAnalysisResult } from "@/lib/client/resume-analysis";
+import { InlineResumeAnalyzer } from "@/components/office/InlineResumeAnalyzer";
 
 type OfficeDashboardProps = {
   userScope: string;
@@ -12,27 +11,11 @@ type OfficeDashboardProps = {
   displayName?: string | null;
 };
 
-function firstNameFrom(email: string, displayName?: string | null) {
-  const n = displayName?.trim();
-  if (n) return n.split(/\s+/)[0] ?? n;
-  return email.split("@")[0] ?? "друг";
-}
-
-function initialsFrom(email: string, displayName?: string | null) {
-  const n = displayName?.trim();
-  if (n) {
-    const parts = n.split(/\s+/).filter(Boolean);
-    const a = parts[0]?.[0] ?? "";
-    const b = parts[1]?.[0] ?? "";
-    return (a + b).toUpperCase() || a.toUpperCase() || email.slice(0, 2).toUpperCase();
-  }
+function initialsFrom(name: string, surname: string, email: string) {
+  const a = name.trim()[0] ?? "";
+  const b = surname.trim()[0] ?? "";
+  if (a || b) return (a + b).toUpperCase();
   return email.slice(0, 2).toUpperCase();
-}
-
-function fullNamePlaceholder(email: string, displayName?: string | null) {
-  const n = displayName?.trim();
-  if (n) return n;
-  return email;
 }
 
 const JOBS: {
@@ -124,32 +107,83 @@ const ARTICLES = [
 
 type SectionId = "resume" | "salary" | "checklist" | "vacancies" | "articles";
 
+// Parse displayName into first + surname
+function parseName(displayName?: string | null, email?: string) {
+  const n = displayName?.trim();
+  if (n) {
+    const parts = n.split(/\s+/).filter(Boolean);
+    return { firstName: parts[0] ?? "", surname: parts.slice(1).join(" ") };
+  }
+  return { firstName: email?.split("@")[0] ?? "", surname: "" };
+}
+
 export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboardProps) {
-  const first = firstNameFrom(email, displayName);
-  const initials = initialsFrom(email, displayName);
-  const fullName = fullNamePlaceholder(email, displayName);
+  const parsed = parseName(displayName, email);
+
+  // Profile state (controlled)
+  const [profileFirstName, setProfileFirstName] = useState(parsed.firstName);
+  const [profileSurname, setProfileSurname] = useState(parsed.surname);
+  const [profileDirection, setProfileDirection] = useState("IT");
+  const [profileLevel, setProfileLevel] = useState("Junior");
+  const [profileFormat, setProfileFormat] = useState("Гибрид");
+  const [profileCity, setProfileCity] = useState("Москва");
+
+  // Derived display values
+  const displayFirstName = profileFirstName || email.split("@")[0] || "друг";
+  const displayFullName = [profileFirstName, profileSurname].filter(Boolean).join(" ") || email;
+  const initials = initialsFrom(profileFirstName, profileSurname, email);
+  const profileBadge = `${profileDirection} · ${profileLevel}`;
 
   const [modalOpen, setModalOpen] = useState(false);
+  // Temp form state (in-modal, applied only on save)
+  const [formFn, setFormFn] = useState(profileFirstName);
+  const [formLn, setFormLn] = useState(profileSurname);
+  const [formDir, setFormDir] = useState(profileDirection);
+  const [formLvl, setFormLvl] = useState(profileLevel);
+  const [formFmt, setFormFmt] = useState(profileFormat);
+  const [formCity, setFormCity] = useState(profileCity);
+
+  function openModal() {
+    setFormFn(profileFirstName);
+    setFormLn(profileSurname);
+    setFormDir(profileDirection);
+    setFormLvl(profileLevel);
+    setFormFmt(profileFormat);
+    setFormCity(profileCity);
+    setModalOpen(true);
+  }
+
+  function saveProfile() {
+    setProfileFirstName(formFn);
+    setProfileSurname(formLn);
+    setProfileDirection(formDir);
+    setProfileLevel(formLvl);
+    setProfileFormat(formFmt);
+    setProfileCity(formCity);
+    setModalOpen(false);
+  }
+
   const [loggingOut, setLoggingOut] = useState(false);
-  const [resumeEvaluated, setResumeEvaluated] = useState(false);
-  const [resumeAnalysis, setResumeAnalysis] = useState<ResumeAnalysisResult | null>(null);
+  const [resumeScore, setResumeScore] = useState<number | null>(null);
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
   const [savedCounts, setSavedCounts] = useState({ vacancies: 0, articles: 0 });
 
   const [checkRows, setCheckRows] = useState([
-    { id: "1", done: true, label: "Резюме загружено и оценено", href: null as string | null },
-    { id: "2", done: true, label: "Заполнен профиль: направление и уровень", href: null },
-    { id: "3", done: true, label: "Прочитан гайд «Как написать резюме»", href: "/knowledge-base/resume" },
-    {
-      id: "4",
-      done: false,
-      label: "Подготовься к интервью — пройди тест на знание стека",
-      href: "/knowledge-base/interview",
-    },
+    { id: "1", done: false, label: "Резюме загружено и оценено", href: null as string | null },
+    { id: "2", done: false, label: "Заполнен профиль: направление и уровень", href: null },
+    { id: "3", done: false, label: "Прочитан гайд «Как написать резюме»", href: "/knowledge-base/resume" },
+    { id: "4", done: false, label: "Подготовься к интервью — пройди тест на знание стека", href: "/knowledge-base/interview" },
     { id: "5", done: false, label: "Добавь GitHub или портфолио в резюме", href: "/knowledge-base/resume" },
     { id: "6", done: false, label: "Сохрани 5 подходящих вакансий из подборки", href: "/vacancies" },
     { id: "7", done: false, label: "Изучи зарплатный рынок в своём направлении", href: "/tools/salary-calculator" },
   ]);
+
+  // Mark resume as done when score arrives
+  useEffect(() => {
+    if (resumeScore !== null) {
+      setCheckRows((rows) => rows.map((r) => r.id === "1" ? { ...r, done: true } : r));
+    }
+  }, [resumeScore]);
 
   const progress = useMemo(() => {
     const done = checkRows.filter((r) => r.done).length;
@@ -169,14 +203,6 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
-  }, [userScope]);
-
-  useEffect(() => {
-    const analysis = loadResumeAnalysis(userScope);
-    if (analysis) {
-      setResumeAnalysis(analysis);
-      setResumeEvaluated(true);
-    }
   }, [userScope]);
 
   const scrollTo = useCallback((id: SectionId) => {
@@ -202,65 +228,24 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     }
   }, []);
 
-  const fpHeaderStyle = useMemo(
-    () => ({ flexDirection: "column" as const, alignItems: "flex-start" as const, gap: 12 }),
-    [],
-  );
-  const rowBetweenStyle = useMemo(
-    () => ({
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      width: "100%",
-    }),
-    [],
-  );
-  const flexGap12 = useMemo(() => ({ display: "flex", alignItems: "center", gap: 12 }), []);
   const mainColStyle = useMemo(() => ({ display: "flex", flexDirection: "column" as const, gap: 24 }), []);
   const statGreen = useMemo(() => ({ color: "#3a5a00" }), []);
   const chipsMb = useMemo(() => ({ marginBottom: 14 }), []);
-  const resumeActionsStyle = useMemo(() => ({ display: "flex", gap: 10, marginTop: 14 }), []);
   const panelPad = useMemo(() => ({ padding: 24 }), []);
-  const progressHeaderStyle = useMemo(
-    () => ({ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }),
-    [],
-  );
-  const checklistColStyle = useMemo(
-    () => ({ display: "flex", flexDirection: "column" as const, gap: 6 }),
-    [],
-  );
-  const shMedianHint = useMemo(
-    () => ({ fontSize: 12, color: "rgba(255,255,255,.3)" }),
-    [],
-  );
+  const progressHeaderStyle = useMemo(() => ({ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }), []);
+  const checklistColStyle = useMemo(() => ({ display: "flex", flexDirection: "column" as const, gap: 6 }), []);
+  const shMedianHint = useMemo(() => ({ fontSize: 12, color: "rgba(255,255,255,.3)" }), []);
   const rangeFillStyle = useMemo(() => ({ left: 0, width: "70%" }), []);
   const rangeLineStyle = useMemo(() => ({ left: "55%" }), []);
-  const titleRowStyle = useMemo(() => ({ display: "flex", alignItems: "center", gap: 8 }), []);
-  const toggleLabelStyle = useMemo(() => ({ fontSize: 11, color: "var(--muted)" }), []);
-  const avatarSmStyle = useMemo(
-    () => ({ width: 48, height: 48, fontSize: 15, margin: 0 }),
-    [],
-  );
-  const nameSmStyle = useMemo(() => ({ fontSize: 13 }), []);
-  const unboundedTitleStyle = useMemo(
-    () => ({
-      fontFamily: "'Unbounded',sans-serif",
-      fontSize: 14,
-      fontWeight: 700,
-      color: "var(--dark)",
-      marginBottom: 3,
-    }),
-    [],
-  );
+  const unboundedTitleStyle = useMemo(() => ({ fontFamily: "'Unbounded',sans-serif", fontSize: 14, fontWeight: 700, color: "var(--dark)", marginBottom: 3 }), []);
   const muted13 = useMemo(() => ({ fontSize: 13, color: "var(--muted)" }), []);
-  const filterGroupsStyle = useMemo(() => ({ padding: 0 }), []);
 
   return (
     <div className="office-mockup">
       <div className="page-header">
         <div className="page-header-inner">
           <div className="ph-eyebrow">Личный кабинет</div>
-          <h1 className="ph-title">Привет, {first} 👋</h1>
+          <h1 className="ph-title">Привет, {displayFirstName} 👋</h1>
           <p className="ph-sub">Здесь всё, что нужно для успешного поиска работы</p>
         </div>
       </div>
@@ -270,28 +255,22 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
           <aside>
             <div className="filter-panel">
               <div className="filter-panel-inner">
-                <div className="filter-panel-header" style={fpHeaderStyle}>
-                  <div style={rowBetweenStyle}>
+                <div className="filter-panel-header" style={{ flexDirection: "column", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                     <span className="filter-panel-heading">Профиль</span>
-                    <button type="button" className="filter-reset-link" onClick={() => setModalOpen(true)}>
-                      Изменить →
-                    </button>
+                    <button type="button" className="filter-reset-link" onClick={openModal}>Изменить →</button>
                   </div>
-                  <div style={flexGap12}>
-                    <div className="office-avatar" style={avatarSmStyle}>
-                      {initials}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div className="office-avatar" style={{ width: 48, height: 48, fontSize: 15, margin: 0 }}>{initials}</div>
                     <div>
-                      <div className="office-name" style={nameSmStyle}>
-                        {fullName}
-                      </div>
+                      <div className="office-name" style={{ fontSize: 13 }}>{displayFullName}</div>
                       <div className="office-email">{email}</div>
                     </div>
                   </div>
-                  <span className="office-badge">IT · Junior</span>
+                  <span className="office-badge">{profileBadge}</span>
                 </div>
 
-                <div className="filter-groups" style={filterGroupsStyle}>
+                <div className="filter-groups" style={{ padding: 0 }}>
                   {(
                     [
                       ["resume", "📄", "Резюме", null],
@@ -300,13 +279,9 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                       ["vacancies", "🔖", "Подборка", String(savedCounts.vacancies)],
                       ["articles", "📚", "Статьи", String(savedCounts.articles)],
                     ] as const
-                  ).map(([id, icon, label, count]) => (
+                  ).map(([id, icon, label, count]) =>
                     id === "vacancies" ? (
-                      <Link
-                        key={id}
-                        href="/office/saved-vacancies"
-                        className="office-nav-link"
-                      >
+                      <Link key={id} href="/office/saved-vacancies" className="office-nav-link">
                         <span className="nav-icon">{icon}</span> {label}
                         {count ? <span className="nav-count">{count}</span> : null}
                       </Link>
@@ -321,14 +296,8 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                         {count ? <span className="nav-count">{count}</span> : null}
                       </button>
                     )
-                  ))}
-                  <div
-                    style={{
-                      marginTop: 12,
-                      paddingTop: 12,
-                      borderTop: "1px solid var(--border2)",
-                    }}
-                  >
+                  )}
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border2)" }}>
                     <button
                       type="button"
                       className="office-nav-link"
@@ -351,124 +320,32 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
               </div>
               <div className="home-stat">
                 <div className="home-stat-num" style={statGreen}>
-                  {resumeAnalysis ? resumeAnalysis.score : "—"}
+                  {resumeScore !== null ? resumeScore : "—"}
                 </div>
                 <div className="home-stat-label">Балл резюме</div>
               </div>
               <div className="home-stat">
-                <div className="home-stat-num" style={statGreen}>
-                  115k
-                </div>
+                <div className="home-stat-num" style={statGreen}>115k</div>
                 <div className="home-stat-label">Медиана зарплат · IT Junior</div>
               </div>
             </div>
 
+            {/* ── Resume section ── */}
             <div id="resume">
               <div className="section-hdr">
                 <span className="section-hdr-title">Оценка резюме</span>
-                <div style={titleRowStyle}>
-                  <span style={toggleLabelStyle}>
-                    {resumeEvaluated ? "Показать без оценки" : "Показать результат"}
-                  </span>
-                  <button type="button" className="demo-toggle-btn" onClick={() => setResumeEvaluated((v) => !v)}>
-                    ↕ переключить
-                  </button>
-                </div>
+                <Link href="/tools/resume-analyzer" className="section-hdr-link" style={{ fontSize: 12 }}>
+                  Оценить под вакансию →
+                </Link>
               </div>
-
-              {!resumeEvaluated ? (
-                <div className="ranalyzer">
-                  <Link
-                    href="/tools/resume-analyzer"
-                    className="upload-zone"
-                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
-                  >
-                    <div className="upload-icon">📄</div>
-                    <div className="upload-title">Резюме ещё не оценено</div>
-                    <div className="upload-sub">
-                      Загрузи резюме — ИИ проверит структуру, ключевые слова
-                      <br />
-                      и соответствие вакансиям. Займёт меньше минуты.
-                    </div>
-                    <span className="btn-primary" style={{ margin: "0 auto", display: "table" }}>
-                      Оценить резюме →
-                    </span>
-                  </Link>
-                </div>
-              ) : resumeAnalysis ? (
-                <div className="ranalyzer">
-                  <div className="result-score">
-                    <div className="score-circle">
-                      <span className="score-num">{resumeAnalysis.score}</span>
-                    </div>
-                    <div>
-                      <div className="score-title">
-                        {resumeAnalysis.score >= 70 ? "Сильное резюме" : resumeAnalysis.score >= 45 ? "Есть точки роста" : "Требует доработки"}
-                      </div>
-                      <div className="score-sub">{resumeAnalysis.verdict}</div>
-                    </div>
-                  </div>
-                  <div className="result-sections">
-                    {resumeAnalysis.sections.map((s) => (
-                      <div key={s.id} className="result-section">
-                        <div className="result-section-header">
-                          <span className="rsh-icon">{s.icon}</span>
-                          <span className="rsh-title">{s.title}</span>
-                          <span className={`rsh-badge ${s.status === "critical" ? "badge-crit" : s.status === "warning" ? "badge-warn" : "badge-good"}`}>
-                            {s.status === "critical" ? "Критично" : s.status === "warning" ? "Улучшить" : "Хорошо"}
-                          </span>
-                        </div>
-                        <div className="result-section-body">
-                          {s.issues.slice(0, 2).map((issue, i) => (
-                            <div key={i} className="issue-item">
-                              <div className={`issue-dot ${issue.type === "critical" ? "dot-red" : issue.type === "warning" ? "dot-yellow" : "dot-green"}`} />
-                              <div className="issue-text">
-                                <strong>{issue.title}</strong>
-                                {issue.fix && <div className="issue-fix">→ {issue.fix}</div>}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={resumeActionsStyle}>
-                    <Link
-                      href="/tools/resume-analyzer"
-                      className="btn-primary"
-                      style={{ textAlign: "center", textDecoration: "none", display: "inline-block" }}
-                    >
-                      Переоценить резюме
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div className="ranalyzer">
-                  <Link
-                    href="/tools/resume-analyzer"
-                    className="upload-zone"
-                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
-                  >
-                    <div className="upload-icon">📄</div>
-                    <div className="upload-title">Резюме ещё не оценено</div>
-                    <div className="upload-sub">
-                      Загрузи резюме — YandexGPT проверит структуру, навыки
-                      <br />и соответствие вакансиям. Займёт меньше минуты.
-                    </div>
-                    <span className="btn-primary" style={{ margin: "0 auto", display: "table" }}>
-                      Оценить резюме →
-                    </span>
-                  </Link>
-                </div>
-              )}
+              <InlineResumeAnalyzer userScope={userScope} onScoreChange={setResumeScore} />
             </div>
 
+            {/* ── Salary section ── */}
             <div id="salary">
               <div className="section-hdr">
                 <span className="section-hdr-title">Зарплата по профилю</span>
-                <Link href="/tools/salary-calculator" className="section-hdr-link">
-                  Открыть калькулятор →
-                </Link>
+                <Link href="/tools/salary-calculator" className="section-hdr-link">Открыть калькулятор →</Link>
               </div>
 
               <div className="chips" style={chipsMb}>
@@ -520,48 +397,25 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                 </div>
 
                 <div className="tips-card">
-                  <div className="tips-title">
-                    Как <em>увеличить</em> зарплату
-                  </div>
-                  <div className="tip-row">
-                    <span className="tip-row-num">01</span>
-                    <span className="tip-row-text">
-                      Добавь GitHub с реальными проектами — это сдвигает оффер на 10–20% выше рынка
-                    </span>
-                  </div>
-                  <div className="tip-row">
-                    <span className="tip-row-num">02</span>
-                    <span className="tip-row-text">
-                      Указывай результаты в цифрах в резюме — HR воспринимает это как опыт выше уровня
-                    </span>
-                  </div>
-                  <div className="tip-row">
-                    <span className="tip-row-num">03</span>
-                    <span className="tip-row-text">
-                      Рассмотри продуктовые компании — они платят Junior на 15–25% больше аутсорса
-                    </span>
-                  </div>
+                  <div className="tips-title">Как <em>увеличить</em> зарплату</div>
+                  <div className="tip-row"><span className="tip-row-num">01</span><span className="tip-row-text">Добавь GitHub с реальными проектами — это сдвигает оффер на 10–20% выше рынка</span></div>
+                  <div className="tip-row"><span className="tip-row-num">02</span><span className="tip-row-text">Указывай результаты в цифрах в резюме — HR воспринимает это как опыт выше уровня</span></div>
+                  <div className="tip-row"><span className="tip-row-num">03</span><span className="tip-row-text">Рассмотри продуктовые компании — они платят Junior на 15–25% больше аутсорса</span></div>
                 </div>
               </div>
             </div>
 
+            {/* ── Checklist ── */}
             <div id="checklist">
               <div className="section-hdr">
                 <span className="section-hdr-title">Готовность к поиску работы</span>
               </div>
-
               <div className="panel" style={panelPad}>
                 <div style={progressHeaderStyle}>
                   <div className="progress-ring-wrap">
                     <svg width="60" height="60" viewBox="0 0 60 60" aria-hidden>
                       <circle className="prg-bg" cx="30" cy="30" r="26" />
-                      <circle
-                        className="prg-fill"
-                        cx="30"
-                        cy="30"
-                        r="26"
-                        style={{ strokeDashoffset: progress.offset }}
-                      />
+                      <circle className="prg-fill" cx="30" cy="30" r="26" style={{ strokeDashoffset: progress.offset }} />
                     </svg>
                     <div className="prg-label">{progress.pct}%</div>
                   </div>
@@ -579,12 +433,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                       tabIndex={0}
                       className={`check-row${row.done ? " done" : ""}`}
                       onClick={() => toggleCheck(row.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          toggleCheck(row.id);
-                        }
-                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCheck(row.id); } }}
                     >
                       <div className="check-box">{row.done ? "✓" : ""}</div>
                       <span className="check-label">{row.label}</span>
@@ -599,16 +448,13 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
               </div>
             </div>
 
+            {/* ── Vacancies ── */}
             <div id="vacancies">
               <div className="section-hdr">
                 <span className="section-hdr-title">Подборка для тебя</span>
-                <Link href="/vacancies" className="section-hdr-link">
-                  Все вакансии →
-                </Link>
+                <Link href="/vacancies" className="section-hdr-link">Все вакансии →</Link>
               </div>
-              <div className="section-badge">
-                На основе профиля: IT · Junior · Москва · Сохранено вакансий: {savedCounts.vacancies}
-              </div>
+              <div className="section-badge">На основе профиля: IT · Junior · Москва · Сохранено: {savedCounts.vacancies}</div>
 
               <div className="jobs-list">
                 {JOBS.map((job) => (
@@ -618,32 +464,18 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                         <div className="job-co">{job.co}</div>
                         <h3 className="job-title">{job.title}</h3>
                       </div>
-                      <div className="job-salary-block">
-                        <span className="job-salary">{job.salary}</span>
-                      </div>
+                      <div className="job-salary-block"><span className="job-salary">{job.salary}</span></div>
                     </div>
                     <ul className="job-tags">
-                      {job.tags.map((t) => (
-                        <li key={t.text}>
-                          <span className={t.cls}>{t.text}</span>
-                        </li>
-                      ))}
+                      {job.tags.map((t) => <li key={t.text}><span className={t.cls}>{t.text}</span></li>)}
                     </ul>
                     <div className="job-card-bottom">
                       <div className="job-actions">
                         <div className="tooltip-wrap">
-                          <button type="button" className="job-btn-primary">
-                            Откликнуться
-                          </button>
+                          <button type="button" className="job-btn-primary">Откликнуться</button>
                           <div className="tooltip-pop">Откроет email HR-менеджера</div>
                         </div>
-                        <Link
-                          href="/vacancies"
-                          className="job-btn-secondary"
-                          style={{ textDecoration: "none" }}
-                        >
-                          Подробнее
-                        </Link>
+                        <Link href="/vacancies" className="job-btn-secondary" style={{ textDecoration: "none" }}>Подробнее</Link>
                       </div>
                       <span className="job-date">{job.date}</span>
                     </div>
@@ -652,12 +484,11 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
               </div>
             </div>
 
+            {/* ── Articles ── */}
             <div id="articles">
               <div className="section-hdr">
                 <span className="section-hdr-title">Сохранённые статьи</span>
-                <Link href="/knowledge-base" className="section-hdr-link">
-                  В базу знаний →
-                </Link>
+                <Link href="/knowledge-base" className="section-hdr-link">В базу знаний →</Link>
               </div>
               <div className="section-badge">Сохранено статей: {savedCounts.articles}</div>
 
@@ -681,9 +512,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                       <h3 className="card-title">{a.title}</h3>
                       <div className="card-footer">
                         <span className="card-read-btn">Читать</span>
-                        <span className="card-save" aria-hidden>
-                          🔖
-                        </span>
+                        <span className="card-save" aria-hidden>🔖</span>
                       </div>
                     </div>
                   </Link>
@@ -694,34 +523,27 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
         </div>
       </div>
 
+      {/* ── Edit Profile Modal ── */}
       <div
         className={`modal-overlay${modalOpen ? " open" : ""}`}
         onClick={closeModalBg}
         role="presentation"
       >
         <div className="modal" role="dialog" aria-modal="true" aria-labelledby="office-modal-title">
-          <div className="modal-title" id="office-modal-title">
-            Редактировать профиль
-          </div>
+          <div className="modal-title" id="office-modal-title">Редактировать профиль</div>
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label" htmlFor="office-fn">
-                Имя
-              </label>
-              <input className="form-input" id="office-fn" type="text" defaultValue={first} />
+              <label className="form-label" htmlFor="office-fn">Имя</label>
+              <input className="form-input" id="office-fn" type="text" value={formFn} onChange={(e) => setFormFn(e.target.value)} placeholder="Имя" />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="office-ln">
-                Фамилия
-              </label>
-              <input className="form-input" id="office-ln" type="text" defaultValue="" placeholder="Фамилия" />
+              <label className="form-label" htmlFor="office-ln">Фамилия</label>
+              <input className="form-input" id="office-ln" type="text" value={formLn} onChange={(e) => setFormLn(e.target.value)} placeholder="Фамилия" />
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label" htmlFor="office-dir">
-              Направление
-            </label>
-            <select className="form-select" id="office-dir" defaultValue="IT">
+            <label className="form-label" htmlFor="office-dir">Направление</label>
+            <select className="form-select" id="office-dir" value={formDir} onChange={(e) => setFormDir(e.target.value)}>
               <option>IT</option>
               <option>Аналитика</option>
               <option>Финансы</option>
@@ -733,20 +555,17 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label" htmlFor="office-lvl">
-                Уровень
-              </label>
-              <select className="form-select" id="office-lvl" defaultValue="Junior">
+              <label className="form-label" htmlFor="office-lvl">Уровень</label>
+              <select className="form-select" id="office-lvl" value={formLvl} onChange={(e) => setFormLvl(e.target.value)}>
                 <option>Стажёр</option>
                 <option>Junior</option>
                 <option>Middle</option>
+                <option>Senior</option>
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="office-fmt">
-                Формат
-              </label>
-              <select className="form-select" id="office-fmt" defaultValue="Гибрид">
+              <label className="form-label" htmlFor="office-fmt">Формат</label>
+              <select className="form-select" id="office-fmt" value={formFmt} onChange={(e) => setFormFmt(e.target.value)}>
                 <option>Не важно</option>
                 <option>Гибрид</option>
                 <option>Удалённо</option>
@@ -755,18 +574,12 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label" htmlFor="office-city">
-              Город
-            </label>
-            <input className="form-input" id="office-city" type="text" defaultValue="Москва" />
+            <label className="form-label" htmlFor="office-city">Город</label>
+            <input className="form-input" id="office-city" type="text" value={formCity} onChange={(e) => setFormCity(e.target.value)} placeholder="Город" />
           </div>
           <div className="modal-actions">
-            <button type="button" className="btn-save" onClick={() => setModalOpen(false)}>
-              Сохранить
-            </button>
-            <button type="button" className="btn-cancel" onClick={() => setModalOpen(false)}>
-              Отмена
-            </button>
+            <button type="button" className="btn-save" onClick={saveProfile}>Сохранить</button>
+            <button type="button" className="btn-cancel" onClick={() => setModalOpen(false)}>Отмена</button>
           </div>
         </div>
       </div>

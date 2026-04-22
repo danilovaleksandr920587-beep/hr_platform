@@ -6,13 +6,14 @@ const YGPT_FOLDER_ID = process.env.YANDEX_GPT_FOLDER_ID ?? "";
 const YGPT_MODEL = `gpt://${YGPT_FOLDER_ID}/yandexgpt/latest`;
 const YGPT_ENDPOINT = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
 
-const MAX_CHARS = 12000; // ~3k tokens per field
+const MAX_CHARS = 12000;
 
 function isConfigured() {
   return YGPT_API_KEY.length > 10 && YGPT_FOLDER_ID.length > 5;
 }
 
-const SYSTEM_PROMPT = `Ты — senior рекрутер и карьерный консультант с опытом найма в IT, аналитике, маркетинге и финансах.
+// ─── Track 2: Vacancy-specific ────────────────────────────────────────────────
+const SYSTEM_PROMPT_VACANCY = `Ты — senior рекрутер и карьерный консультант с опытом найма в IT, аналитике, маркетинге и финансах.
 
 Твоя задача: проанализировать резюме кандидата относительно описания вакансии и вернуть структурированную оценку.
 
@@ -71,7 +72,7 @@ const SYSTEM_PROMPT = `Ты — senior рекрутер и карьерный к
   ]
 }`;
 
-function buildUserPrompt(resumeText: string, vacancyText: string) {
+function buildVacancyPrompt(resumeText: string, vacancyText: string) {
   const r = resumeText.slice(0, MAX_CHARS);
   const v = vacancyText.slice(0, MAX_CHARS);
   return `Проанализируй резюме кандидата относительно вакансии.
@@ -91,6 +92,92 @@ ${v}
 В topActions дай 3 конкретных совета: что именно написать или добавить.`;
 }
 
+// ─── Track 1: General sphere-based ────────────────────────────────────────────
+const SYSTEM_PROMPT_GENERAL = `Ты — senior рекрутер и карьерный консультант с опытом найма в IT, аналитике, маркетинге, финансах и других сферах.
+
+Твоя задача: проанализировать резюме кандидата с учётом желаемой роли и сферы деятельности. Оцени качество резюме и составь список навыков, которые рекрутёры ОЖИДАЮТ увидеть на этой позиции.
+
+Правила:
+- Отвечай ТОЛЬКО валидным JSON без markdown-обёртки, без пояснений вне JSON
+- Называй конкретные навыки, инструменты и формулировки из резюме — не обобщай
+- Давай actionable советы с примерами готовых фраз
+- В expectedSkills перечисли именно то, что рекрутёры будут искать в резюме кандидата на эту роль
+- Оценивай честно: score отражает реальное качество резюме для данной роли
+- Пиши по-русски
+
+Формат ответа (строго):
+{
+  "score": <целое число 0-100>,
+  "verdict": "<одно предложение — итоговый вывод>",
+  "expectedSkills": [
+    "<навык, технология или инструмент, который рекрутёры ожидают для этой роли>",
+    "... (всего 8-12 пунктов)"
+  ],
+  "sections": [
+    {
+      "id": "skills",
+      "title": "Навыки и стек",
+      "icon": "🎯",
+      "status": "<good|warning|critical>",
+      "issues": [
+        {
+          "type": "<good|warning|critical>",
+          "title": "<краткий заголовок до 60 символов>",
+          "description": "<конкретика из резюме, 1-3 предложения>",
+          "fix": "<готовая формулировка или конкретное действие — только для warning и critical>"
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "title": "Опыт и результаты",
+      "icon": "💼",
+      "status": "<good|warning|critical>",
+      "issues": [...]
+    },
+    {
+      "id": "structure",
+      "title": "Структура и ATS",
+      "icon": "📋",
+      "status": "<good|warning|critical>",
+      "issues": [...]
+    },
+    {
+      "id": "fit",
+      "title": "Соответствие роли",
+      "icon": "🏆",
+      "status": "<good|warning|critical>",
+      "issues": [...]
+    }
+  ],
+  "topActions": [
+    "<конкретное действие с примером>",
+    "<конкретное действие с примером>",
+    "<конкретное действие с примером>"
+  ]
+}`;
+
+function buildGeneralPrompt(resumeText: string, sphere: string, role: string, level: string) {
+  const r = resumeText.slice(0, MAX_CHARS);
+  return `Проанализируй резюме кандидата для желаемой роли.
+
+Желаемая позиция: ${role}
+Сфера: ${sphere}
+Уровень: ${level}
+
+=== РЕЗЮМЕ ===
+${r}
+
+Задачи:
+1. expectedSkills — перечисли 8-12 ключевых навыков/инструментов, которые рекрутёры БУДУТ ИСКАТЬ в резюме кандидата на роль "${role}" уровня ${level} в сфере "${sphere}". Конкретные технологии, методологии, инструменты — то, что HR ожидает увидеть.
+2. skills — какие из ожидаемых навыков есть в резюме, чего критически не хватает
+3. experience — есть ли релевантный опыт, проекты, цифры для роли "${role}"
+4. structure — читаемость, ATS-совместимость, наличие контактов
+5. fit — насколько содержание резюме соответствует уровню ${level} для роли "${role}"
+
+topActions: 3 конкретных совета что изменить прямо сейчас, чтобы резюме лучше подходило под эту роль.`;
+}
+
 export async function POST(request: Request) {
   if (!isConfigured()) {
     return NextResponse.json(
@@ -99,20 +186,41 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { resumeText?: string; vacancyText?: string };
+  let body: {
+    resumeText?: string;
+    vacancyText?: string;
+    mode?: "general" | "vacancy";
+    targetSphere?: string;
+    targetRole?: string;
+    targetLevel?: string;
+  };
   try {
-    body = (await request.json()) as { resumeText?: string; vacancyText?: string };
+    body = await request.json() as typeof body;
   } catch {
     return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
   }
 
-  const { resumeText = "", vacancyText = "" } = body;
+  const { resumeText = "", vacancyText = "", mode = "vacancy", targetSphere = "", targetRole = "", targetLevel = "" } = body;
 
   if (resumeText.trim().length < 30) {
     return NextResponse.json({ error: "Резюме слишком короткое" }, { status: 400 });
   }
-  if (vacancyText.trim().length < 20) {
-    return NextResponse.json({ error: "Вакансия слишком короткая" }, { status: 400 });
+
+  let systemPrompt: string;
+  let userPrompt: string;
+
+  if (mode === "general") {
+    if (!targetRole || !targetSphere) {
+      return NextResponse.json({ error: "Укажите желаемую роль и сферу" }, { status: 400 });
+    }
+    systemPrompt = SYSTEM_PROMPT_GENERAL;
+    userPrompt = buildGeneralPrompt(resumeText, targetSphere, targetRole, targetLevel || "Junior");
+  } else {
+    if (vacancyText.trim().length < 20) {
+      return NextResponse.json({ error: "Вакансия слишком короткая" }, { status: 400 });
+    }
+    systemPrompt = SYSTEM_PROMPT_VACANCY;
+    userPrompt = buildVacancyPrompt(resumeText, vacancyText);
   }
 
   let raw: string;
@@ -132,8 +240,8 @@ export async function POST(request: Request) {
           maxTokens: "2500",
         },
         messages: [
-          { role: "system", text: SYSTEM_PROMPT },
-          { role: "user", text: buildUserPrompt(resumeText, vacancyText) },
+          { role: "system", text: systemPrompt },
+          { role: "user", text: userPrompt },
         ],
       }),
       signal: AbortSignal.timeout(45_000),
@@ -157,7 +265,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Не удалось связаться с YandexGPT" }, { status: 502 });
   }
 
-  // Strip possible markdown fences
   const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
 
   let result: unknown;
@@ -168,5 +275,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "ИИ вернул неверный формат — попробуйте ещё раз" }, { status: 502 });
   }
 
-  return NextResponse.json({ result });
+  return NextResponse.json({ result, mode });
 }

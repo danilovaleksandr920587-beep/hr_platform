@@ -52,3 +52,36 @@
 .ranalyzer .tip-num{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:12px;color:#b5db2a}
 @media (max-width: 980px){.ranalyzer .ra-hero{grid-template-columns:1fr}.ranalyzer .ra-page{grid-template-columns:1fr}.ranalyzer .sidebar{position:static}}
 @media (max-width: 640px){.ranalyzer .ra-panel{padding:20px 16px}.ranalyzer .steps-bar{flex-wrap:wrap}.ranalyzer .step-tab{flex:unset;width:33.33%}}
+
+/* ─── Inline Resume Analyzer (office dashboard) ──────────────────────────── */
+.inline-analyzer{padding:0}
+.inline-analyzer .upload-zone{min-height:120px;padding:20px 16px}
+.inline-analyzer .result-score{padding:16px 18px;gap:16px}
+.inline-analyzer .score-circle{width:60px;height:60px;flex-shrink:0}
+.inline-analyzer .score-num{font-size:18px}
+.inline-analyzer .score-title{font-size:13px}
+.ia-role-selectors{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:640px){.ia-role-selectors{grid-template-columns:1fr}}
+.ia-selector-group{display:flex;flex-direction:column;gap:4px}
+.ia-selector-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+/* History */
+.ia-history-bar{margin-bottom:16px;background:#f7f7f0;border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden}
+.ia-history-toggle{width:100%;padding:10px 16px;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#5a5d50;text-align:left;display:flex;align-items:center;justify-content:space-between}
+.ia-history-toggle:hover{background:rgba(0,0,0,.04)}
+.ia-history-list{border-top:1px solid rgba(0,0,0,.08)}
+.ia-history-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.06);transition:background .15s}
+.ia-history-entry:last-child{border-bottom:none}
+.ia-history-entry:hover{background:rgba(0,0,0,.04)}
+.ia-he-left{display:flex;align-items:center;gap:12px}
+.ia-he-score{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:18px;font-weight:700;min-width:36px}
+.ia-he-role{font-size:13px;font-weight:600;color:#0d0f08}
+.ia-he-date{font-size:11px;color:var(--muted);margin-top:1px}
+.ia-he-arrow{color:var(--muted);font-size:13px}
+.ia-history-back{background:transparent;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:10px 16px;display:block;text-align:left}
+.ia-history-back:hover{color:#0d0f08}
+/* Expected skills block */
+.ia-expected-block{background:#f2facc;border:1px solid rgba(181,219,42,.3);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.ia-expected-toggle{width:100%;padding:12px 16px;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#4a7000;display:flex;align-items:center;justify-content:space-between}
+.ia-expected-toggle:hover{background:rgba(181,219,42,.15)}
+.ia-expected-list{display:flex;flex-wrap:wrap;gap:6px;padding:4px 16px 14px}
+.ia-expected-tag{font-size:12px;background:#fff;border:1px solid rgba(181,219,42,.5);color:#4a7000;padding:4px 10px;border-radius:20px;font-weight:500}
