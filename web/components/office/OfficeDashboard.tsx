@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SAVED_ITEMS_EVENT, readSavedSnapshot } from "@/lib/client/saved-items";
+import { loadResumeAnalysis } from "@/lib/client/resume-analysis";
+import type { ResumeAnalysisResult } from "@/lib/client/resume-analysis";
 
 type OfficeDashboardProps = {
   userScope: string;
@@ -129,7 +131,8 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
 
   const [modalOpen, setModalOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [resumeEvaluated, setResumeEvaluated] = useState(true);
+  const [resumeEvaluated, setResumeEvaluated] = useState(false);
+  const [resumeAnalysis, setResumeAnalysis] = useState<ResumeAnalysisResult | null>(null);
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
   const [savedCounts, setSavedCounts] = useState({ vacancies: 0, articles: 0 });
 
@@ -166,6 +169,14 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
+  }, [userScope]);
+
+  useEffect(() => {
+    const analysis = loadResumeAnalysis(userScope);
+    if (analysis) {
+      setResumeAnalysis(analysis);
+      setResumeEvaluated(true);
+    }
   }, [userScope]);
 
   const scrollTo = useCallback((id: SectionId) => {
@@ -340,7 +351,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
               </div>
               <div className="home-stat">
                 <div className="home-stat-num" style={statGreen}>
-                  72
+                  {resumeAnalysis ? resumeAnalysis.score : "—"}
                 </div>
                 <div className="home-stat-label">Балл резюме</div>
               </div>
@@ -384,88 +395,42 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                     </span>
                   </Link>
                 </div>
-              ) : (
+              ) : resumeAnalysis ? (
                 <div className="ranalyzer">
                   <div className="result-score">
                     <div className="score-circle">
-                      <span className="score-num">72</span>
+                      <span className="score-num">{resumeAnalysis.score}</span>
                     </div>
                     <div>
-                      <div className="score-title">Хорошее резюме</div>
-                      <div className="score-sub">
-                        Есть точки роста — исправь их, чтобы попасть в топ кандидатов
+                      <div className="score-title">
+                        {resumeAnalysis.score >= 70 ? "Сильное резюме" : resumeAnalysis.score >= 45 ? "Есть точки роста" : "Требует доработки"}
                       </div>
+                      <div className="score-sub">{resumeAnalysis.verdict}</div>
                     </div>
                   </div>
                   <div className="result-sections">
-                    <div className="result-section">
-                      <div className="result-section-header">
-                        <span className="rsh-title">Структура и форматирование</span>
-                        <span className="rsh-badge badge-good">Хорошо</span>
-                      </div>
-                      <div className="result-section-body">
-                        <div className="issue-item">
-                          <div className="issue-dot dot-green" />
-                          <div className="issue-text">
-                            <strong>Чёткая структура по стандарту</strong>
-                            <div className="issue-fix">Блоки расположены логично, читается с первого взгляда</div>
-                          </div>
+                    {resumeAnalysis.sections.map((s) => (
+                      <div key={s.id} className="result-section">
+                        <div className="result-section-header">
+                          <span className="rsh-icon">{s.icon}</span>
+                          <span className="rsh-title">{s.title}</span>
+                          <span className={`rsh-badge ${s.status === "critical" ? "badge-crit" : s.status === "warning" ? "badge-warn" : "badge-good"}`}>
+                            {s.status === "critical" ? "Критично" : s.status === "warning" ? "Улучшить" : "Хорошо"}
+                          </span>
                         </div>
-                        <div className="issue-item">
-                          <div className="issue-dot dot-green" />
-                          <div className="issue-text">
-                            <strong>Контактные данные заполнены</strong>
-                            <div className="issue-fix">Email и телефон на месте</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="result-section">
-                      <div className="result-section-header">
-                        <span className="rsh-title">Навыки и ключевые слова</span>
-                        <span className="rsh-badge badge-warn">Улучшить</span>
-                      </div>
-                      <div className="result-section-body">
-                        <div className="issue-item">
-                          <div className="issue-dot dot-green" />
-                          <div className="issue-text">
-                            <strong>Python, SQL, Pandas — присутствуют</strong>
-                            <div className="issue-fix">Ключевые стеки для IT-аналитики</div>
-                          </div>
-                        </div>
-                        <div className="issue-item">
-                          <div className="issue-dot dot-yellow" />
-                          <div className="issue-text">
-                            <strong>Описание опыта слишком общее</strong>
-                            <div className="issue-fix">
-                              Используй цифры и конкретные результаты: «вырос на 20%», «обработал 50k записей»
+                        <div className="result-section-body">
+                          {s.issues.slice(0, 2).map((issue, i) => (
+                            <div key={i} className="issue-item">
+                              <div className={`issue-dot ${issue.type === "critical" ? "dot-red" : issue.type === "warning" ? "dot-yellow" : "dot-green"}`} />
+                              <div className="issue-text">
+                                <strong>{issue.title}</strong>
+                                {issue.fix && <div className="issue-fix">→ {issue.fix}</div>}
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
-                    </div>
-                    <div className="result-section">
-                      <div className="result-section-header">
-                        <span className="rsh-title">Проекты и портфолио</span>
-                        <span className="rsh-badge badge-crit">Важно</span>
-                      </div>
-                      <div className="result-section-body">
-                        <div className="issue-item">
-                          <div className="issue-dot dot-red" />
-                          <div className="issue-text">
-                            <strong>Нет ссылки на GitHub или портфолио</strong>
-                            <div className="issue-fix">Для IT-вакансий это критично — добавь хотя бы один пет-проект</div>
-                          </div>
-                        </div>
-                        <div className="issue-item">
-                          <div className="issue-dot dot-yellow" />
-                          <div className="issue-text">
-                            <strong>Раздел проектов отсутствует</strong>
-                            <div className="issue-fix">Добавь 1–2 учебных проекта с описанием стека и результата</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                   <div style={resumeActionsStyle}>
                     <Link
@@ -475,10 +440,25 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                     >
                       Переоценить резюме
                     </Link>
-                    <button type="button" className="btn-outline">
-                      Скачать отчёт
-                    </button>
                   </div>
+                </div>
+              ) : (
+                <div className="ranalyzer">
+                  <Link
+                    href="/tools/resume-analyzer"
+                    className="upload-zone"
+                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                  >
+                    <div className="upload-icon">📄</div>
+                    <div className="upload-title">Резюме ещё не оценено</div>
+                    <div className="upload-sub">
+                      Загрузи резюме — YandexGPT проверит структуру, навыки
+                      <br />и соответствие вакансиям. Займёт меньше минуты.
+                    </div>
+                    <span className="btn-primary" style={{ margin: "0 auto", display: "table" }}>
+                      Оценить резюме →
+                    </span>
+                  </Link>
                 </div>
               )}
             </div>
