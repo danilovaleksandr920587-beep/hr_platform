@@ -85,3 +85,9 @@
 .ia-expected-toggle:hover{background:rgba(181,219,42,.15)}
 .ia-expected-list{display:flex;flex-wrap:wrap;gap:6px;padding:4px 16px 14px}
 .ia-expected-tag{font-size:12px;background:#fff;border:1px solid rgba(181,219,42,.5);color:#4a7000;padding:4px 10px;border-radius:20px;font-weight:500}
+
+/* ─── Auto-detect toggle ──────────────────────────────────────────────────── */
+.ia-autodetect-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;padding:10px 14px;background:#f7f7f0;border:1px solid rgba(0,0,0,.08);border-radius:12px}
+.ia-autodetect-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#0d0f08;cursor:pointer}
+.ia-autodetect-checkbox{width:16px;height:16px;cursor:pointer;accent-color:#0d0f08}
+.ia-autodetect-hint{font-size:11px;color:var(--muted);padding-left:24px}

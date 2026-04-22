@@ -196,7 +196,7 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
     <main className="ranalyzer">
       <section className="ra-hero">
         <div>
-          <div className="hero-badge"><div className="hero-badge-dot" /><span className="hero-badge-text">AI-анализ · YandexGPT</span></div>
+          <div className="hero-badge"><div className="hero-badge-dot" /><span className="hero-badge-text">AI-анализ резюме</span></div>
           <h1 className="hero-title">AI-разбор<br /><span>резюме</span></h1>
           <p className="hero-sub">Загрузите резюме и вакансию — получите конкретный список правок перед откликом.</p>
         </div>
@@ -268,7 +268,7 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
               </div>
               <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
                 <button className="btn-outline" onClick={() => setStep(1)}>← Назад</button>
-                <button className="btn-primary" style={{ flex: 1 }} disabled={!canAnalyze} onClick={analyze}>Проанализировать резюме ✦</button>
+                <button className="btn-primary" style={{ flex: 1 }} disabled={!canAnalyze} onClick={analyze}>Проанализировать резюме</button>
               </div>
             </div>
           )}
@@ -280,7 +280,7 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
                   <div className="loader" />
                   <div className="loading-title">Анализирую резюме...</div>
                   <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 8 }}>{loadingSteps[loadingStep]}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4, opacity: 0.6 }}>Powered by YandexGPT</div>
+                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4, opacity: 0.6 }}>Анализ на основе ИИ</div>
                 </div>
               ) : result ? (
                 <>
@@ -352,7 +352,7 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
           <div className="side-card">
             <div className="side-card-header"><span className="side-card-icon">🤖</span><span className="side-card-title">Как работает AI</span></div>
             <div className="side-card-body">
-              <div className="tip-item"><span className="tip-num">01</span>YandexGPT читает резюме и вакансию</div>
+              <div className="tip-item"><span className="tip-num">01</span>ИИ читает резюме и вакансию</div>
               <div className="tip-item"><span className="tip-num">02</span>Сравнивает навыки, опыт и структуру</div>
               <div className="tip-item"><span className="tip-num">03</span>Даёт конкретные советы по доработке</div>
               <div className="tip-item"><span className="tip-num">04</span>Результат сохраняется в кабинете</div>
