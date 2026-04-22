@@ -12,43 +12,49 @@ function isConfigured() {
 }
 
 // ─── Track 2: Vacancy-specific ────────────────────────────────────────────────
-const SYSTEM_PROMPT_VACANCY = `Ты — senior рекрутер и карьерный консультант с опытом найма в IT, аналитике, маркетинге и финансах.
+const SYSTEM_PROMPT_VACANCY = `Ты — senior рекрутер с 10+ годами опыта найма в IT, продукте, аналитике, маркетинге.
 
-Задача: проанализировать резюме кандидата относительно описания вакансии.
+Задача: детально проанализировать резюме относительно вакансии и дать конкретные инсайты.
 
 Правила:
 - Отвечай ТОЛЬКО валидным JSON без markdown-обёртки
-- Называй конкретные навыки и формулировки из текстов
-- В каждой секции ОБЯЗАТЕЛЬНО заполни issues — минимум 1 пункт даже если статус "good": опиши что конкретно хорошо
-- Давай actionable советы с примерами готовых фраз
-- Оценивай честно
+- Цитируй конкретные фразы из резюме и вакансии в кавычках
+- В каждой секции ОБЯЗАТЕЛЬНО минимум 1 issue — если хорошо, конкретно объясни ЧТО хорошо и почему это сильная сторона
+- Давай инсайты рекрутера: что думает HR читая это резюме, что вызывает сомнения, что привлекает
+- Fix — конкретная готовая формулировка, которую можно скопировать в резюме
+- Оценивай честно, не завышай score
 - Пиши по-русски
 
 Формат ответа:
 {
   "score": <0-100>,
-  "verdict": "<итоговый вывод одним предложением>",
+  "verdict": "<честный итоговый вывод 1-2 предложения>",
   "sections": [
     {
       "id": "skills",
-      "title": "Навыки и требования",
+      "title": "Ключевые навыки",
       "icon": "🎯",
       "status": "<good|warning|critical>",
       "issues": [
-        { "type": "<good|warning|critical>", "title": "<до 60 символов>", "description": "<1-3 предложения конкретики>", "fix": "<только для warning/critical>" }
+        {
+          "type": "<good|warning|critical>",
+          "title": "<конкретный заголовок до 60 символов>",
+          "description": "<инсайт рекрутера: что видит HR, почему это важно, конкретные детали из текстов>",
+          "fix": "<готовая формулировка для резюме — только для warning/critical>"
+        }
       ]
     },
-    { "id": "experience", "title": "Опыт и результаты", "icon": "💼", "status": "<good|warning|critical>", "issues": [...] },
-    { "id": "structure", "title": "Структура и ATS", "icon": "📋", "status": "<good|warning|critical>", "issues": [...] },
-    { "id": "fit", "title": "Соответствие уровню", "icon": "🏆", "status": "<good|warning|critical>", "issues": [...] }
+    { "id": "experience", "title": "Опыт и достижения", "icon": "💼", "status": "...", "issues": [...] },
+    { "id": "fit", "title": "Позиционирование", "icon": "🏆", "status": "...", "issues": [...] },
+    { "id": "structure", "title": "Структура резюме", "icon": "📋", "status": "...", "issues": [...] }
   ],
-  "topActions": ["<совет 1>", "<совет 2>", "<совет 3>"]
+  "topActions": ["<конкретное действие с примером готовой фразы>", "...", "..."]
 }`;
 
 function buildVacancyPrompt(resumeText: string, vacancyText: string) {
   const r = resumeText.slice(0, MAX_CHARS);
   const v = vacancyText.slice(0, MAX_CHARS);
-  return `Проанализируй резюме относительно вакансии.
+  return `Проанализируй резюме относительно вакансии как опытный рекрутер.
 
 === РЕЗЮМЕ ===
 ${r}
@@ -56,61 +62,69 @@ ${r}
 === ВАКАНСИЯ ===
 ${v}
 
-Критерии:
-1. skills — конкретные совпадения и пробелы по технологиям/навыкам из текста
-2. experience — цифры, результаты, проекты
-3. structure — ATS-читаемость, контакты, длина
-4. fit — соответствие уровню и сфере
+Дай глубокий анализ по 4 секциям:
+1. skills (Ключевые навыки) — сравни навыки из резюме с требованиями вакансии, цитируй конкретные пункты
+2. experience (Опыт и достижения) — есть ли измеримые результаты? что думает рекрутер видя этот опыт?
+3. fit (Позиционирование) — насколько очевидно из резюме что человек хочет и подходит для ЭТОЙ роли?
+4. structure (Структура резюме) — ATS, форматирование, логика подачи информации
 
-ВАЖНО: в каждой секции минимум 1 issue. Если всё хорошо — конкретно объясни что именно хорошо.
-В topActions — 3 конкретных совета что изменить.`;
+В каждой секции минимум 1 issue. Если хорошо — напиши что конкретно сильно и почему.
+topActions: 3 самых важных действия прямо сейчас.`;
 }
 
-// ─── Track 1: General sphere-based ────────────────────────────────────────────
-const SYSTEM_PROMPT_GENERAL = `Ты — senior рекрутер и карьерный консультант с глубоким опытом найма.
+// ─── Track 1: General / auto-detect ───────────────────────────────────────────
+const SYSTEM_PROMPT_GENERAL = `Ты — senior рекрутер с 10+ годами опыта найма в разных сферах.
 
-Задача: проанализировать резюме для желаемой роли. Определи ожидаемые навыки и оцени резюме.
+Задача: определить целевую роль кандидата из резюме, составить список ожидаемых навыков и дать глубокий анализ резюме.
 
 Правила:
 - Отвечай ТОЛЬКО валидным JSON без markdown-обёртки
-- В каждой секции ОБЯЗАТЕЛЬНО заполни issues — минимум 1 пункт даже если статус "good": конкретно опиши что именно хорошо в резюме
-- expectedSkills — отсортируй по важности (самые критичные навыки — первыми)
-- Если содержимое резюме явно не соответствует указанной роли — укажи это в секции "fit"
-- Называй конкретные инструменты, технологии, формулировки из резюме
+- Цитируй конкретные фразы и данные из резюме
+- В каждой секции ОБЯЗАТЕЛЬНО минимум 1 issue — если хорошо, объясни ЧТО именно сильно и почему это конкурентное преимущество
+- expectedSkills — навыки которые рекрутёры ИЩУТ для обнаруженной роли, отсортированные от критически важных к желательным
+- Давай инсайты рекрутера: что привлекает, что вызывает сомнения, как резюме воспринимается при первом просмотре (6-10 секунд)
+- fix — конкретная готовая формулировка, которую можно скопировать в резюме
 - Пиши по-русски
 
 Формат ответа:
 {
   "score": <0-100>,
-  "verdict": "<итоговый вывод одним предложением>",
-  "targetInfo": "<роль из резюме или указанная роль> · <уровень>",
+  "verdict": "<честный итоговый вывод 1-2 предложения>",
+  "targetInfo": "<определённая роль> · <уровень>",
   "expectedSkills": [
-    "<самый важный навык для этой роли>",
-    "<второй по важности>",
-    "... (8-12 пунктов, от важного к дополнительному)"
+    "<критически важный навык #1 для этой роли>",
+    "<критически важный навык #2>",
+    "... (8-12 пунктов от обязательных к желательным)"
   ],
   "sections": [
     {
       "id": "skills",
-      "title": "Навыки и стек",
+      "title": "Ключевые навыки",
       "icon": "🎯",
       "status": "<good|warning|critical>",
       "issues": [
-        { "type": "<good|warning|critical>", "title": "<до 60 символов>", "description": "<конкретика из резюме, 1-3 предложения>", "fix": "<только для warning/critical>" }
+        {
+          "type": "<good|warning|critical>",
+          "title": "<конкретный заголовок до 60 символов>",
+          "description": "<инсайт рекрутера с конкретикой из резюме: что видит HR, что думает, почему это важно для данной роли>",
+          "fix": "<готовая формулировка для резюме — только для warning/critical>"
+        }
       ]
     },
-    { "id": "experience", "title": "Опыт и результаты", "icon": "💼", "status": "<good|warning|critical>", "issues": [...] },
-    { "id": "structure", "title": "Структура и ATS", "icon": "📋", "status": "<good|warning|critical>", "issues": [...] },
-    { "id": "fit", "title": "Соответствие роли", "icon": "🏆", "status": "<good|warning|critical>", "issues": [...] }
+    { "id": "experience", "title": "Опыт и достижения", "icon": "💼", "status": "...", "issues": [...] },
+    { "id": "fit", "title": "Позиционирование", "icon": "🏆", "status": "...", "issues": [...] },
+    { "id": "structure", "title": "Структура резюме", "icon": "📋", "status": "...", "issues": [...] }
   ],
-  "topActions": ["<совет 1>", "<совет 2>", "<совет 3>"]
+  "topActions": [
+    "<конкретное действие #1 с готовой формулировкой>",
+    "<конкретное действие #2>",
+    "<конкретное действие #3>"
+  ]
 }`;
 
-function buildGeneralPrompt(resumeText: string, sphere: string, role: string, level: string, autoDetect: boolean) {
+function buildGeneralPrompt(resumeText: string, level: string) {
   const r = resumeText.slice(0, MAX_CHARS);
-
-  if (autoDetect) {
-    return `Проанализируй резюме кандидата.
+  return `Проанализируй резюме кандидата как опытный рекрутер.
 
 Уровень кандидата (указан пользователем): ${level}
 
@@ -118,31 +132,14 @@ function buildGeneralPrompt(resumeText: string, sphere: string, role: string, le
 ${r}
 
 Задачи:
-1. Определи из резюме на какую роль и в какой сфере нацелен кандидат. Запиши в targetInfo формат: "<Роль> · ${level}"
-2. expectedSkills — 8-12 ключевых навыков для этой роли, отсортированных от самого важного к дополнительному
-3. В каждой секции минимум 1 issue — если хорошо, опиши конкретно ЧТО хорошо
-4. В fit — оцени соответствует ли резюме уровню ${level} для обнаруженной роли
-5. topActions — 3 конкретных действия для улучшения`;
-  }
-
-  return `Проанализируй резюме кандидата для роли "${role}" (${sphere}).
-
-Желаемая позиция: ${role}
-Сфера: ${sphere}
-Уровень: ${level}
-
-=== РЕЗЮМЕ ===
-${r}
-
-Задачи:
-1. targetInfo — "${role} · ${level}" (или скорректируй если резюме указывает на другую роль)
-2. expectedSkills — 8-12 ключевых навыков для "${role}" уровня ${level}, отсортированных от самого критичного к желательному
-3. skills — какие из ожидаемых навыков есть в резюме, чего критически не хватает
-4. experience — релевантный опыт, цифры, проекты для роли "${role}"
-5. structure — читаемость, ATS, контакты
-6. fit — соответствует ли резюме уровню ${level}. ВАЖНО: если содержимое резюме явно указывает на другую роль или сферу — отметь это
-7. В каждой секции минимум 1 issue — если хорошо, опиши конкретно ЧТО хорошо
-8. topActions — 3 конкретных действия`;
+1. Определи из резюме целевую роль и сферу кандидата → запиши в targetInfo: "<Роль> · ${level}"
+2. expectedSkills: 8-12 навыков которые рекрутёры ИЩУТ для этой роли, от критически важных к желательным
+3. Секция "Ключевые навыки": какие навыки для этой роли есть в резюме? чего критически не хватает? цитируй из резюме
+4. Секция "Опыт и достижения": есть ли измеримые результаты? конкретные проекты? что думает рекрутер читая этот блок?
+5. Секция "Позиционирование": насколько чётко резюме позиционирует кандидата для этой роли? понятно ли за 10 секунд кто это и чего хочет?
+6. Секция "Структура резюме": ATS, логика подачи, форматирование, читаемость
+7. В каждой секции минимум 1 issue с конкретным инсайтом рекрутера. Если хорошо — объясни почему это сильная сторона.
+8. topActions: 3 самых важных действия с готовыми формулировками для резюме`;
 }
 
 export async function POST(request: Request) {
@@ -154,8 +151,6 @@ export async function POST(request: Request) {
     resumeText?: string;
     vacancyText?: string;
     mode?: "general" | "vacancy";
-    targetSphere?: string;
-    targetRole?: string;
     targetLevel?: string;
     autoDetect?: boolean;
   };
@@ -165,15 +160,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
   }
 
-  const {
-    resumeText = "",
-    vacancyText = "",
-    mode = "vacancy",
-    targetSphere = "",
-    targetRole = "",
-    targetLevel = "Junior",
-    autoDetect = false,
-  } = body;
+  const { resumeText = "", vacancyText = "", mode = "vacancy", targetLevel = "Junior" } = body;
 
   if (resumeText.trim().length < 30) {
     return NextResponse.json({ error: "Резюме слишком короткое" }, { status: 400 });
@@ -183,11 +170,8 @@ export async function POST(request: Request) {
   let userPrompt: string;
 
   if (mode === "general") {
-    if (!autoDetect && !targetRole) {
-      return NextResponse.json({ error: "Укажите желаемую роль" }, { status: 400 });
-    }
     systemPrompt = SYSTEM_PROMPT_GENERAL;
-    userPrompt = buildGeneralPrompt(resumeText, targetSphere, targetRole, targetLevel, autoDetect);
+    userPrompt = buildGeneralPrompt(resumeText, targetLevel);
   } else {
     if (vacancyText.trim().length < 20) {
       return NextResponse.json({ error: "Вакансия слишком короткая" }, { status: 400 });
@@ -207,19 +191,19 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         modelUri: YGPT_MODEL,
-        completionOptions: { stream: false, temperature: 0.2, maxTokens: "2500" },
+        completionOptions: { stream: false, temperature: 0.3, maxTokens: "3000" },
         messages: [
           { role: "system", text: systemPrompt },
           { role: "user", text: userPrompt },
         ],
       }),
-      signal: AbortSignal.timeout(45_000),
+      signal: AbortSignal.timeout(50_000),
     });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
       console.error("AI API error:", res.status, errText);
-      return NextResponse.json({ error: `Ошибка сервиса анализа: ${res.status}` }, { status: 502 });
+      return NextResponse.json({ error: `Ошибка сервиса: ${res.status}` }, { status: 502 });
     }
 
     const data = (await res.json()) as {
@@ -237,8 +221,8 @@ export async function POST(request: Request) {
   try {
     result = JSON.parse(cleaned);
   } catch {
-    console.error("Invalid JSON from AI:", cleaned.slice(0, 500));
-    return NextResponse.json({ error: "Неверный формат ответа от ИИ — попробуйте ещё раз" }, { status: 502 });
+    console.error("Invalid JSON:", cleaned.slice(0, 500));
+    return NextResponse.json({ error: "Неверный формат ответа — попробуйте ещё раз" }, { status: 502 });
   }
 
   return NextResponse.json({ result, mode });

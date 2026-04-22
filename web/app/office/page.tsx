@@ -6,6 +6,7 @@ import { OfficeDashboard } from "@/components/office/OfficeDashboard";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import "@/styles/office-mockup.css";
+import "@/styles/resume-analyzer.css";
 
 export const metadata: Metadata = {
   title: "Личный кабинет",

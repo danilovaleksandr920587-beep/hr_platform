@@ -91,3 +91,27 @@
 .ia-autodetect-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#0d0f08;cursor:pointer}
 .ia-autodetect-checkbox{width:16px;height:16px;cursor:pointer;accent-color:#0d0f08}
 .ia-autodetect-hint{font-size:11px;color:var(--muted);padding-left:24px}
+
+/* ─── Inline analyzer v2 ──────────────────────────────────────────────────── */
+.ia-back-btn{background:transparent;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:8px 0 12px;display:block;text-align:left}
+.ia-back-btn:hover{color:#0d0f08}
+.ia-level-pills{display:flex;gap:6px;flex-wrap:wrap}
+.ia-level-pill{padding:7px 18px;border-radius:20px;border:1.5px solid rgba(0,0,0,.15);background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:#5a5d50;transition:all .15s}
+.ia-level-pill:hover{border-color:#0d0f08;color:#0d0f08}
+.ia-level-pill.active{background:#0d0f08;color:#fff;border-color:#0d0f08}
+.ia-upload{cursor:pointer;user-select:none}
+.ia-text-toggle{background:transparent;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:8px 0 0;display:block;text-align:center;width:100%;margin-top:4px}
+.ia-text-toggle:hover{color:#0d0f08;text-decoration:underline}
+.ia-analyze-btn{width:100%;padding:14px 24px;background:#0d0f08;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px;transition:opacity .15s}
+.ia-analyze-btn:disabled{opacity:.4;cursor:not-allowed}
+.ia-analyze-btn:not(:disabled):hover{opacity:.85}
+.ia-result-wrap{display:flex;flex-direction:column;gap:0}
+/* Score circle update */
+.ia-score-circle{width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,.15);display:grid;place-items:center;flex-shrink:0;position:relative}
+.ia-score-max{font-size:10px;color:rgba(255,255,255,.4);position:absolute;bottom:10px;right:8px}
+.ia-score-label{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:14px;color:#fff;line-height:1.3}
+/* Expected skills numbering */
+.ia-expected-num{font-size:9px;font-weight:700;color:#4a7000;background:rgba(74,112,0,.15);border-radius:20px;padding:1px 5px;margin-right:5px;flex-shrink:0}
+.ia-expected-tag{display:inline-flex;align-items:center;font-size:12px;background:#fff;border:1px solid rgba(181,219,42,.5);color:#2d5000;padding:5px 10px;border-radius:20px;font-weight:500;line-height:1.2}
+/* No-resize on all textareas inside ranalyzer */
+.ranalyzer textarea,.ranalyzer .resume-textarea{resize:none}
