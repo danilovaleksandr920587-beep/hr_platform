@@ -273,8 +273,8 @@ export function LoginForm({
           />
           <span>
             Я соглашаюсь с{" "}
-            <Link href="/privacy-policy">Политикой конфиденциальности</Link> и даю согласие на
-            обработку персональных данных
+            <Link href="/privacy-policy">Политикой конфиденциальности</Link>{" "}и даю{" "}
+            <Link href="/consent">согласие на обработку персональных данных</Link>
           </span>
         </label>
 

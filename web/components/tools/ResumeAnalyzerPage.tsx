@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 type Issue = { type: "critical" | "warning" | "good"; title: string; description: string; fix?: string };
 type Section = { id: string; title: string; icon: string; status: "critical" | "warning" | "good"; issues: Issue[] };
@@ -98,6 +98,8 @@ export function ResumeAnalyzerPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ReturnType<typeof scoreResume> | null>(null);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ skills: true });
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canNext1 = mode === "text" ? resumeText.trim().length >= 50 : resumeText.length >= 50;
   const canAnalyze = vacancyText.trim().length >= 30;
@@ -113,6 +115,22 @@ export function ResumeAnalyzerPage() {
     const reader = new FileReader();
     reader.onload = () => setResumeText(String(reader.result ?? ""));
     reader.readAsText(file);
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(true);
+  }
+
+  function handleDragLeave() {
+    setDragOver(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0] ?? null;
+    onFile(file);
   }
 
   async function analyze() {
@@ -160,14 +178,29 @@ export function ResumeAnalyzerPage() {
               </div>
 
               {mode === "file" ? (
-                <label className={`upload-zone${resumeFileName ? " has-file" : ""}`}>
-                  <input type="file" accept=".pdf,.doc,.docx,.txt" style={{ display: "none" }} onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
-                  <span className="upload-icon">📋</span>
-                  <div className="upload-title">Перетащите файл сюда</div>
+                <div
+                  className={`upload-zone${resumeFileName ? " has-file" : ""}${dragOver ? " drag-over" : ""}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    style={{ display: "none" }}
+                    onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+                  />
+                  <div className="upload-icon">📋</div>
+                  <div className="upload-title">{dragOver ? "Отпустите файл" : "Перетащите файл сюда"}</div>
                   <div className="upload-sub">или нажмите для выбора</div>
                   <div className="upload-formats">PDF, DOCX, TXT до 5 МБ</div>
                   {resumeFileName ? <div className="file-preview"><span className="file-icon">📄</span><span className="file-name">{resumeFileName}</span></div> : null}
-                </label>
+                </div>
               ) : (
                 <textarea className="resume-textarea" placeholder="Вставьте текст резюме" value={resumeText} onChange={(e) => setResumeText(e.target.value)} />
               )}

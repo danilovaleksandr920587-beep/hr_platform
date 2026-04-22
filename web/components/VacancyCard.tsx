@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   SAVED_ITEMS_EVENT,
   isVacancySaved,
@@ -45,20 +45,30 @@ export function VacancyCard({
   viewerScope?: string | null;
 }) {
   const [saved, setSaved] = useState(false);
+  const [loginHint, setLoginHint] = useState(false);
+  const loginHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const href = `/vacancies/${row.slug}`;
   const salaryMissing = row.salary_min == null || row.salary_max == null;
   const expLabel = expLabels[row.exp] ?? row.exp;
   const typeLabel = typeLabels[row.type] ?? row.type;
   const fmtLabel = formatLabels[row.format] ?? row.format;
+  const isLoggedIn = Boolean(viewerScope);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     const sync = () => setSaved(isVacancySaved(row.slug, viewerScope));
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
-  }, [row.slug, viewerScope]);
+  }, [row.slug, viewerScope, isLoggedIn]);
 
   function toggleSave() {
+    if (!isLoggedIn) {
+      setLoginHint(true);
+      if (loginHintTimer.current) clearTimeout(loginHintTimer.current);
+      loginHintTimer.current = setTimeout(() => setLoginHint(false), 3500);
+      return;
+    }
     const next = !saved;
     setVacancySaved(row.slug, next, viewerScope);
     setSaved(next);
@@ -122,6 +132,23 @@ export function VacancyCard({
           <span className="job-date">#{index + 1}</span>
         </div>
       </footer>
+      {loginHint ? (
+        <div
+          style={{
+            marginTop: 8,
+            padding: "8px 14px",
+            background: "#fff4d6",
+            borderRadius: 10,
+            fontSize: 13,
+            color: "#7a5a00",
+          }}
+        >
+          Чтобы сохранять вакансии,{" "}
+          <Link href="/login?next=/vacancies" style={{ color: "#7a5a00", fontWeight: 600 }}>
+            войдите или зарегистрируйтесь
+          </Link>
+        </div>
+      ) : null}
     </article>
   );
 }

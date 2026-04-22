@@ -18,7 +18,7 @@
 .ranalyzer .ra-panel{padding:32px 36px;margin:0;border:none;border-radius:0;background:transparent}
 .ranalyzer .panel-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:17px;margin-bottom:6px}
 .ranalyzer .panel-sub{font-size:14px;color:#7a7d70;line-height:1.6;margin-bottom:20px}
-.ranalyzer .upload-zone{border:2px dashed rgba(0,0,0,.13);border-radius:18px;padding:40px 24px;text-align:center;cursor:pointer;background:#f0f0e8}
+.ranalyzer .upload-zone{display:block;border:2px dashed rgba(0,0,0,.13);border-radius:18px;padding:40px 24px;text-align:center;cursor:pointer;background:#f0f0e8;transition:all .2s}.ranalyzer .upload-zone:hover{border-color:#b5db2a;background:#f2facc}.ranalyzer .upload-zone.drag-over{border-color:#b5db2a;background:#f2facc;border-style:solid}
 .ranalyzer .upload-zone.has-file{border-style:solid;border-color:#b5db2a;background:#f2facc}
 .ranalyzer .upload-icon{font-size:36px;margin-bottom:12px}.ranalyzer .upload-title{font-size:15px;font-weight:600}.ranalyzer .upload-sub{font-size:13px;color:#7a7d70;margin:6px 0}
 .ranalyzer .upload-formats{font-size:11px;color:#a8ab9f;margin-top:10px}.ranalyzer .file-preview{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px}
