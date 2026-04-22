@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 type ApiResponse = { ok?: boolean; error?: string; message?: string };
