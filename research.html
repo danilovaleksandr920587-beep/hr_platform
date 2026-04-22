@@ -21,7 +21,7 @@
         <a href="research.html" class="active-link">Исследования</a>
         <a href="office.html">Личный кабинет</a>
       </nav>
-      <a class="btn btn-dark" href="office.html">В кабинет</a>
+      <a class="btn btn-dark" id="nav-auth-btn" href="auth.html">Войти</a>
     </div>
   </header>
 
@@ -143,5 +143,17 @@
       </div>
     </div>
   </footer>
+  <script>
+    (function() {
+      if (!window.supabase) return;
+      var btn = document.getElementById("nav-auth-btn");
+      if (!btn) return;
+      var sb = window.supabase.createClient("https://tetukoylasquueg.beget.app", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc2NjQzMjAwLCJleHAiOjE5MzQ0MDk2MDB9.5XEDypOTMio-_M7UcHZnocTFN65ckAwLhzvyS_qF7pA");
+      sb.auth.getSession().then(function(r) {
+        if (r.data.session) { btn.textContent = "Кабинет"; btn.href = "office.html"; }
+        else { btn.textContent = "Войти"; btn.href = "auth.html"; }
+      });
+    })();
+  </script>
 </body>
 </html>

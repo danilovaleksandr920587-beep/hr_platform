@@ -25,7 +25,7 @@
         <a href="research.html" class="cl-topbar-link">Исследования</a>
         <a href="office.html" class="cl-topbar-link">Личный кабинет</a>
       </nav>
-      <a class="cl-topbar-cta" href="office.html">В кабинет</a>
+      <a class="cl-topbar-cta" id="nav-auth-btn" href="auth.html">Войти</a>
     </div>
   </header>
 
@@ -397,6 +397,25 @@
         gr.hidden = false;
       }
     }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    (function() {
+      const SUPABASE_URL = "https://tetukoylasquueg.beget.app";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc2NjQzMjAwLCJleHAiOjE5MzQ0MDk2MDB9.5XEDypOTMio-_M7UcHZnocTFN65ckAwLhzvyS_qF7pA";
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      sb.auth.getSession().then(({ data: { session } }) => {
+        const btn = document.getElementById("nav-auth-btn");
+        if (!btn) return;
+        if (session) {
+          btn.textContent = "Кабинет";
+          btn.href = "office.html";
+        } else {
+          btn.textContent = "Войти";
+          btn.href = "auth.html";
+        }
+      });
+    })();
   </script>
 </body>
 </html>

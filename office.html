@@ -21,7 +21,8 @@
         <a href="research.html">Исследования</a>
         <a href="office.html" class="active-link">Личный кабинет</a>
       </nav>
-      <a class="btn btn-dark" href="index.html">Выйти</a>
+      <span id="nav-user-email" style="font-size:0.82rem;color:#7a7d70;display:none"></span>
+      <a class="btn btn-dark" id="nav-auth-btn" href="auth.html">Войти</a>
     </div>
   </header>
 
@@ -134,5 +135,31 @@
       </div>
     </div>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const SUPABASE_URL = "https://tetukoylasquueg.beget.app";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc2NjQzMjAwLCJleHAiOjE5MzQ0MDk2MDB9.5XEDypOTMio-_M7UcHZnocTFN65ckAwLhzvyS_qF7pA";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        window.location.href = "auth.html?next=office.html";
+        return;
+      }
+      const user = session.user;
+      const emailEl = document.getElementById("nav-user-email");
+      if (emailEl) { emailEl.textContent = user.email; emailEl.style.display = ""; }
+      const btn = document.getElementById("nav-auth-btn");
+      if (btn) {
+        btn.textContent = "Выйти";
+        btn.href = "#";
+        btn.addEventListener("click", async e => {
+          e.preventDefault();
+          await sb.auth.signOut();
+          window.location.href = "index.html";
+        });
+      }
+    });
+  </script>
 </body>
 </html>
