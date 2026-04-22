@@ -3,12 +3,584 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CareerLab — зарплаты и рынок для junior</title>
+  <title>CareerLab — Зарплатный рынок junior 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@300;400;500;600&family=Unbounded:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="careerlab-ui.css">
+  <style>
+    /* ── Research page ── */
+
+    .research-hero {
+      background: var(--lime);
+      margin-top: 60px;
+      padding: 52px clamp(1rem, 4vw, 60px) 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .research-hero::after {
+      content: '';
+      position: absolute;
+      top: -100px; right: -80px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      pointer-events: none;
+    }
+    .research-hero-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .research-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(13,15,8,.5);
+      margin-bottom: 18px;
+    }
+    .research-eyebrow .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(13,15,8,.3);
+    }
+    .research-hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(26px, 3.5vw, 44px);
+      font-weight: 900;
+      color: var(--dark);
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      max-width: 700px;
+      margin: 0 0 20px;
+    }
+    .research-hero-lead {
+      font-size: 16px;
+      color: rgba(13,15,8,.65);
+      line-height: 1.65;
+      max-width: 580px;
+      margin-bottom: 36px;
+    }
+
+    /* Metrics strip */
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 40px;
+      background: rgba(13,15,8,.1);
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+    }
+    .metric-tile {
+      background: rgba(255,255,255,.55);
+      padding: 22px 24px;
+      backdrop-filter: blur(8px);
+    }
+    .metric-tile:first-child { border-radius: 14px 0 0 0; }
+    .metric-tile:last-child  { border-radius: 0 14px 0 0; }
+    .metric-val {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(22px, 2.8vw, 34px);
+      font-weight: 900;
+      color: var(--dark);
+      letter-spacing: -.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric-desc {
+      font-size: 13px;
+      color: rgba(13,15,8,.6);
+      line-height: 1.5;
+    }
+
+    /* Shared section wrapper */
+    .rs-section {
+      padding: 56px clamp(1rem, 4vw, 60px);
+    }
+    .rs-container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .rs-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 8px;
+    }
+    .rs-section-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: -.025em;
+      line-height: 1.2;
+      margin: 0 0 32px;
+    }
+
+    /* Filters bar */
+    .filters-bar {
+      background: #fff;
+      border-bottom: 1px solid rgba(0,0,0,.07);
+      padding: 16px clamp(1rem, 4vw, 60px);
+      position: sticky;
+      top: 60px;
+      z-index: 100;
+    }
+    .filters-bar-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-chip-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+    .filter-select {
+      appearance: none;
+      background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7d70' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 8px;
+      padding: 7px 30px 7px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .filter-select:focus { outline: 2px solid var(--lime); outline-offset: 1px; }
+    .filter-divider { width: 1px; height: 20px; background: rgba(0,0,0,.1); }
+    .filter-update-btn {
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .filter-update-btn:hover { background: #2a2e1a; }
+
+    /* ── Key Findings ── */
+    .findings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .finding-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      border: 1px solid rgba(0,0,0,.07);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .finding-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      color: #e8ede5;
+      line-height: 1;
+    }
+    .finding-lead {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dark);
+      line-height: 1.4;
+    }
+    .finding-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .finding-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: auto;
+      align-self: flex-start;
+    }
+    .tag-vuz  { background: #fff3f0; color: #cc3311; }
+    .tag-path { background: #edf7ff; color: #1a5fa8; }
+    .tag-nego { background: var(--lime-pale); color: #556620; }
+
+    /* ── Salary Chart ── */
+    .chart-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(0,0,0,.07);
+      padding: 36px;
+      overflow: hidden;
+    }
+    .chart-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .chart-title-block { flex: 1; }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .chart-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .sw-stem     { background: var(--coral); }
+    .sw-regional { background: var(--dark); }
+    .sw-intern   { background: #9EAFC4; }
+
+    /* Desktop chart */
+    .chart-desktop { width: 100%; }
+    .chart-scale-row {
+      display: flex;
+      padding-left: 148px;
+      margin-bottom: 6px;
+    }
+    .scale-track {
+      flex: 1;
+      position: relative;
+      height: 18px;
+    }
+    .scale-mark {
+      position: absolute;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #b0b3a8;
+      top: 0;
+      white-space: nowrap;
+    }
+    .chart-body { width: 100%; }
+    .chart-group { margin-bottom: 6px; }
+    .chart-group-header {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #c0c4b8;
+      padding-left: 148px;
+      padding-bottom: 8px;
+      padding-top: 16px;
+    }
+    .chart-group:first-child .chart-group-header { padding-top: 0; }
+    .chart-sep {
+      height: 1px;
+      background: #f0f2eb;
+      margin: 4px 0;
+      margin-left: 148px;
+    }
+    .chart-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .chart-row:last-child { margin-bottom: 0; }
+    .chart-row-label {
+      width: 136px;
+      flex-shrink: 0;
+      padding-right: 12px;
+    }
+    .crl-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .crl-sub {
+      font-size: 11px;
+      color: var(--muted2);
+      margin-top: 1px;
+    }
+    .chart-bar-track {
+      flex: 1;
+      height: 36px;
+      position: relative;
+      border-radius: 6px;
+      overflow: visible;
+    }
+    /* Vertical grid lines */
+    .chart-bar-track::before {
+      content: '';
+      position: absolute;
+      inset: -4px 0;
+      background-image:
+        repeating-linear-gradient(
+          to right,
+          transparent,
+          transparent calc(20% - 1px),
+          rgba(0,0,0,.05) calc(20% - 1px),
+          rgba(0,0,0,.05) 20%
+        );
+      pointer-events: none;
+      border-radius: 6px;
+    }
+    .range-bar {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      left: var(--bl);
+      width: var(--bw);
+      transition: opacity .15s;
+    }
+    .range-bar:hover { opacity: .85; }
+    .rb-stem     { background: var(--coral); }
+    .rb-regional { background: var(--dark); }
+    .rb-intern   { background: #9EAFC4; }
+
+    .rb-val-inside {
+      padding-left: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,.85);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .rb-intern .rb-val-inside { color: rgba(255,255,255,.9); }
+    .rb-val-outside {
+      position: absolute;
+      left: calc(100% + 8px);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    /* Mobile chart — card list */
+    .chart-mobile { display: none; }
+    .mobile-dir-group { margin-bottom: 28px; }
+    .mobile-dir-group:last-child { margin-bottom: 0; }
+    .mobile-dir-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #c0c4b8;
+      margin-bottom: 10px;
+    }
+    .mobile-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .mobile-swatch {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .mobile-info { flex: 1; min-width: 0; }
+    .mobile-group-name { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 4px; }
+    .mobile-salary { font-family: 'Unbounded', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+    .mobile-bar-wrap { height: 5px; background: rgba(0,0,0,.08); border-radius: 3px; overflow: hidden; }
+    .mobile-bar-fill { height: 100%; border-radius: 3px; }
+
+    /* ── Gap Analysis ── */
+    .gap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .gap-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(0,0,0,.07);
+      padding: 28px;
+    }
+    .gap-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 12px;
+    }
+    .gap-delta {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--dark);
+      letter-spacing: -.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .gap-delta.coral { color: var(--coral); }
+    .gap-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .gap-bar-wrap {
+      margin-top: 18px;
+      height: 6px;
+      background: #efefea;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .gap-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+    .gbf-a { background: var(--coral); }
+    .gbf-b { background: var(--dark); }
+    .gbf-c { background: #9EAFC4; }
+
+    /* ── How to use ── */
+    .howto-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .howto-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(0,0,0,.07);
+      padding: 28px;
+    }
+    .howto-step {
+      width: 32px; height: 32px;
+      background: var(--lime);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 16px;
+    }
+    .howto-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .howto-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── CTA promo ── */
+    .promo-card {
+      background: var(--dark);
+      border-radius: var(--radius-xl);
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .promo-text h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -.02em;
+    }
+    .promo-text p {
+      font-size: 14px;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+      max-width: 460px;
+    }
+    .promo-actions { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+
+    /* ── Methodology note ── */
+    .methodology-note {
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.07);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .meth-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      opacity: .5;
+    }
+    .meth-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .meth-text strong { color: var(--ink); font-weight: 600; }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .metrics-strip { grid-template-columns: 1fr 1fr; }
+      .metrics-strip .metric-tile:nth-child(3) { border-radius: 0; }
+      .findings-grid { grid-template-columns: 1fr; }
+      .gap-grid      { grid-template-columns: 1fr 1fr; }
+      .howto-grid    { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .metrics-strip { grid-template-columns: 1fr; border-radius: 14px 14px 0 0; }
+      .metric-tile:first-child  { border-radius: 14px 14px 0 0; }
+      .metric-tile:nth-child(2) { border-radius: 0; }
+      .metric-tile:last-child   { border-radius: 0; }
+      .chart-desktop { display: none; }
+      .chart-mobile  { display: block; }
+      .gap-grid      { grid-template-columns: 1fr; }
+      .chart-card    { padding: 24px 20px; }
+      .promo-card    { padding: 28px 24px; }
+      .filters-bar-inner { gap: 8px; }
+      .filter-divider { display: none; }
+    }
+  </style>
 </head>
 <body class="careerlab-site">
   <header class="topbar">
@@ -26,110 +598,507 @@
   </header>
 
   <main>
-    <section class="section">
-      <div class="container">
-        <article class="panel panel-lime">
-          <h1 class="page-title">Зарплаты и рынок: смотрите на цифры перед разговором</h1>
-          <p class="hero-text page-lead">
-            Ориентиры по junior и стажировкам — чтобы обсуждать компенсацию спокойно и не продешевить. Ниже пример среза: в продукте подставьте свои опросы и данные по вакансиям.
+
+    <!-- ── HERO ─────────────────────────────────────────── -->
+    <section class="research-hero">
+      <div class="research-hero-inner">
+        <div class="research-eyebrow">
+          <span class="dot"></span>
+          Зарплатный рынок
+          <span class="dot"></span>
+          Апрель 2026
+          <span class="dot"></span>
+          Junior &amp; стажировки
+        </div>
+        <h1>Цифры, которые нужно знать до переговоров</h1>
+        <p class="research-hero-lead">
+          Срез по трём направлениям и трём группам вузов. Данные помогут обосновать ожидаемую сумму
+          и понять, где вы находитесь относительно рынка.
+        </p>
+
+        <!-- Key metrics -->
+        <div class="metrics-strip">
+          <div class="metric-tile">
+            <div class="metric-val">до 240 тыс.</div>
+            <div class="metric-desc">Верхняя планка junior по инженерии в топ‑STEM вузах</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-val">×2–3</div>
+            <div class="metric-desc">Разрыв между стажировкой и первым офером в крупном IT</div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-val">+50–70 тыс.</div>
+            <div class="metric-desc">Ежемесячное преимущество топ‑STEM перед региональными вузами</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FILTERS ─────────────────────────────────────── -->
+    <div class="filters-bar">
+      <div class="filters-bar-inner">
+        <span class="filter-chip-label">Город</span>
+        <select class="filter-select">
+          <option>Все</option>
+          <option>Москва</option>
+          <option>Санкт-Петербург</option>
+          <option>Удалённо</option>
+        </select>
+        <div class="filter-divider"></div>
+        <span class="filter-chip-label">Направление</span>
+        <select class="filter-select">
+          <option>Все</option>
+          <option>Инженерия</option>
+          <option>Данные</option>
+          <option>Продукт</option>
+        </select>
+        <div class="filter-divider"></div>
+        <span class="filter-chip-label">Когорта</span>
+        <select class="filter-select">
+          <option>Выпуск 2024–25</option>
+          <option>Стажировка</option>
+        </select>
+        <button type="button" class="filter-update-btn">Обновить срез</button>
+      </div>
+    </div>
+
+    <!-- ── KEY FINDINGS ──────────────────────────────────── -->
+    <section class="rs-section">
+      <div class="rs-container">
+        <div class="rs-section-label">Ключевые выводы</div>
+        <h2 class="rs-section-title">Три факта из данных — перед тем как смотреть цифры</h2>
+
+        <div class="findings-grid">
+          <div class="finding-card">
+            <div class="finding-num">01</div>
+            <p class="finding-lead">Вуз важнее направления</p>
+            <p class="finding-body">
+              Разрыв между топ-STEM и региональными вузами (40–70 тыс.&nbsp;₽/мес) стабильно превышает
+              разрыв между Инженерией и Продуктом в одной вузовской группе (20–40 тыс.&nbsp;₽/мес).
+              Это значит: сильный университет компенсирует «менее денежное» направление.
+            </p>
+            <span class="finding-tag tag-vuz">Фактор: вуз</span>
+          </div>
+          <div class="finding-card">
+            <div class="finding-num">02</div>
+            <p class="finding-lead">Стажировка в крупном IT — лучший старт</p>
+            <p class="finding-body">
+              Первый оффер после стажировки в топ-IT приносит рост в 1,5–2× к уровню самой стажировки.
+              Даже если 80–120&nbsp;тыс. кажутся мало для начала — это инвестиция: следующий шаг будет
+              уже в диапазоне 150–240 тыс. для топ-STEM.
+            </p>
+            <span class="finding-tag tag-path">Фактор: опыт</span>
+          </div>
+          <div class="finding-card">
+            <div class="finding-num">03</div>
+            <p class="finding-lead">На переговорах работает конкретная цифра, а не интуиция</p>
+            <p class="finding-body">
+              Кандидаты, называющие ожидания в начале разговора и обосновывающие их данными,
+              закрывают офер быстрее и ближе к верхней границе диапазона.
+              Используйте середину своей группы как базовую точку отсчёта.
+            </p>
+            <span class="finding-tag tag-nego">Фактор: переговоры</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SALARY CHART ──────────────────────────────────── -->
+    <section class="rs-section" id="data" style="padding-top: 0;">
+      <div class="rs-container">
+        <div class="rs-section-label">Зарплатная карта</div>
+        <h2 class="rs-section-title">Медианный диапазон компенсаций по группам, тыс.&nbsp;₽/мес</h2>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-block">
+              <div class="chart-title">Диапазон: от минимума до максимума медианного предложения</div>
+              <div class="chart-subtitle">Шкала 0–250 тыс. ₽. Длина полосы = ширина диапазона, начало = нижняя граница.</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-swatch sw-stem"></div>
+                Топ STEM
+              </div>
+              <div class="legend-item">
+                <div class="legend-swatch sw-regional"></div>
+                Региональные
+              </div>
+              <div class="legend-item">
+                <div class="legend-swatch sw-intern"></div>
+                Стажировка
+              </div>
+            </div>
+          </div>
+
+          <!-- ─ Desktop bar chart ─ -->
+          <div class="chart-desktop">
+            <!-- Scale row -->
+            <div class="chart-scale-row">
+              <div class="scale-track">
+                <span class="scale-mark" style="left:0%">0</span>
+                <span class="scale-mark" style="left:20%">50</span>
+                <span class="scale-mark" style="left:40%">100</span>
+                <span class="scale-mark" style="left:60%">150</span>
+                <span class="scale-mark" style="left:80%">200</span>
+                <span class="scale-mark" style="left:100%">250</span>
+              </div>
+            </div>
+
+            <div class="chart-body">
+
+              <!-- ИНЖЕНЕРИЯ -->
+              <div class="chart-group">
+                <div class="chart-group-header">Инженерия</div>
+                <!-- Топ STEM 180–240: left=72%, width=24% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Топ STEM</div>
+                    <div class="crl-sub">МГУ, МФТИ, СПбГУ…</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-stem" style="--bl:72%;--bw:24%">
+                      <span class="rb-val-inside">180</span>
+                      <span class="rb-val-outside">180–240 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Региональные 120–170: left=48%, width=20% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Региональные</div>
+                    <div class="crl-sub">Сильные STEM-вузы РФ</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-regional" style="--bl:48%;--bw:20%">
+                      <span class="rb-val-inside">120</span>
+                      <span class="rb-val-outside">120–170 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Стажировка 80–120: left=32%, width=16% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Стажировка</div>
+                    <div class="crl-sub">Крупный IT</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-intern" style="--bl:32%;--bw:16%">
+                      <span class="rb-val-inside">80</span>
+                      <span class="rb-val-outside">80–120 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-sep"></div>
+
+              <!-- ДАННЫЕ -->
+              <div class="chart-group">
+                <div class="chart-group-header">Данные / Аналитика</div>
+                <!-- Топ STEM 160–220: left=64%, width=24% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Топ STEM</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-stem" style="--bl:64%;--bw:24%">
+                      <span class="rb-val-inside">160</span>
+                      <span class="rb-val-outside">160–220 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Региональные 110–150: left=44%, width=16% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Региональные</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-regional" style="--bl:44%;--bw:16%">
+                      <span class="rb-val-inside">110</span>
+                      <span class="rb-val-outside">110–150 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Стажировка 70–110: left=28%, width=16% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Стажировка</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-intern" style="--bl:28%;--bw:16%">
+                      <span class="rb-val-inside">70</span>
+                      <span class="rb-val-outside">70–110 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-sep"></div>
+
+              <!-- ПРОДУКТ -->
+              <div class="chart-group">
+                <div class="chart-group-header">Продукт / Менеджмент</div>
+                <!-- Топ STEM 150–200: left=60%, width=20% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Топ STEM</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-stem" style="--bl:60%;--bw:20%">
+                      <span class="rb-val-inside">150</span>
+                      <span class="rb-val-outside">150–200 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Региональные 100–140: left=40%, width=16% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Региональные</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-regional" style="--bl:40%;--bw:16%">
+                      <span class="rb-val-inside">100</span>
+                      <span class="rb-val-outside">100–140 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Стажировка 70–100: left=28%, width=12% -->
+                <div class="chart-row">
+                  <div class="chart-row-label">
+                    <div class="crl-name">Стажировка</div>
+                  </div>
+                  <div class="chart-bar-track">
+                    <div class="range-bar rb-intern" style="--bl:28%;--bw:12%">
+                      <span class="rb-val-inside">70</span>
+                      <span class="rb-val-outside">70–100 тыс.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /chart-body -->
+          </div><!-- /chart-desktop -->
+
+          <!-- ─ Mobile card view ─ -->
+          <div class="chart-mobile">
+
+            <div class="mobile-dir-group">
+              <div class="mobile-dir-title">Инженерия</div>
+              <div class="mobile-row">
+                <div class="mobile-swatch sw-stem" style="background:var(--coral)"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Топ STEM</div>
+                  <div class="mobile-salary">180–240 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:var(--coral);width:96%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:var(--dark)"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Региональные вузы</div>
+                  <div class="mobile-salary">120–170 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:var(--dark);width:68%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:#9EAFC4"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Стажировка, крупный IT</div>
+                  <div class="mobile-salary">80–120 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:#9EAFC4;width:48%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mobile-dir-group">
+              <div class="mobile-dir-title">Данные / Аналитика</div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:var(--coral)"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Топ STEM</div>
+                  <div class="mobile-salary">160–220 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:var(--coral);width:88%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:var(--dark)"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Региональные вузы</div>
+                  <div class="mobile-salary">110–150 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:var(--dark);width:60%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:#9EAFC4"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Стажировка, крупный IT</div>
+                  <div class="mobile-salary">70–110 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:#9EAFC4;width:44%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mobile-dir-group">
+              <div class="mobile-dir-title">Продукт / Менеджмент</div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:var(--coral)"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Топ STEM</div>
+                  <div class="mobile-salary">150–200 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:var(--coral);width:80%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:var(--dark)"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Региональные вузы</div>
+                  <div class="mobile-salary">100–140 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:var(--dark);width:56%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-row">
+                <div class="mobile-swatch" style="background:#9EAFC4"></div>
+                <div class="mobile-info">
+                  <div class="mobile-group-name">Стажировка, крупный IT</div>
+                  <div class="mobile-salary">70–100 тыс. ₽</div>
+                  <div class="mobile-bar-wrap">
+                    <div class="mobile-bar-fill" style="background:#9EAFC4;width:40%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /chart-mobile -->
+
+        </div><!-- /chart-card -->
+
+        <div class="methodology-note" style="margin-top:16px;">
+          <span class="meth-icon">ℹ</span>
+          <p class="meth-text">
+            <strong>Методология:</strong> иллюстративный срез на основе открытых данных по вакансиям и опросов
+            выпускников. Диапазоны — медианные, без учёта бонусов и RSU. В продукте верхняя граница
+            достигается при наличии продуктовых кейсов и аналитического портфолио.
+            Дата актуализации: <strong>апрель 2026</strong>.
           </p>
-          <div class="hero-actions">
-            <a class="btn btn-coral" href="#data">Смотреть пример таблицы</a>
-            <a class="btn btn-light" href="knowledge-base.html">Как читать такие данные</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="panel filters-inline">
-          <label class="filter-inline">
-            Город
-            <select>
-              <option>Все</option>
-              <option>Москва</option>
-              <option>Санкт-Петербург</option>
-              <option>Удалённо</option>
-            </select>
-          </label>
-          <label class="filter-inline">
-            Направление
-            <select>
-              <option>Все</option>
-              <option>Инженерия</option>
-              <option>Данные</option>
-              <option>Продукт</option>
-            </select>
-          </label>
-          <label class="filter-inline">
-            Когорта
-            <select>
-              <option>Выпуск 2024</option>
-              <option>Выпуск 2025</option>
-              <option>Стажировка</option>
-            </select>
-          </label>
-          <button type="button" class="btn btn-dark">Обновить срез</button>
         </div>
       </div>
     </section>
 
-    <section class="section" id="data">
-      <div class="container">
-        <h2 class="section-title">Медианная месячная компенсация (пример)</h2>
-        <p class="muted methodology">Иллюстрация для макета. Замените на свои выборки из опросов и вакансий и укажите дату обновления в кабинете.</p>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Группа вузов</th>
-                <th>Инженерия</th>
-                <th>Данные</th>
-                <th>Продукт</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Топ STEM (сводно)</td>
-                <td>180–240 тыс. ₽</td>
-                <td>160–220 тыс. ₽</td>
-                <td>150–200 тыс. ₽</td>
-              </tr>
-              <tr>
-                <td>Сильные региональные</td>
-                <td>120–170 тыс. ₽</td>
-                <td>110–150 тыс. ₽</td>
-                <td>100–140 тыс. ₽</td>
-              </tr>
-              <tr>
-                <td>Стажировка (крупный IT)</td>
-                <td>80–120 тыс. ₽</td>
-                <td>70–110 тыс. ₽</td>
-                <td>70–100 тыс. ₽</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <article class="panel key-insights">
-          <h3>Что из этого следует для вас</h3>
-          <ul>
-            <li>Разрыв между «топ STEM» и сильными региональными вузами по junior часто на уровне десятков тысяч ₽ в месяц — закладывайте это в переговоры.</li>
-            <li>Платные стажировки в крупном IT дают самый заметный старт по деньгам в первый год.</li>
-            <li>В продукте на собеседовании чаще всего «продают» кейсы и аналитическое мышло — без этого цифры по зарплате редко закрывают оффер.</li>
-          </ul>
-          <div class="hero-actions">
-            <a class="btn btn-dark btn-small" href="knowledge-base.html">Как обсуждать зарплату</a>
-            <a class="btn btn-light btn-small" href="vacancies.html">Смотреть вакансии в этом диапазоне</a>
+    <!-- ── GAP ANALYSIS ──────────────────────────────────── -->
+    <section class="rs-section" style="padding-top: 0;">
+      <div class="rs-container">
+        <div class="rs-section-label">Разрывы и динамика</div>
+        <h2 class="rs-section-title">Что реально определяет вашу позицию в диапазоне</h2>
+
+        <div class="gap-grid">
+          <div class="gap-card">
+            <div class="gap-eyebrow">Фактор № 1 — Вуз</div>
+            <div class="gap-delta coral">+50–70 тыс.</div>
+            <p class="gap-desc">
+              Среднемесячный разрыв между топ-STEM и сильными региональными вузами.
+              В год — это 600–840&nbsp;тыс. ₽. Данный разрыв стабилен по всем трём направлениям.
+            </p>
+            <div class="gap-bar-wrap">
+              <div class="gap-bar-fill gbf-a" style="width:85%"></div>
+            </div>
           </div>
-        </article>
-        <div class="panel panel-coral promo-block">
-          <h3>Полный отчёт в кабинете</h3>
-          <p class="muted">Разбивки по размеру компании, стеку и этапам отбора — после входа, в одном файле или дашборде.</p>
-          <a class="btn btn-light" href="office.html">Открыть кабинет</a>
+          <div class="gap-card">
+            <div class="gap-eyebrow">Фактор № 2 — Опыт</div>
+            <div class="gap-delta" style="color:var(--dark)">+40–100 тыс.</div>
+            <p class="gap-desc">
+              Рост при переходе со стажировки на первый полноценный оффер.
+              Стажировка в крупном IT — наиболее предсказуемый трамплин.
+            </p>
+            <div class="gap-bar-wrap">
+              <div class="gap-bar-fill gbf-b" style="width:70%"></div>
+            </div>
+          </div>
+          <div class="gap-card">
+            <div class="gap-eyebrow">Фактор № 3 — Направление</div>
+            <div class="gap-delta" style="color:#9EAFC4">+20–40 тыс.</div>
+            <p class="gap-desc">
+              Разрыв между Инженерией и Продуктом внутри одной вузовской группы.
+              Наименьший из трёх факторов — направление важно, но не решающе.
+            </p>
+            <div class="gap-bar-wrap">
+              <div class="gap-bar-fill gbf-c" style="width:40%"></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- ── HOW TO USE ─────────────────────────────────────── -->
+    <section class="rs-section" style="padding-top: 0;">
+      <div class="rs-container">
+        <div class="rs-section-label">Применение</div>
+        <h2 class="rs-section-title">Как использовать данные в переговорах</h2>
+
+        <div class="howto-grid">
+          <div class="howto-card">
+            <div class="howto-step">1</div>
+            <div class="howto-title">Зафиксируйте свою группу</div>
+            <p class="howto-body">
+              Найдите пересечение вашего вуза и направления. Середина диапазона — ваша базовая точка.
+              Называйте её как конкретную цифру, а не вилку: это создаёт ощущение осознанности.
+            </p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-step">2</div>
+            <div class="howto-title">Обоснуйте данными, а не ощущениями</div>
+            <p class="howto-body">
+              «По рынку junior в этом направлении — 150–200 тыс., я ориентируюсь на 170».
+              Формулировка снимает эмоциональный контекст и переводит разговор в деловую плоскость.
+            </p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-step">3</div>
+            <div class="howto-title">На стажировке: приоритет — имя компании</div>
+            <p class="howto-body">
+              Если оффер 80–100 тыс. — это не мало, это инвестиция. Строчка крупного IT в резюме
+              и реальный опыт ускоряют следующий шаг на 6–12 месяцев быстрее, чем выбор по зарплате.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ───────────────────────────────────────────── -->
+    <section class="rs-section" style="padding-top: 0; padding-bottom: 72px;">
+      <div class="rs-container">
+        <div class="promo-card">
+          <div class="promo-text">
+            <h3>Полный отчёт — в личном кабинете</h3>
+            <p>
+              Разбивки по размеру компании, стеку, этапам отбора и конкретным работодателям —
+              в одном дашборде. Обновляется ежеквартально.
+            </p>
+          </div>
+          <div class="promo-actions">
+            <a class="btn btn-light" href="office.html">Открыть кабинет</a>
+            <a class="btn" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.2);" href="knowledge-base.html">Как читать такие данные</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="footer section">
@@ -139,16 +1108,20 @@
         <a href="index.html">О платформе</a>
         <a href="knowledge-base.html">Вопросы и ответы</a>
         <a href="office.html">Контакты</a>
-        <a href="research.html">Как мы считаем данные</a>
+        <a href="research.html">Методология</a>
       </div>
     </div>
   </footer>
+
   <script>
     (function() {
       if (!window.supabase) return;
       var btn = document.getElementById("nav-auth-btn");
       if (!btn) return;
-      var sb = window.supabase.createClient("https://tetukoylasquueg.beget.app", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc2NjQzMjAwLCJleHAiOjE5MzQ0MDk2MDB9.5XEDypOTMio-_M7UcHZnocTFN65ckAwLhzvyS_qF7pA");
+      var sb = window.supabase.createClient(
+        "https://tetukoylasquueg.beget.app",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc2NjQzMjAwLCJleHAiOjE5MzQ0MDk2MDB9.5XEDypOTMio-_M7UcHZnocTFN65ckAwLhzvyS_qF7pA"
+      );
       sb.auth.getSession().then(function(r) {
         if (r.data.session) { btn.textContent = "Кабинет"; btn.href = "office.html"; }
         else { btn.textContent = "Войти"; btn.href = "auth.html"; }
