@@ -95,6 +95,8 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ skills: true });
   const [dragOver, setDragOver] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [fileLoading, setFileLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canNext1 = mode === "text" ? resumeText.trim().length >= 50 : resumeText.length >= 50;
@@ -103,12 +105,40 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
   const loadingSteps = ["Читаю резюме...", "Сравниваю с требованиями вакансии...", "Формирую рекомендации..."];
   const [loadingStep, setLoadingStep] = useState(0);
 
-  function onFile(file: File | null) {
+  async function onFile(file: File | null) {
     if (!file) return;
+    setFileError(null);
     setResumeFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = () => setResumeText(String(reader.result ?? ""));
-    reader.readAsText(file);
+
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+
+    // Plain text — read directly
+    if (ext === "txt") {
+      const reader = new FileReader();
+      reader.onload = () => setResumeText(String(reader.result ?? ""));
+      reader.readAsText(file);
+      return;
+    }
+
+    // PDF / DOCX — parse on server
+    setFileLoading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/parse-resume", { method: "POST", body: form });
+      const data = (await res.json()) as { text?: string; error?: string };
+      if (!res.ok || !data.text) {
+        setFileError(data.error ?? "Не удалось прочитать файл");
+        setResumeFileName("");
+      } else {
+        setResumeText(data.text);
+      }
+    } catch {
+      setFileError("Ошибка при загрузке файла");
+      setResumeFileName("");
+    } finally {
+      setFileLoading(false);
+    }
   }
 
   function handleDragOver(e: React.DragEvent) { e.preventDefault(); setDragOver(true); }
@@ -211,7 +241,9 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
                   <div className="upload-title">{dragOver ? "Отпустите файл" : "Перетащите файл сюда"}</div>
                   <div className="upload-sub">или нажмите для выбора</div>
                   <div className="upload-formats">PDF, DOCX, TXT до 5 МБ</div>
-                  {resumeFileName && <div className="file-preview"><span className="file-icon">📄</span><span className="file-name">{resumeFileName}</span></div>}
+                  {fileLoading && <div style={{marginTop:12,fontSize:13,color:"var(--muted)"}}>⏳ Читаю файл...</div>}
+                  {resumeFileName && !fileLoading && <div className="file-preview"><span className="file-icon">📄</span><span className="file-name">{resumeFileName}</span></div>}
+                  {fileError && <div style={{marginTop:12,fontSize:13,color:"#c0392b",background:"#ffe5e0",borderRadius:8,padding:"6px 12px"}}>{fileError}</div>}
                 </div>
               ) : (
                 <textarea className="resume-textarea" placeholder="Вставьте текст резюме" value={resumeText} onChange={(e) => setResumeText(e.target.value)} />
