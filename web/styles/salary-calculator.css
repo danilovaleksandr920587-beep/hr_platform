@@ -36,12 +36,37 @@
 .scalc .range-track{height:12px;background:#f0f0e8;border-radius:6px;position:relative;margin:24px 0 8px}
 .scalc .range-fill{height:100%;background:linear-gradient(90deg,#f2facc,#c9f135);border-radius:6px;position:absolute}
 .scalc .range-median-line{position:absolute;top:-8px;bottom:-8px;width:3px;background:#0d0f08;border-radius:2px}
+.scalc .range-labels{display:flex;justify-content:space-between;font-size:11px;color:#a8ab9f}
 .scalc .range-markers{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#0d0f08}
+.scalc .rbc-growth-wrap{padding-top:16px;margin-top:16px;border-top:1px solid rgba(0,0,0,.08)}
+.scalc .rbc-growth-title{display:block;font-size:13px;color:#0d0f08;margin-bottom:8px}
+.scalc .rbc-growth-tags{display:flex;flex-wrap:wrap;gap:6px}
+.scalc .rbc-growth-tag{display:inline-block;background:#f0f0e8;border:1px solid rgba(0,0,0,.13);border-radius:20px;padding:3px 10px;font-size:12px}
+.scalc .factors-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.scalc .factor-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:18px;padding:18px}
+.scalc .fc-icon{font-size:22px;display:block;margin-bottom:10px}
+.scalc .fc-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#a8ab9f;margin-bottom:6px}
+.scalc .fc-value{font-size:14px;font-weight:600;color:#0d0f08;margin-bottom:4px}
+.scalc .fc-impact{font-size:12px;color:#7a7d70}
+.scalc .impact-up{color:#2e7d32;font-weight:600}
+.scalc .impact-down{color:#ff5533;font-weight:600}
 .scalc .ai-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}.scalc .ai-dot{width:8px;height:8px;border-radius:50%;background:#c9f135}
-.scalc .ai-header-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:13px}.scalc .ai-text{font-size:14px;line-height:1.75;color:#1e2114}
+.scalc .ai-header-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:13px}
+.scalc .ai-header-sub{margin-left:auto;font-size:11px;color:#7a7d70}
+.scalc .ai-text{font-size:14px;line-height:1.75;color:#1e2114}
+.scalc .comp-table{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;overflow:hidden;margin-bottom:14px}
+.scalc .comp-table-header{padding:18px 24px;border-bottom:1px solid rgba(0,0,0,.08)}
+.scalc .comp-table-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:14px;color:#0d0f08}
+.scalc table.comp{width:100%;border-collapse:collapse}
+.scalc table.comp th{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#a8ab9f;text-align:left;border-bottom:1px solid rgba(0,0,0,.08)}
+.scalc table.comp td{padding:13px 16px;font-size:13px;color:#1e2114;border-bottom:1px solid rgba(0,0,0,.08)}
+.scalc table.comp tr:last-child td{border-bottom:none}
+.scalc table.comp tr.highlight td{background:#f2facc;font-weight:500}
+.scalc table.comp tr.highlight td:first-child{border-left:3px solid #b5db2a}
+.scalc .td-salary{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:13px;font-weight:700;color:#0d0f08}
 .scalc .tips-card{background:#0d0f08;border-radius:24px;padding:24px 28px;color:#fff}.scalc .tips-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:14px;margin-bottom:16px}
 .scalc .tips-title em{color:#c9f135;font-style:normal}.scalc .tip-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07)}
 .scalc .tip-row:last-child{border-bottom:none}.scalc .tip-row-num{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:12px;color:#c9f135;opacity:.7}
 .scalc .tip-row-text{font-size:13px;color:rgba(255,255,255,.55);line-height:1.55}
 @media (max-width: 980px){.scalc .scalc-page{grid-template-columns:1fr}.scalc .calc-panel{position:static}}
-@media (max-width: 640px){.scalc .scalc-hero{grid-template-columns:1fr;gap:16px}.scalc .calc-body,.scalc .calc-header{padding-left:16px;padding-right:16px}.scalc .salary-hero,.scalc .range-bar-card,.scalc .ai-insight,.scalc .tips-card{padding:18px}}
+@media (max-width: 640px){.scalc .scalc-hero{grid-template-columns:1fr;gap:16px}.scalc .calc-body,.scalc .calc-header{padding-left:16px;padding-right:16px}.scalc .salary-hero,.scalc .range-bar-card,.scalc .ai-insight,.scalc .tips-card{padding:18px}.scalc .factors-grid{grid-template-columns:1fr}}
