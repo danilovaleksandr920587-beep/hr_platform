@@ -291,6 +291,19 @@ export function LoginForm({
         </div>
       </form>
 
+
+      <div style={{ margin: "1rem 0 0.25rem", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem" }}>или</div>
+      <div className="hero-actions" style={{ justifyContent: "center" }}>
+        <a
+          href={`/api/auth/yandex?next=${encodeURIComponent(next)}`}
+          className="btn btn-light"
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#FC3F1D"/><path d="M13.32 7.2h-1.1c-1.27 0-1.94.63-1.94 1.66 0 1.17.5 1.72 1.53 2.4l.85.57-2.44 3.97H8.5l2.22-3.6c-1.28-.9-2-1.82-2-3.26 0-1.94 1.34-3.14 3.72-3.14h2.94v9.99H13.3V7.2z" fill="#fff"/></svg>
+          Войти через Яндекс
+        </a>
+      </div>
+
       {message ? (
         <p
           className="hero-text"

@@ -5,27 +5,27 @@ export const INDUSTRY_DATA = {
   junior: { med: [100, 110, 90, 130, 85, 80, 85, 60, 60, 55, 45], p75: [130, 145, 120, 170, 115, 110, 110, 80, 80, 75, 60] },
   middle: { med: [170, 180, 155, 210, 145, 140, 135, 100, 95, 90, 75], p75: [220, 235, 200, 270, 190, 185, 175, 130, 125, 115, 95] },
   senior: { med: [280, 300, 250, 350, 240, 230, 220, 160, 150, 140, 120], p75: [380, 400, 330, 470, 320, 300, 290, 210, 195, 180, 155] },
-} as const;
+};
 
 export const GROWTH_DATA = {
   it: { yrs: ["Стажёр", "Junior 1г", "Junior 2г", "Middle 3г", "Middle+ 4г", "Senior- 5л", "Senior 6л", "Lead 8л"], sal: [68, 95, 120, 165, 205, 265, 320, 420], roles: ["Intern", "Junior Dev", "Junior Dev", "Middle Dev", "Middle+", "Senior Dev", "Senior Dev", "Tech Lead"] },
   ds: { yrs: ["Стажёр", "Junior 1г", "Junior 2г", "Middle 3г", "Middle+ 4г", "Senior- 5л", "Senior 6л", "Lead 8л"], sal: [75, 110, 140, 185, 230, 285, 340, 430], roles: ["DS Intern", "DS Junior", "DS Junior+", "DS Middle", "DS Middle+", "DS Senior", "DS Senior", "Head of DS"] },
   cons: { yrs: ["Стажёр", "Analyst 1г", "Analyst 2г", "Consultant 3г", "Sr.Cons 4г", "Manager 5л", "Sr.Mgr 6л", "Partner 8л"], sal: [90, 120, 155, 200, 255, 320, 400, 600], roles: ["Intern", "Analyst", "Analyst", "Consultant", "Sr.Consultant", "Manager", "Sr.Manager", "Partner"] },
   fin: { yrs: ["Стажёр", "Analyst 1г", "Analyst 2г", "Sr.Analyst 3г", "Associate 4г", "Sr.Assoc 5л", "VP 6л", "Director 8л"], sal: [55, 80, 100, 130, 170, 210, 270, 380], roles: ["Intern", "Analyst", "Analyst", "Sr.Analyst", "Associate", "Sr.Associate", "VP", "Director"] },
-} as const;
+};
 
 export const CITY_LABELS = ["Москва", "СПб", "Новосибирск", "Екатеринбург", "Казань", "Нижний Н.", "Ростов-на-Д.", "Красноярск", "Воронеж", "Регионы"];
 export const CITY_DATA = {
   intern: [70, 55, 45, 42, 38, 38, 35, 35, 32, 28],
   junior: [105, 82, 66, 61, 56, 55, 50, 50, 46, 40],
   middle: [175, 138, 110, 102, 93, 92, 84, 83, 77, 68],
-} as const;
+};
 
 export const UNI_DATA = {
   it: { nm: ["МФТИ", "ИТМО", "МГУ", "ВШЭ", "Бауманка", "МИРЭА", "Остальные"], sal: [330, 295, 290, 265, 255, 210, 185] },
   econ: { nm: ["ВШЭ", "МГИМО", "МГУ", "РАНХиГС", "Финансовый", "РЭУ", "Остальные"], sal: [290, 260, 255, 240, 215, 195, 165] },
   eng: { nm: ["МФТИ", "Бауманка", "СПбПУ", "МИРЭА", "НГТУ", "УрФУ", "Остальные"], sal: [310, 280, 255, 225, 205, 195, 170] },
-} as const;
+};
 
 export const COMPANIES = [
   { n: "McKinsey / BCG / Bain", s: "130 т₽", j: "200 т₽", type: "Консалтинг" },
@@ -36,18 +36,18 @@ export const COMPANIES = [
   { n: "VK", s: "95 т₽", j: "155 т₽", type: "IT" },
   { n: "Deloitte / KPMG", s: "95 т₽", j: "150 т₽", type: "Консалтинг" },
   { n: "Газпром нефть", s: "80 т₽", j: "130 т₽", type: "Энергетика" },
-] as const;
+];
 
 export const EDUCATION_LABELS = ["IT", "Финансы", "Маркетинг", "Юриспруденция", "Инженерия"];
 export const EDUCATION_BAR = {
   college: [42, 38, 30, 28, 40],
   bachelor: [65, 55, 45, 42, 58],
   master: [85, 75, 60, 58, 72],
-} as const;
+};
 
 export const EDUCATION_GROWTH = {
   college: [42, 52, 62, 72, 82],
   bachelor: [65, 80, 98, 118, 142],
   master: [85, 105, 130, 160, 195],
-} as const;
+};
 
