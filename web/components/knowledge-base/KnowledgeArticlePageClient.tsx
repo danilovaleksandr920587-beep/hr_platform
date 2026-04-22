@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import {
+  SAVED_ITEMS_EVENT,
+  isArticleSaved,
+  setArticleSaved,
+} from "@/lib/client/saved-items";
 
 type RelatedArticle = {
   slug: string;
@@ -38,7 +43,6 @@ const CAT_CLASS: Record<string, string> = {
   salary: "kbad-art-cat--salary",
 };
 
-const SAVE_KEY = "careerlab-kb-article-saved";
 const VOTE_KEY = "careerlab-kb-article-vote";
 
 function slugify(text: string): string {
@@ -102,13 +106,9 @@ export function KnowledgeArticlePageClient(props: Props) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      const list: string[] = raw ? JSON.parse(raw) : [];
-      setSaved(Array.isArray(list) && list.includes(props.slug));
-    } catch {
-      setSaved(false);
-    }
+    const syncSaved = () => setSaved(isArticleSaved(props.slug));
+    syncSaved();
+    window.addEventListener(SAVED_ITEMS_EVENT, syncSaved);
 
     try {
       const raw = localStorage.getItem(VOTE_KEY);
@@ -117,6 +117,7 @@ export function KnowledgeArticlePageClient(props: Props) {
     } catch {
       setVote(null);
     }
+    return () => window.removeEventListener(SAVED_ITEMS_EVENT, syncSaved);
   }, [props.slug]);
 
   useEffect(() => {
@@ -146,17 +147,9 @@ export function KnowledgeArticlePageClient(props: Props) {
   }, [parsed.headings]);
 
   function toggleSave() {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      const list: string[] = raw ? JSON.parse(raw) : [];
-      const set = new Set(Array.isArray(list) ? list : []);
-      if (saved) set.delete(props.slug);
-      else set.add(props.slug);
-      localStorage.setItem(SAVE_KEY, JSON.stringify([...set]));
-      setSaved(!saved);
-    } catch {
-      setSaved(!saved);
-    }
+    const next = !saved;
+    setArticleSaved(props.slug, next);
+    setSaved(next);
   }
 
   async function share() {

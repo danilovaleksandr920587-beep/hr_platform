@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SAVED_ITEMS_EVENT, isVacancySaved, setVacancySaved } from "@/lib/client/saved-items";
 
 type SimilarVacancy = {
   slug: string;
@@ -29,8 +30,6 @@ type Props = {
   similar: SimilarVacancy[];
 };
 
-const SAVE_KEY = "careerlab-saved-vacancies";
-
 function monthYear(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "Апрель 2026";
@@ -41,27 +40,16 @@ export function VacancyDetailClient(props: Props) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      const list = raw ? (JSON.parse(raw) as string[]) : [];
-      setSaved(Array.isArray(list) && list.includes(props.slug));
-    } catch {
-      setSaved(false);
-    }
+    const sync = () => setSaved(isVacancySaved(props.slug));
+    sync();
+    window.addEventListener(SAVED_ITEMS_EVENT, sync);
+    return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
   }, [props.slug]);
 
   function toggleSave() {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      const list = raw ? (JSON.parse(raw) as string[]) : [];
-      const set = new Set(Array.isArray(list) ? list : []);
-      if (set.has(props.slug)) set.delete(props.slug);
-      else set.add(props.slug);
-      localStorage.setItem(SAVE_KEY, JSON.stringify([...set]));
-      setSaved(set.has(props.slug));
-    } catch {
-      setSaved((v) => !v);
-    }
+    const next = !saved;
+    setVacancySaved(props.slug, next);
+    setSaved(next);
   }
 
   async function copyLink() {

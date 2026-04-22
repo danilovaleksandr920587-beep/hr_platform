@@ -25,7 +25,7 @@ export function LoginForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "redirecting">("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [messageTone, setMessageTone] = useState<"muted" | "error" | "ok">("muted");
   const [consent, setConsent] = useState(false);
@@ -42,6 +42,32 @@ export function LoginForm({
     [],
   );
 
+  async function postJsonWithTimeout(url: string, payload: unknown, timeoutMs = 12000) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      return await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function redirectWithFallback() {
+    setStatus("redirecting");
+    router.push(next);
+    router.refresh();
+    window.setTimeout(() => {
+      if (window.location.pathname !== next) {
+        window.location.assign(next);
+      }
+    }, 1200);
+  }
+
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
@@ -53,10 +79,9 @@ export function LoginForm({
     if (!consent) return;
     setStatus("loading");
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+      const res = await postJsonWithTimeout("/api/auth/login", {
+        email: email.trim(),
+        password,
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -65,11 +90,16 @@ export function LoginForm({
         setStatus("idle");
         return;
       }
-      router.push(next);
-      router.refresh();
+      redirectWithFallback();
     } catch (err) {
       setMessageTone("error");
-      setMessage(err instanceof Error ? err.message : "Ошибка входа");
+      const msg =
+        err instanceof Error && err.name === "AbortError"
+          ? "Сервер долго отвечает. Попробуйте еще раз."
+          : err instanceof Error
+            ? err.message
+            : "Ошибка входа";
+      setMessage(msg);
       setStatus("idle");
     }
   }
@@ -100,14 +130,10 @@ export function LoginForm({
     }
     setStatus("loading");
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email.trim(),
-          displayName: displayName.trim(),
-          password,
-        }),
+      const res = await postJsonWithTimeout("/api/auth/register", {
+        email: email.trim(),
+        displayName: displayName.trim(),
+        password,
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -116,16 +142,21 @@ export function LoginForm({
         setStatus("idle");
         return;
       }
-      router.push(next);
-      router.refresh();
+      redirectWithFallback();
     } catch (err) {
       setMessageTone("error");
-      setMessage(err instanceof Error ? err.message : "Ошибка регистрации");
+      const msg =
+        err instanceof Error && err.name === "AbortError"
+          ? "Сервер долго отвечает. Попробуйте еще раз."
+          : err instanceof Error
+            ? err.message
+            : "Ошибка регистрации";
+      setMessage(msg);
       setStatus("idle");
     }
   }
 
-  const busy = status === "loading";
+  const busy = status !== "idle";
   const canSubmit =
     consent &&
     !busy &&
@@ -201,6 +232,13 @@ export function LoginForm({
             style={inputStyle}
           />
         </label>
+        {mode === "signin" ? (
+          <p className="hero-text" style={{ marginTop: "0.5rem", marginBottom: "0" }}>
+            <Link href="/forgot-password" className="text-link">
+              Забыли пароль?
+            </Link>
+          </p>
+        ) : null}
         {mode === "signup" ? (
           <label className="filter-inline" style={{ width: "100%", marginTop: "0.75rem" }}>
             Пароль ещё раз
@@ -242,7 +280,13 @@ export function LoginForm({
 
         <div className="hero-actions">
           <button type="submit" className="btn btn-coral" disabled={!canSubmit}>
-            {busy ? "Отправка…" : mode === "signin" ? "Войти" : "Зарегистрироваться"}
+            {status === "redirecting"
+              ? "Переходим в кабинет..."
+              : busy
+                ? "Отправка..."
+                : mode === "signin"
+                  ? "Войти"
+                  : "Зарегистрироваться"}
           </button>
         </div>
       </form>

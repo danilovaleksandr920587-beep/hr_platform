@@ -3,25 +3,11 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ArticleRow } from "@/lib/types";
-
-const STORAGE_KEY = "careerlab-kb-saved-slugs";
-
-function readSaved(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return new Set();
-    const arr = JSON.parse(raw) as unknown;
-    if (!Array.isArray(arr)) return new Set();
-    return new Set(arr.filter((x) => typeof x === "string"));
-  } catch {
-    return new Set();
-  }
-}
-
-function writeSaved(set: Set<string>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
-}
+import {
+  SAVED_ITEMS_EVENT,
+  isArticleSaved,
+  setArticleSaved,
+} from "@/lib/client/saved-items";
 
 const kickerMap: Record<string, string> = {
   resume: "k-resume",
@@ -44,7 +30,10 @@ export function KbArticleTile({
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setSaved(readSaved().has(row.slug));
+    const sync = () => setSaved(isArticleSaved(row.slug));
+    sync();
+    window.addEventListener(SAVED_ITEMS_EVENT, sync);
+    return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
   }, [row.slug]);
 
   const toggleSave = useCallback(
@@ -53,10 +42,7 @@ export function KbArticleTile({
       e.stopPropagation();
       const next = !saved;
       setSaved(next);
-      const s = readSaved();
-      if (next) s.add(row.slug);
-      else s.delete(row.slug);
-      writeSaved(s);
+      setArticleSaved(row.slug, next);
     },
     [row.slug, saved],
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { SAVED_ITEMS_EVENT, readSavedSnapshot } from "@/lib/client/saved-items";
 
 type OfficeDashboardProps = {
   email: string;
@@ -129,6 +130,7 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [resumeEvaluated, setResumeEvaluated] = useState(true);
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
+  const [savedCounts, setSavedCounts] = useState({ vacancies: 0, articles: 0 });
 
   const [checkRows, setCheckRows] = useState([
     { id: "1", done: true, label: "Резюме загружено и оценено", href: null as string | null },
@@ -151,6 +153,19 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
     const offset = 163 * (1 - done / checkRows.length);
     return { pct, offset, done };
   }, [checkRows]);
+
+  useEffect(() => {
+    const sync = () => {
+      const snapshot = readSavedSnapshot();
+      setSavedCounts({
+        vacancies: snapshot.vacancies.size,
+        articles: snapshot.articles.size,
+      });
+    };
+    sync();
+    window.addEventListener(SAVED_ITEMS_EVENT, sync);
+    return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
+  }, []);
 
   const scrollTo = useCallback((id: SectionId) => {
     setActiveNav(id);
@@ -270,8 +285,8 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
                       ["resume", "📄", "Резюме", null],
                       ["salary", "💰", "Зарплата", null],
                       ["checklist", "✅", "Готовность", `${progress.pct}%`],
-                      ["vacancies", "🔖", "Подборка", "4"],
-                      ["articles", "📚", "Статьи", "4"],
+                      ["vacancies", "🔖", "Подборка", String(savedCounts.vacancies)],
+                      ["articles", "📚", "Статьи", String(savedCounts.articles)],
                     ] as const
                   ).map(([id, icon, label, count]) => (
                     <button
@@ -308,7 +323,7 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
           <main style={mainColStyle}>
             <div className="home-stats">
               <div className="home-stat">
-                <div className="home-stat-num">12</div>
+                <div className="home-stat-num">{savedCounts.vacancies}</div>
                 <div className="home-stat-label">Вакансий сохранено</div>
               </div>
               <div className="home-stat">
@@ -599,7 +614,9 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
                   Все вакансии →
                 </Link>
               </div>
-              <div className="section-badge">На основе профиля: IT · Junior · Москва</div>
+              <div className="section-badge">
+                На основе профиля: IT · Junior · Москва · Сохранено вакансий: {savedCounts.vacancies}
+              </div>
 
               <div className="jobs-list">
                 {JOBS.map((job) => (
@@ -650,6 +667,7 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
                   В базу знаний →
                 </Link>
               </div>
+              <div className="section-badge">Сохранено статей: {savedCounts.articles}</div>
 
               <div className="articles-grid">
                 {ARTICLES.map((a) => (
