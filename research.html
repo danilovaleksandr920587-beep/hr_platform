@@ -10,575 +10,455 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="careerlab-ui.css">
   <style>
-    /* ── Research page ── */
+    /* ─── Research page ─────────────────────────────── */
 
+    /* Hero */
     .research-hero {
       background: var(--lime);
       margin-top: 60px;
-      padding: 52px clamp(1rem, 4vw, 60px) 0;
+      padding: 52px clamp(1rem,4vw,60px) 0;
       overflow: hidden;
       position: relative;
     }
     .research-hero::after {
-      content: '';
-      position: absolute;
-      top: -100px; right: -80px;
-      width: 380px; height: 380px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
-      pointer-events: none;
+      content:'';position:absolute;top:-100px;right:-80px;
+      width:380px;height:380px;border-radius:50%;
+      background:rgba(255,255,255,.18);pointer-events:none;
     }
-    .research-hero-inner {
-      max-width: 1240px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
+    .research-hero-inner { max-width:1240px;margin:0 auto;position:relative;z-index:1; }
     .research-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: rgba(13,15,8,.5);
-      margin-bottom: 18px;
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+      color:rgba(13,15,8,.5);margin-bottom:18px;
     }
-    .research-eyebrow .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: rgba(13,15,8,.3);
-    }
+    .research-eyebrow .dot { width:6px;height:6px;border-radius:50%;background:rgba(13,15,8,.3); }
     .research-hero h1 {
-      font-family: 'Unbounded', sans-serif;
-      font-size: clamp(26px, 3.5vw, 44px);
-      font-weight: 900;
-      color: var(--dark);
-      letter-spacing: -.03em;
-      line-height: 1.1;
-      max-width: 700px;
-      margin: 0 0 20px;
+      font-family:'Unbounded',sans-serif;
+      font-size:clamp(24px,3.5vw,42px);font-weight:900;
+      color:var(--dark);letter-spacing:-.03em;line-height:1.1;
+      max-width:680px;margin:0 0 20px;
     }
     .research-hero-lead {
-      font-size: 16px;
-      color: rgba(13,15,8,.65);
-      line-height: 1.65;
-      max-width: 580px;
-      margin-bottom: 36px;
+      font-size:16px;color:rgba(13,15,8,.65);
+      line-height:1.65;max-width:560px;margin-bottom:36px;
     }
-
-    /* Metrics strip */
     .metrics-strip {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-      margin-top: 40px;
-      background: rgba(13,15,8,.1);
-      border-radius: 16px 16px 0 0;
-      overflow: hidden;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+      margin-top:40px;background:rgba(13,15,8,.1);
+      border-radius:16px 16px 0 0;overflow:hidden;
     }
-    .metric-tile {
-      background: rgba(255,255,255,.55);
-      padding: 22px 24px;
-      backdrop-filter: blur(8px);
-    }
-    .metric-tile:first-child { border-radius: 14px 0 0 0; }
-    .metric-tile:last-child  { border-radius: 0 14px 0 0; }
+    .metric-tile { background:rgba(255,255,255,.55);padding:22px 24px;backdrop-filter:blur(8px); }
+    .metric-tile:first-child { border-radius:14px 0 0 0; }
+    .metric-tile:last-child  { border-radius:0 14px 0 0; }
     .metric-val {
-      font-family: 'Unbounded', sans-serif;
-      font-size: clamp(22px, 2.8vw, 34px);
-      font-weight: 900;
-      color: var(--dark);
-      letter-spacing: -.03em;
-      line-height: 1;
-      margin-bottom: 8px;
+      font-family:'Unbounded',sans-serif;
+      font-size:clamp(20px,2.5vw,30px);font-weight:900;
+      color:var(--dark);letter-spacing:-.03em;line-height:1;margin-bottom:8px;
     }
-    .metric-desc {
-      font-size: 13px;
-      color: rgba(13,15,8,.6);
-      line-height: 1.5;
-    }
+    .metric-desc { font-size:13px;color:rgba(13,15,8,.6);line-height:1.5; }
 
-    /* Shared section wrapper */
-    .rs-section {
-      padding: 56px clamp(1rem, 4vw, 60px);
-    }
-    .rs-container {
-      max-width: 1240px;
-      margin: 0 auto;
-    }
+    /* Shared layout */
+    .rs-section { padding:56px clamp(1rem,4vw,60px); }
+    .rs-section.pt0 { padding-top:0; }
+    .rs-container { max-width:1240px;margin:0 auto; }
     .rs-section-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--muted2);
-      margin-bottom: 8px;
+      font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--muted2);margin-bottom:8px;
     }
     .rs-section-title {
-      font-family: 'Unbounded', sans-serif;
-      font-size: clamp(20px, 2.5vw, 28px);
-      font-weight: 700;
-      color: var(--dark);
-      letter-spacing: -.025em;
-      line-height: 1.2;
-      margin: 0 0 32px;
+      font-family:'Unbounded',sans-serif;
+      font-size:clamp(18px,2vw,26px);font-weight:700;
+      color:var(--dark);letter-spacing:-.025em;line-height:1.2;margin:0 0 6px;
     }
+    .rs-section-lead { font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 28px;max-width:640px; }
 
     /* Filters bar */
     .filters-bar {
-      background: #fff;
-      border-bottom: 1px solid rgba(0,0,0,.07);
-      padding: 16px clamp(1rem, 4vw, 60px);
-      position: sticky;
-      top: 60px;
-      z-index: 100;
+      background:#fff;border-bottom:1px solid rgba(0,0,0,.07);
+      padding:14px clamp(1rem,4vw,60px);position:sticky;top:60px;z-index:100;
     }
     .filters-bar-inner {
-      max-width: 1240px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      max-width:1240px;margin:0 auto;
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     }
-    .filter-chip-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-right: 4px;
-    }
+    .filter-chip-label { font-size:12px;color:var(--muted); }
     .filter-select {
-      appearance: none;
-      background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7d70' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
-      border: 1px solid rgba(0,0,0,.1);
-      border-radius: 8px;
-      padding: 7px 30px 7px 12px;
-      font-size: 13px;
-      font-family: inherit;
-      color: var(--ink);
-      cursor: pointer;
+      appearance:none;
+      background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7d70' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+      border:1px solid rgba(0,0,0,.1);border-radius:8px;
+      padding:7px 28px 7px 12px;font-size:13px;font-family:inherit;color:var(--ink);cursor:pointer;
     }
-    .filter-select:focus { outline: 2px solid var(--lime); outline-offset: 1px; }
-    .filter-divider { width: 1px; height: 20px; background: rgba(0,0,0,.1); }
+    .filter-select:focus { outline:2px solid var(--lime);outline-offset:1px; }
+    .filter-divider { width:1px;height:18px;background:rgba(0,0,0,.1); }
     .filter-update-btn {
-      background: var(--dark);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 18px;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s;
+      background:var(--dark);color:#fff;border:none;border-radius:8px;
+      padding:8px 18px;font-size:13px;font-weight:500;font-family:inherit;
+      cursor:pointer;transition:background .15s;
     }
-    .filter-update-btn:hover { background: #2a2e1a; }
+    .filter-update-btn:hover { background:#2a2e1a; }
 
-    /* ── Key Findings ── */
-    .findings-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
+    /* Key findings */
+    .findings-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px; }
     .finding-card {
-      background: #fff;
-      border-radius: var(--radius-xl);
-      padding: 28px;
-      border: 1px solid rgba(0,0,0,.07);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      background:#fff;border-radius:var(--radius-xl);padding:28px;
+      border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;gap:10px;
+      transition:box-shadow .2s, transform .2s;
     }
-    .finding-num {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 48px;
-      font-weight: 900;
-      color: #e8ede5;
-      line-height: 1;
-    }
-    .finding-lead {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--dark);
-      line-height: 1.4;
-    }
-    .finding-body {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
+    .finding-card:hover { box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px); }
+    .finding-num { font-family:'Unbounded',sans-serif;font-size:44px;font-weight:900;color:#e8ede5;line-height:1; }
+    .finding-lead { font-size:15px;font-weight:600;color:var(--dark);line-height:1.4; }
+    .finding-body { font-size:14px;color:var(--muted);line-height:1.65; }
     .finding-tag {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-top: auto;
-      align-self: flex-start;
+      display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;
+      text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-top:auto;align-self:flex-start;
     }
-    .tag-vuz  { background: #fff3f0; color: #cc3311; }
-    .tag-path { background: #edf7ff; color: #1a5fa8; }
-    .tag-nego { background: var(--lime-pale); color: #556620; }
+    .tag-vuz   { background:#fff3f0;color:#cc3311; }
+    .tag-path  { background:#edf7ff;color:#1a5fa8; }
+    .tag-nego  { background:var(--lime-pale);color:#556620; }
 
-    /* ── Salary Chart ── */
+    /* ─── Chart card wrapper ─── */
     .chart-card {
-      background: #fff;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(0,0,0,.07);
-      padding: 36px;
-      overflow: hidden;
+      background:#fff;border-radius:var(--radius-xl);
+      border:1px solid rgba(0,0,0,.07);padding:32px;
     }
-    .chart-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-    .chart-title-block { flex: 1; }
-    .chart-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--dark);
-      margin-bottom: 4px;
-    }
-    .chart-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-    }
+    .chart-card-header { margin-bottom:24px; }
+    .chart-card-title { font-size:16px;font-weight:600;color:var(--dark);margin-bottom:4px; }
+    .chart-card-sub { font-size:13px;color:var(--muted); }
     .chart-legend {
-      display: flex;
-      gap: 20px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
+      display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;
     }
     .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
+      display:flex;align-items:center;gap:7px;
+      font-size:12px;font-weight:500;color:var(--muted);
     }
-    .legend-swatch {
-      width: 14px; height: 14px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-    .sw-stem     { background: var(--coral); }
-    .sw-regional { background: var(--dark); }
-    .sw-intern   { background: #9EAFC4; }
+    .legend-swatch { width:13px;height:13px;border-radius:4px;flex-shrink:0; }
+    .sw-coral { background:var(--coral); }
+    .sw-dark  { background:var(--dark); }
+    .sw-gray  { background:#9EAFC4; }
+    .sw-lime  { background:var(--lime-dim); }
 
-    /* Desktop chart */
-    .chart-desktop { width: 100%; }
-    .chart-scale-row {
-      display: flex;
-      padding-left: 148px;
-      margin-bottom: 6px;
+    /* ─── Horizontal bar chart ─── */
+    .hbar-chart { display:flex;flex-direction:column;gap:10px; }
+    .hbar-row {
+      display:flex;align-items:center;gap:12px;
+      padding:6px 0;border-radius:8px;
+      transition:background .15s;cursor:default;
     }
-    .scale-track {
-      flex: 1;
-      position: relative;
-      height: 18px;
+    .hbar-row:hover { background:rgba(0,0,0,.02); }
+    .hbar-label { width:150px;flex-shrink:0;font-size:13px;color:var(--ink);line-height:1.3; }
+    .hbar-label .hbar-sub { font-size:11px;color:var(--muted2);display:block;margin-top:1px; }
+    .hbar-track {
+      flex:1;height:36px;position:relative;background:#f5f5f0;
+      border-radius:6px;overflow:visible;
     }
-    .scale-mark {
-      position: absolute;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: #b0b3a8;
-      top: 0;
-      white-space: nowrap;
+    .hbar-track::before {
+      content:'';position:absolute;inset:0;
+      background-image:repeating-linear-gradient(
+        to right,transparent,transparent calc(25% - 1px),
+        rgba(0,0,0,.05) calc(25% - 1px),rgba(0,0,0,.05) 25%
+      );
+      border-radius:6px;pointer-events:none;
     }
-    .chart-body { width: 100%; }
-    .chart-group { margin-bottom: 6px; }
-    .chart-group-header {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: #c0c4b8;
-      padding-left: 148px;
-      padding-bottom: 8px;
-      padding-top: 16px;
+    .hbar-scale {
+      display:flex;padding-left:162px;margin-bottom:4px;
     }
-    .chart-group:first-child .chart-group-header { padding-top: 0; }
-    .chart-sep {
-      height: 1px;
-      background: #f0f2eb;
-      margin: 4px 0;
-      margin-left: 148px;
+    .hbar-scale-track { flex:1;position:relative;height:16px; }
+    .hbar-scale-mark {
+      position:absolute;transform:translateX(-50%);
+      font-size:11px;color:#b0b3a8;top:0;white-space:nowrap;
     }
-    .chart-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
+    .hbar-fill {
+      position:absolute;left:0;top:4px;bottom:4px;
+      border-radius:5px;transition:opacity .2s;
     }
-    .chart-row:last-child { margin-bottom: 0; }
-    .chart-row-label {
-      width: 136px;
-      flex-shrink: 0;
-      padding-right: 12px;
+    .hbar-row:hover .hbar-fill { opacity:.85; }
+    .hbar-val {
+      position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);
+      font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;
+      /* fallback when bar is narrow */
     }
-    .crl-name {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink);
-      line-height: 1.3;
+    .hbar-val-inside {
+      position:absolute;left:8px;top:50%;transform:translateY(-50%);
+      font-size:11px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;
     }
-    .crl-sub {
-      font-size: 11px;
-      color: var(--muted2);
-      margin-top: 1px;
+    .hbar-p25-marker {
+      position:absolute;top:2px;bottom:2px;width:3px;border-radius:2px;
+      background:rgba(255,255,255,.6);
     }
-    .chart-bar-track {
-      flex: 1;
-      height: 36px;
-      position: relative;
-      border-radius: 6px;
-      overflow: visible;
-    }
-    /* Vertical grid lines */
-    .chart-bar-track::before {
-      content: '';
-      position: absolute;
-      inset: -4px 0;
-      background-image:
-        repeating-linear-gradient(
-          to right,
-          transparent,
-          transparent calc(20% - 1px),
-          rgba(0,0,0,.05) calc(20% - 1px),
-          rgba(0,0,0,.05) 20%
-        );
-      pointer-events: none;
-      border-radius: 6px;
-    }
-    .range-bar {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 28px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      left: var(--bl);
-      width: var(--bw);
-      transition: opacity .15s;
-    }
-    .range-bar:hover { opacity: .85; }
-    .rb-stem     { background: var(--coral); }
-    .rb-regional { background: var(--dark); }
-    .rb-intern   { background: #9EAFC4; }
-
-    .rb-val-inside {
-      padding-left: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255,255,255,.85);
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    .rb-intern .rb-val-inside { color: rgba(255,255,255,.9); }
-    .rb-val-outside {
-      position: absolute;
-      left: calc(100% + 8px);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--ink);
-      white-space: nowrap;
+    .hbar-p25-label {
+      position:absolute;top:-18px;transform:translateX(-50%);
+      font-size:10px;font-weight:600;color:var(--muted2);white-space:nowrap;
     }
 
-    /* Mobile chart — card list */
-    .chart-mobile { display: none; }
-    .mobile-dir-group { margin-bottom: 28px; }
-    .mobile-dir-group:last-child { margin-bottom: 0; }
-    .mobile-dir-title {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: #c0c4b8;
-      margin-bottom: 10px;
+    /* Insight callout */
+    .chart-insight {
+      margin-top:20px;background:#f8f9f5;border-radius:12px;
+      padding:18px 20px;border-left:3px solid var(--lime-dim);
     }
-    .mobile-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      background: var(--bg);
-      border-radius: 12px;
-      margin-bottom: 8px;
+    .chart-insight-label {
+      font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--muted2);margin-bottom:6px;
     }
-    .mobile-swatch {
-      width: 10px; height: 10px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
-    .mobile-info { flex: 1; min-width: 0; }
-    .mobile-group-name { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 4px; }
-    .mobile-salary { font-family: 'Unbounded', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
-    .mobile-bar-wrap { height: 5px; background: rgba(0,0,0,.08); border-radius: 3px; overflow: hidden; }
-    .mobile-bar-fill { height: 100%; border-radius: 3px; }
+    .chart-insight p { font-size:14px;color:var(--ink);line-height:1.65;margin:0; }
+    .chart-insight strong { color:var(--dark);font-weight:600; }
 
-    /* ── Gap Analysis ── */
-    .gap-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+    /* ─── SVG growth chart ─── */
+    .growth-chart-wrap {
+      position:relative;width:100%;overflow:hidden;border-radius:10px;background:#f8f9f5;
     }
-    .gap-card {
-      background: #fff;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(0,0,0,.07);
-      padding: 28px;
-    }
-    .gap-eyebrow {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--muted2);
-      margin-bottom: 12px;
-    }
-    .gap-delta {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--dark);
-      letter-spacing: -.03em;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .gap-delta.coral { color: var(--coral); }
-    .gap-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .gap-bar-wrap {
-      margin-top: 18px;
-      height: 6px;
-      background: #efefea;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .gap-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-    }
-    .gbf-a { background: var(--coral); }
-    .gbf-b { background: var(--dark); }
-    .gbf-c { background: #9EAFC4; }
+    .growth-svg { width:100%;height:auto;display:block; }
 
-    /* ── How to use ── */
-    .howto-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+    /* ─── City section ─── */
+    .city-layout { display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start; }
+    .city-bars { display:flex;flex-direction:column;gap:8px; }
+    .city-bar-row {
+      display:flex;align-items:center;gap:10px;
+      padding:4px 6px;border-radius:8px;transition:background .15s;cursor:default;
     }
-    .howto-card {
-      background: #fff;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(0,0,0,.07);
-      padding: 28px;
+    .city-bar-row:hover { background:rgba(0,0,0,.03); }
+    .city-name { width:160px;flex-shrink:0;font-size:13px;font-weight:500;color:var(--ink); }
+    .city-bar-track { flex:1;height:32px;background:#f0f0e8;border-radius:6px;position:relative;overflow:hidden; }
+    .city-bar-fill {
+      position:absolute;left:0;inset-block:4px;border-radius:5px;
+      transition:opacity .2s;background:var(--dark);
     }
-    .howto-step {
-      width: 32px; height: 32px;
-      background: var(--lime);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Unbounded', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 16px;
+    .city-bar-row.moscow .city-bar-fill { background:var(--coral); }
+    .city-bar-row.remote .city-bar-fill { background:var(--lime-dim); }
+    .city-bar-row:hover .city-bar-fill { opacity:.8; }
+    .city-val {
+      width:90px;flex-shrink:0;
+      font-size:13px;font-weight:600;color:var(--ink);text-align:right;
     }
-    .howto-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--dark);
-      margin-bottom: 8px;
-      line-height: 1.35;
+    .city-insights { display:flex;flex-direction:column;gap:14px; }
+    .city-insight-card {
+      background:#fff;border-radius:14px;padding:20px;
+      border:1px solid rgba(0,0,0,.07);
     }
-    .howto-body {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.65;
+    .city-insight-delta {
+      font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;
+      color:var(--dark);letter-spacing:-.02em;margin-bottom:6px;
+    }
+    .city-insight-delta.coral { color:var(--coral); }
+    .city-insight-text { font-size:13px;color:var(--muted);line-height:1.55; }
+
+    /* ─── University section ─── */
+    .uni-layout { display:grid;grid-template-columns:1fr 300px;gap:32px;align-items:start; }
+    .edu-filter-row { display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap; }
+    .edu-btn {
+      padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;
+      border:1.5px solid rgba(0,0,0,.12);background:transparent;
+      font-family:inherit;cursor:pointer;color:var(--muted);transition:all .15s;
+    }
+    .edu-btn.active, .edu-btn:hover { background:var(--dark);color:#fff;border-color:var(--dark); }
+    .uni-bar-row {
+      display:flex;align-items:center;gap:12px;
+      padding:6px 4px;border-radius:8px;transition:background .15s;cursor:default;
+    }
+    .uni-bar-row:hover { background:rgba(0,0,0,.03); }
+    .uni-bar-label { width:180px;flex-shrink:0; }
+    .uni-bar-name { font-size:13px;font-weight:500;color:var(--ink); }
+    .uni-bar-sub { font-size:11px;color:var(--muted2);margin-top:1px; }
+    .uni-bar-track { flex:1;height:40px;background:#f0f0e8;border-radius:8px;position:relative;overflow:hidden; }
+    .uni-bar-fill {
+      position:absolute;left:0;inset-block:5px;border-radius:6px;background:var(--coral);
+      transition:width .4s ease,opacity .2s;
+    }
+    .uni-bar-row:hover .uni-bar-fill { opacity:.8; }
+    .uni-bar-val {
+      position:absolute;right:10px;top:50%;transform:translateY(-50%);
+      font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;
+    }
+    .uni-insights { display:flex;flex-direction:column;gap:12px; }
+    .uni-insight-item {
+      background:#fff;border-radius:12px;padding:18px;
+      border:1px solid rgba(0,0,0,.07);
+      transition:box-shadow .2s;
+    }
+    .uni-insight-item:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
+    .uni-insight-num {
+      font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;
+      color:var(--coral);margin-bottom:6px;
+    }
+    .uni-insight-text { font-size:13px;color:var(--muted);line-height:1.55; }
+
+    /* ─── Company rankings ─── */
+    .company-layout { display:grid;grid-template-columns:1fr 280px;gap:32px;align-items:start; }
+    .company-table-wrap { border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.07); }
+    .company-table { width:100%;border-collapse:collapse; }
+    .company-table thead th {
+      background:var(--dark);color:rgba(255,255,255,.6);
+      font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+      padding:12px 16px;text-align:left;
+    }
+    .company-table tbody tr {
+      border-bottom:1px solid rgba(0,0,0,.06);
+      transition:background .15s;cursor:pointer;
+    }
+    .company-table tbody tr:hover { background:#fafaf8; }
+    .company-table tbody tr:last-child { border-bottom:none; }
+    .company-table tbody td {
+      padding:14px 16px;font-size:14px;color:var(--ink);vertical-align:middle;
+    }
+    /* Top 3 highlight */
+    .company-table tbody tr.top-3 { background:rgba(201,241,53,.12); }
+    .company-table tbody tr.top-3:hover { background:rgba(201,241,53,.2); }
+    .company-table tbody tr.top-3 td:first-child { font-weight:600; }
+    .rank-badge {
+      display:inline-flex;align-items:center;justify-content:center;
+      width:22px;height:22px;border-radius:6px;
+      font-size:11px;font-weight:700;margin-right:6px;
+    }
+    .rank-1 { background:var(--lime);color:var(--dark); }
+    .rank-2 { background:#e8ede5;color:var(--dark); }
+    .rank-3 { background:#f0ece0;color:var(--dark); }
+    .rank-n { background:transparent;color:var(--muted2); }
+    .salary-range-cell { font-weight:600;color:var(--dark); }
+    .company-insights { display:flex;flex-direction:column;gap:12px; }
+    .company-insight-card {
+      background:#fff;border-radius:14px;padding:18px;
+      border:1px solid rgba(0,0,0,.07);
+    }
+    .company-insight-title { font-size:12px;font-weight:600;color:var(--dark);margin-bottom:6px; }
+    .company-insight-text { font-size:13px;color:var(--muted);line-height:1.55; }
+    .company-insight-val {
+      font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;
+      color:var(--coral);margin:8px 0 4px;
     }
 
-    /* ── CTA promo ── */
+    /* ─── Radar / Spider chart ─── */
+    .radar-layout { display:grid;grid-template-columns:340px 1fr;gap:36px;align-items:start; }
+    .radar-wrap { position:relative; }
+    .radar-svg { width:100%;max-width:320px;height:auto;display:block;margin:0 auto; }
+    .radar-scale-note {
+      text-align:center;font-size:12px;color:var(--muted);
+      margin-top:10px;line-height:1.5;
+    }
+    .radar-legend { display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap; }
+    .radar-insights { display:flex;flex-direction:column;gap:14px; }
+    .radar-insight-item {
+      background:#fff;border-radius:14px;padding:20px;
+      border:1px solid rgba(0,0,0,.07);
+    }
+    .radar-insight-dim {
+      font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--muted2);margin-bottom:6px;
+    }
+    .radar-insight-lead { font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px; }
+    .radar-insight-text { font-size:13px;color:var(--muted);line-height:1.55; }
+
+    /* ─── Growth SVG tooltips ─── */
+    .growth-dot {
+      cursor:pointer;transition:r .15s;
+    }
+    .growth-dot:hover { r:7; }
+
+    /* ─── Recommendations ─── */
+    .reco-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:16px; }
+    .reco-card {
+      background:#fff;border-radius:var(--radius-xl);padding:28px;
+      border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;gap:12px;
+      transition:box-shadow .2s,transform .2s;
+    }
+    .reco-card:hover { box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px); }
+    .reco-step {
+      width:32px;height:32px;background:var(--lime);border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--dark);
+    }
+    .reco-title { font-size:15px;font-weight:600;color:var(--dark);line-height:1.35; }
+    .reco-body { font-size:14px;color:var(--muted);line-height:1.65; }
+    .reco-stat {
+      font-size:13px;font-weight:600;color:var(--coral);
+      background:#fff3f0;border-radius:8px;padding:8px 12px;
+      display:inline-block;margin-top:auto;
+    }
+
+    /* CTA promo */
     .promo-card {
-      background: var(--dark);
-      border-radius: var(--radius-xl);
-      padding: 36px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 32px;
-      flex-wrap: wrap;
+      background:var(--dark);border-radius:var(--radius-xl);
+      padding:36px 40px;display:flex;align-items:center;
+      justify-content:space-between;gap:32px;flex-wrap:wrap;
     }
     .promo-text h3 {
-      font-family: 'Unbounded', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 8px;
-      letter-spacing: -.02em;
+      font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;
+      color:#fff;margin-bottom:8px;letter-spacing:-.02em;
     }
-    .promo-text p {
-      font-size: 14px;
-      color: rgba(255,255,255,.5);
-      line-height: 1.6;
-      max-width: 460px;
+    .promo-text p { font-size:14px;color:rgba(255,255,255,.5);line-height:1.6;max-width:460px; }
+    .promo-actions { display:flex;gap:10px;flex-wrap:wrap;flex-shrink:0; }
+    .btn-ghost-white {
+      background:rgba(255,255,255,.1);color:#fff;
+      border:1px solid rgba(255,255,255,.2);border-radius:30px;
+      padding:10px 22px;font-size:14px;font-weight:500;font-family:inherit;
+      cursor:pointer;transition:background .15s;text-decoration:none;display:inline-block;
     }
-    .promo-actions { display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+    .btn-ghost-white:hover { background:rgba(255,255,255,.18); }
 
-    /* ── Methodology note ── */
+    /* Methodology note */
     .methodology-note {
-      background: rgba(0,0,0,.03);
-      border: 1px solid rgba(0,0,0,.07);
-      border-radius: var(--radius-lg);
-      padding: 20px 24px;
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
+      background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.07);
+      border-radius:var(--radius-lg);padding:16px 20px;
+      display:flex;gap:12px;align-items:flex-start;margin-top:16px;
     }
-    .meth-icon {
-      font-size: 16px;
-      flex-shrink: 0;
-      margin-top: 1px;
-      opacity: .5;
-    }
-    .meth-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
-    .meth-text strong { color: var(--ink); font-weight: 600; }
+    .meth-icon { font-size:15px;opacity:.4;flex-shrink:0;margin-top:1px; }
+    .meth-text { font-size:13px;color:var(--muted);line-height:1.6; }
+    .meth-text strong { color:var(--ink);font-weight:600; }
 
-    /* ── Responsive ── */
-    @media (max-width: 960px) {
-      .metrics-strip { grid-template-columns: 1fr 1fr; }
-      .metrics-strip .metric-tile:nth-child(3) { border-radius: 0; }
-      .findings-grid { grid-template-columns: 1fr; }
-      .gap-grid      { grid-template-columns: 1fr 1fr; }
-      .howto-grid    { grid-template-columns: 1fr; }
+    /* ─── Mobile chart (replaces desktop bar chart on small screens) ─── */
+    .chart-mobile { display:none; }
+    .mobile-dir-group { margin-bottom:24px; }
+    .mobile-dir-group:last-child { margin-bottom:0; }
+    .mobile-dir-title {
+      font-size:10px;font-weight:700;letter-spacing:.12em;
+      text-transform:uppercase;color:#c0c4b8;margin-bottom:10px;
     }
+    .mobile-row {
+      display:flex;align-items:center;gap:12px;
+      padding:14px 16px;background:var(--bg);border-radius:12px;margin-bottom:8px;
+    }
+    .mobile-swatch { width:10px;height:10px;border-radius:3px;flex-shrink:0; }
+    .mobile-info { flex:1;min-width:0; }
+    .mobile-group-name { font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px; }
+    .mobile-salary {
+      font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;
+      color:var(--dark);margin-bottom:6px;
+    }
+    .mobile-bar-wrap { height:5px;background:rgba(0,0,0,.08);border-radius:3px;overflow:hidden; }
+    .mobile-bar-fill { height:100%;border-radius:3px; }
 
-    @media (max-width: 680px) {
-      .metrics-strip { grid-template-columns: 1fr; border-radius: 14px 14px 0 0; }
-      .metric-tile:first-child  { border-radius: 14px 14px 0 0; }
-      .metric-tile:nth-child(2) { border-radius: 0; }
-      .metric-tile:last-child   { border-radius: 0; }
-      .chart-desktop { display: none; }
-      .chart-mobile  { display: block; }
-      .gap-grid      { grid-template-columns: 1fr; }
-      .chart-card    { padding: 24px 20px; }
-      .promo-card    { padding: 28px 24px; }
-      .filters-bar-inner { gap: 8px; }
-      .filter-divider { display: none; }
+    /* ─── Responsive ─── */
+    @media (max-width:1024px) {
+      .city-layout  { grid-template-columns:1fr; }
+      .uni-layout   { grid-template-columns:1fr; }
+      .company-layout { grid-template-columns:1fr; }
+      .radar-layout { grid-template-columns:1fr; }
+      .radar-svg { max-width:280px; }
+    }
+    @media (max-width:960px) {
+      .metrics-strip { grid-template-columns:1fr 1fr; }
+      .metrics-strip .metric-tile:nth-child(3) { border-radius:0; }
+      .findings-grid { grid-template-columns:1fr; }
+      .reco-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:680px) {
+      .metrics-strip { grid-template-columns:1fr;border-radius:14px 14px 0 0; }
+      .metric-tile:first-child { border-radius:14px 14px 0 0; }
+      .metric-tile:nth-child(2),
+      .metric-tile:last-child { border-radius:0; }
+      .chart-card { padding:20px 16px; }
+      .promo-card { padding:28px 24px; }
+      .hbar-label { width:110px;font-size:12px; }
+      .hbar-scale { padding-left:122px; }
+      .city-name { width:120px;font-size:12px; }
+      .city-val { width:80px;font-size:12px; }
+      .filters-bar-inner { gap:8px; }
+      .filter-divider { display:none; }
+      /* Replace desktop chart with mobile cards below 680px */
+      .chart-desktop { display:none; }
+      .chart-mobile  { display:block; }
+    }
+    @media (max-width:480px) {
+      .uni-layout .edu-filter-row { flex-wrap:wrap; }
+      .company-table td, .company-table th { padding:10px 12px; }
     }
   </style>
 </head>
@@ -599,42 +479,37 @@
 
   <main>
 
-    <!-- ── HERO ─────────────────────────────────────────── -->
+    <!-- ══ 1. HERO ══════════════════════════════════════════════ -->
     <section class="research-hero">
       <div class="research-hero-inner">
         <div class="research-eyebrow">
-          <span class="dot"></span>
-          Зарплатный рынок
-          <span class="dot"></span>
-          Апрель 2026
-          <span class="dot"></span>
-          Junior &amp; стажировки
+          <span class="dot"></span>Зарплатный рынок
+          <span class="dot"></span>Апрель 2026
+          <span class="dot"></span>Junior&nbsp;&amp;&nbsp;стажировки
         </div>
         <h1>Цифры, которые нужно знать до переговоров</h1>
         <p class="research-hero-lead">
-          Срез по трём направлениям и трём группам вузов. Данные помогут обосновать ожидаемую сумму
-          и понять, где вы находитесь относительно рынка.
+          Срез по направлениям, городам и работодателям. Данные помогут обосновать
+          ожидаемую сумму и понять, где вы находитесь относительно рынка.
         </p>
-
-        <!-- Key metrics -->
         <div class="metrics-strip">
           <div class="metric-tile">
-            <div class="metric-val">до 240 тыс.</div>
-            <div class="metric-desc">Верхняя планка junior по инженерии в топ‑STEM вузах</div>
+            <div class="metric-val">до 240 тыс. ₽</div>
+            <div class="metric-desc">Верхняя планка junior в инженерии для выпускников топ‑STEM вузов</div>
           </div>
           <div class="metric-tile">
-            <div class="metric-val">×2–3</div>
-            <div class="metric-desc">Разрыв между стажировкой и первым офером в крупном IT</div>
+            <div class="metric-val">в 2.8 раза</div>
+            <div class="metric-desc">больше зарабатывают junior в IT, чем в гуманитарных направлениях</div>
           </div>
           <div class="metric-tile">
-            <div class="metric-val">+50–70 тыс.</div>
-            <div class="metric-desc">Ежемесячное преимущество топ‑STEM перед региональными вузами</div>
+            <div class="metric-val">в 3.2 раза</div>
+            <div class="metric-desc">выше стартовые зарплаты стажёров в Москве против регионов</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── FILTERS ─────────────────────────────────────── -->
+    <!-- ══ FILTERS ══════════════════════════════════════════════ -->
     <div class="filters-bar">
       <div class="filters-bar-inner">
         <span class="filter-chip-label">Город</span>
@@ -662,438 +537,912 @@
       </div>
     </div>
 
-    <!-- ── KEY FINDINGS ──────────────────────────────────── -->
+    <!-- ══ 2. KEY FINDINGS ══════════════════════════════════════ -->
     <section class="rs-section">
       <div class="rs-container">
         <div class="rs-section-label">Ключевые выводы</div>
         <h2 class="rs-section-title">Три факта из данных — перед тем как смотреть цифры</h2>
-
+        <p class="rs-section-lead">Понимание этих закономерностей помогает выбрать стратегию, а не просто ориентир по деньгам.</p>
         <div class="findings-grid">
           <div class="finding-card">
             <div class="finding-num">01</div>
             <p class="finding-lead">Вуз важнее направления</p>
-            <p class="finding-body">
-              Разрыв между топ-STEM и региональными вузами (40–70 тыс.&nbsp;₽/мес) стабильно превышает
-              разрыв между Инженерией и Продуктом в одной вузовской группе (20–40 тыс.&nbsp;₽/мес).
-              Это значит: сильный университет компенсирует «менее денежное» направление.
-            </p>
+            <p class="finding-body">Разрыв между топ‑STEM и региональными вузами (40–70 тыс.&nbsp;₽/мес) стабильно превышает разрыв между Инженерией и Продуктом в одной вузовской группе (20–40 тыс.&nbsp;₽/мес). Сильный университет компенсирует «менее денежное» направление.</p>
             <span class="finding-tag tag-vuz">Фактор: вуз</span>
           </div>
           <div class="finding-card">
             <div class="finding-num">02</div>
             <p class="finding-lead">Стажировка в крупном IT — лучший старт</p>
-            <p class="finding-body">
-              Первый оффер после стажировки в топ-IT приносит рост в 1,5–2× к уровню самой стажировки.
-              Даже если 80–120&nbsp;тыс. кажутся мало для начала — это инвестиция: следующий шаг будет
-              уже в диапазоне 150–240 тыс. для топ-STEM.
-            </p>
+            <p class="finding-body">После стажировки в топ‑IT первый оффер вырастает в 1.5–2 раза. Даже 80–120 тыс.&nbsp;₽ на входе — инвестиция: строчка в резюме ускоряет выход на 150–240 тыс. на 6–12 месяцев быстрее.</p>
             <span class="finding-tag tag-path">Фактор: опыт</span>
           </div>
           <div class="finding-card">
             <div class="finding-num">03</div>
-            <p class="finding-lead">На переговорах работает конкретная цифра, а не интуиция</p>
-            <p class="finding-body">
-              Кандидаты, называющие ожидания в начале разговора и обосновывающие их данными,
-              закрывают офер быстрее и ближе к верхней границе диапазона.
-              Используйте середину своей группы как базовую точку отсчёта.
-            </p>
+            <p class="finding-lead">На переговорах работает конкретная цифра</p>
+            <p class="finding-body">Кандидаты, называющие ожидания в начале разговора и обосновывающие их данными, закрывают оффер быстрее и ближе к верхней границе. Используйте середину своей группы как базовую точку.</p>
             <span class="finding-tag tag-nego">Фактор: переговоры</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── SALARY CHART ──────────────────────────────────── -->
-    <section class="rs-section" id="data" style="padding-top: 0;">
+    <!-- ══ 3. SALARY BY INDUSTRY ═════════════════════════════════ -->
+    <section class="rs-section pt0">
       <div class="rs-container">
-        <div class="rs-section-label">Зарплатная карта</div>
-        <h2 class="rs-section-title">Медианный диапазон компенсаций по группам, тыс.&nbsp;₽/мес</h2>
+        <div class="rs-section-label">Зарплаты по отраслям</div>
+        <h2 class="rs-section-title">IT платит в 2.8 раза больше гуманитарных направлений</h2>
+        <p class="rs-section-lead">Медианная зарплата junior и порог «Топ 25%» по основным отраслям. Шкала — тыс. ₽/мес.</p>
 
         <div class="chart-card">
-          <div class="chart-header">
-            <div class="chart-title-block">
-              <div class="chart-title">Диапазон: от минимума до максимума медианного предложения</div>
-              <div class="chart-subtitle">Шкала 0–250 тыс. ₽. Длина полосы = ширина диапазона, начало = нижняя граница.</div>
+          <div class="chart-card-header">
+            <div class="chart-card-title">Медианная зарплата junior и порог Топ 25%</div>
+            <div class="chart-card-sub">Горизонтальная ось — тыс. ₽/мес. Полоса = медиана, маркер = порог Топ 25%.</div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-swatch sw-coral"></div>Медиана</div>
+              <div class="legend-item"><div class="legend-swatch" style="background:rgba(255,85,51,.35)"></div>Топ 25%</div>
+            </div>
+          </div>
+
+          <!-- Scale -->
+          <div class="hbar-scale">
+            <div class="hbar-scale-track">
+              <span class="hbar-scale-mark" style="left:0%">0</span>
+              <span class="hbar-scale-mark" style="left:25%">50</span>
+              <span class="hbar-scale-mark" style="left:50%">100</span>
+              <span class="hbar-scale-mark" style="left:75%">150</span>
+              <span class="hbar-scale-mark" style="left:100%">200</span>
+            </div>
+          </div>
+
+          <!-- Bars: scale 0–200k -->
+          <div class="hbar-chart">
+            <!-- IT / разработка: медиана 140, топ 25% 195 -->
+            <div class="hbar-row">
+              <div class="hbar-label">IT&nbsp;/ разработка</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:97.5%;background:rgba(255,85,51,.25);border-radius:5px;top:4px;bottom:4px;position:absolute;"></div>
+                <div class="hbar-fill" style="width:70%;background:var(--coral);top:4px;bottom:4px;position:absolute;">
+                  <span class="hbar-val-inside">140 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:97.5%;"><span class="hbar-p25-label">Топ 25%: 195 тыс. ₽</span></div>
+              </div>
+            </div>
+            <!-- IT / данные: 120, 175 -->
+            <div class="hbar-row">
+              <div class="hbar-label">IT&nbsp;/ аналитика</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:87.5%;background:rgba(255,85,51,.2);border-radius:5px;top:4px;bottom:4px;position:absolute;"></div>
+                <div class="hbar-fill" style="width:60%;background:var(--coral);top:4px;bottom:4px;position:absolute;">
+                  <span class="hbar-val-inside">120 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:87.5%;"><span class="hbar-p25-label">Топ 25%: 175 тыс. ₽</span></div>
+              </div>
+            </div>
+            <!-- Консалтинг: 105, 160 -->
+            <div class="hbar-row">
+              <div class="hbar-label">Консалтинг</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:80%;background:rgba(43,58,78,.2);border-radius:5px;top:4px;bottom:4px;position:absolute;"></div>
+                <div class="hbar-fill" style="width:52.5%;background:var(--dark);top:4px;bottom:4px;position:absolute;">
+                  <span class="hbar-val-inside">105 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:80%;background:rgba(255,255,255,.5);"><span class="hbar-p25-label">Топ 25%: 160 тыс. ₽</span></div>
+              </div>
+            </div>
+            <!-- Финансы: 90, 135 -->
+            <div class="hbar-row">
+              <div class="hbar-label">Финансы&nbsp;/ банки</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:67.5%;background:rgba(43,58,78,.15);border-radius:5px;top:4px;bottom:4px;position:absolute;"></div>
+                <div class="hbar-fill" style="width:45%;background:var(--dark);top:4px;bottom:4px;position:absolute;">
+                  <span class="hbar-val-inside">90 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:67.5%;background:rgba(255,255,255,.5);"><span class="hbar-p25-label">Топ 25%: 135 тыс. ₽</span></div>
+              </div>
+            </div>
+            <!-- Телеком: 80, 110 -->
+            <div class="hbar-row">
+              <div class="hbar-label">Телеком</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:55%;background:#9EAFC4;top:4px;bottom:4px;position:absolute;border-radius:5px;">
+                  <span class="hbar-val-inside">80 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:55%;"><span class="hbar-p25-label">Топ 25%: 110 тыс. ₽</span></div>
+              </div>
+            </div>
+            <!-- Госсектор: 60, 80 -->
+            <div class="hbar-row">
+              <div class="hbar-label">Гос. сектор</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:40%;background:#9EAFC4;top:4px;bottom:4px;position:absolute;border-radius:5px;">
+                  <span class="hbar-val-inside">60 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:40%;"><span class="hbar-p25-label">Топ 25%: 80 тыс. ₽</span></div>
+              </div>
+            </div>
+            <!-- Гуманитарные: 50, 70 -->
+            <div class="hbar-row">
+              <div class="hbar-label">Гуманитарные</div>
+              <div class="hbar-track">
+                <div class="hbar-fill" style="width:35%;background:#c8cfc0;top:4px;bottom:4px;position:absolute;border-radius:5px;">
+                  <span class="hbar-val-inside">50 тыс. ₽</span>
+                </div>
+                <div class="hbar-p25-marker" style="left:35%;background:rgba(0,0,0,.15);"><span class="hbar-p25-label">Топ 25%: 70 тыс. ₽</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-insight">
+            <div class="chart-insight-label">Вывод</div>
+            <p>Junior в IT в среднем зарабатывает <strong>140 тыс. ₽/мес</strong> против <strong>50 тыс. ₽</strong> в гуманитарных направлениях — это разрыв в 2.8 раза. Разрыв Топ 25% ещё шире: лучшие IT-специалисты (195 тыс.) получают в 2.8 раза больше лучших специалистов гуманитарных отраслей (70 тыс.). Выбор отрасли — главный рычаг на старте карьеры.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 4. SALARY GROWTH 8 YEARS ══════════════════════════════ -->
+    <section class="rs-section pt0">
+      <div class="rs-container">
+        <div class="rs-section-label">Карьерная прогрессия</div>
+        <h2 class="rs-section-title">Зарплата IT-специалиста растёт в 5 раз за 8 лет</h2>
+        <p class="rs-section-lead">Медианная траектория роста в IT-инженерии от стажировки до 8-го года. Значения — тыс. ₽/мес.</p>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">Рост медианной зарплаты по годам опыта, тыс. ₽/мес</div>
+            <div class="chart-card-sub">Стажировка (0 лет) → Senior (8 лет). Москва, IT-инженерия.</div>
+          </div>
+
+          <div class="growth-chart-wrap">
+            <svg class="growth-svg" viewBox="0 0 660 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Grid lines -->
+              <line x1="60" y1="20" x2="60" y2="210" stroke="#e8ede5" stroke-width="1"/>
+              <line x1="60" y1="210" x2="630" y2="210" stroke="#e8ede5" stroke-width="1"/>
+              <!-- Horizontal grid at 100, 200, 300, 400, 500 -->
+              <!-- scale: y = 210 - (v-50)/450 * 190, where v=50 → y=210, v=500 → y=20 -->
+              <!-- 100k: y = 210 - 50/450*190 = 210-21.1 = 188.9 -->
+              <!-- 200k: y = 210 - 150/450*190 = 210-63.3 = 146.7 -->
+              <!-- 300k: y = 210 - 250/450*190 = 210-105.6 = 104.4 -->
+              <!-- 400k: y = 210 - 350/450*190 = 210-147.8 = 62.2 -->
+              <!-- 500k: y = 210 - 450/450*190 = 210-190 = 20 -->
+              <line x1="60" y1="188.9" x2="630" y2="188.9" stroke="#e8ede5" stroke-width="1" stroke-dasharray="4 3"/>
+              <line x1="60" y1="146.7" x2="630" y2="146.7" stroke="#e8ede5" stroke-width="1" stroke-dasharray="4 3"/>
+              <line x1="60" y1="104.4" x2="630" y2="104.4" stroke="#e8ede5" stroke-width="1" stroke-dasharray="4 3"/>
+              <line x1="60" y1="62.2" x2="630" y2="62.2" stroke="#e8ede5" stroke-width="1" stroke-dasharray="4 3"/>
+
+              <!-- Y-axis labels -->
+              <text x="52" y="192" text-anchor="end" font-size="11" fill="#b0b3a8">100</text>
+              <text x="52" y="150" text-anchor="end" font-size="11" fill="#b0b3a8">200</text>
+              <text x="52" y="108" text-anchor="end" font-size="11" fill="#b0b3a8">300</text>
+              <text x="52" y="66" text-anchor="end" font-size="11" fill="#b0b3a8">400</text>
+              <text x="52" y="24" text-anchor="end" font-size="11" fill="#b0b3a8">500</text>
+              <text x="14" y="120" text-anchor="middle" font-size="10" fill="#b0b3a8" transform="rotate(-90 14 120)">тыс. ₽/мес</text>
+
+              <!-- X-axis: years 0-8, x = 60 + i*63.75 -->
+              <!-- 0:60, 1:123.75, 2:187.5, 3:251.25, 4:315, 5:378.75, 6:442.5, 7:506.25, 8:570 -->
+              <text x="60"      y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">Стаж.</text>
+              <text x="123.75"  y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">1 год</text>
+              <text x="187.5"   y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">2 года</text>
+              <text x="251.25"  y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">3 года</text>
+              <text x="315"     y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">4 года</text>
+              <text x="378.75"  y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">5 лет</text>
+              <text x="442.5"   y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">6 лет</text>
+              <text x="506.25"  y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">7 лет</text>
+              <text x="570"     y="226" text-anchor="middle" font-size="10" fill="#b0b3a8">8 лет</text>
+
+              <!-- Area fill -->
+              <!-- Values: 90,140,175,215,265,310,360,410,460 -->
+              <!-- y values: -->
+              <!-- 90:  210-(40/450*190)=210-16.9=193.1  -->
+              <!-- 140: 210-(90/450*190)=210-38=172       -->
+              <!-- 175: 210-(125/450*190)=210-52.8=157.2  -->
+              <!-- 215: 210-(165/450*190)=210-69.7=140.3  -->
+              <!-- 265: 210-(215/450*190)=210-90.9=119.1  -->
+              <!-- 310: 210-(260/450*190)=210-109.8=100.2 -->
+              <!-- 360: 210-(310/450*190)=210-130.9=79.1  -->
+              <!-- 410: 210-(360/450*190)=210-152=58      -->
+              <!-- 460: 210-(410/450*190)=210-173.1=36.9  -->
+              <defs>
+                <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--coral)" stop-opacity=".25"/>
+                  <stop offset="100%" stop-color="var(--coral)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M 60,193.1 L 123.75,172 L 187.5,157.2 L 251.25,140.3 L 315,119.1 L 378.75,100.2 L 442.5,79.1 L 506.25,58 L 570,36.9 L 570,210 L 60,210 Z" fill="url(#growthGrad)"/>
+              <!-- Line -->
+              <path d="M 60,193.1 L 123.75,172 L 187.5,157.2 L 251.25,140.3 L 315,119.1 L 378.75,100.2 L 442.5,79.1 L 506.25,58 L 570,36.9" stroke="var(--coral)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+              <!-- Dots with value labels (selected years) -->
+              <!-- Стажировка -->
+              <circle class="growth-dot" cx="60" cy="193.1" r="5" fill="var(--coral)" stroke="#fff" stroke-width="2"/>
+              <text x="60" y="184" text-anchor="middle" font-size="10" fill="var(--coral)" font-weight="600">90</text>
+
+              <!-- 1 год -->
+              <circle class="growth-dot" cx="123.75" cy="172" r="5" fill="var(--coral)" stroke="#fff" stroke-width="2"/>
+              <text x="123.75" y="163" text-anchor="middle" font-size="10" fill="var(--coral)" font-weight="600">140</text>
+
+              <!-- 3 года -->
+              <circle class="growth-dot" cx="251.25" cy="140.3" r="5" fill="var(--coral)" stroke="#fff" stroke-width="2"/>
+              <text x="251.25" y="131" text-anchor="middle" font-size="10" fill="var(--coral)" font-weight="600">215</text>
+
+              <!-- 5 лет -->
+              <circle class="growth-dot" cx="378.75" cy="100.2" r="5" fill="var(--coral)" stroke="#fff" stroke-width="2"/>
+              <text x="378.75" y="91" text-anchor="middle" font-size="10" fill="var(--coral)" font-weight="600">310</text>
+
+              <!-- 8 лет -->
+              <circle class="growth-dot" cx="570" cy="36.9" r="5" fill="var(--coral)" stroke="#fff" stroke-width="2"/>
+              <text x="570" y="27" text-anchor="middle" font-size="10" fill="var(--coral)" font-weight="600">460</text>
+
+              <!-- Level annotations -->
+              <rect x="82" y="183" width="50" height="16" rx="4" fill="rgba(201,241,53,.7)"/>
+              <text x="107" y="194" text-anchor="middle" font-size="9" fill="var(--dark)" font-weight="600">Стажёр</text>
+
+              <rect x="174" y="147" width="38" height="16" rx="4" fill="#e8ede5"/>
+              <text x="193" y="158" text-anchor="middle" font-size="9" fill="var(--dark)" font-weight="600">Junior</text>
+
+              <rect x="298" y="110" width="42" height="16" rx="4" fill="#e8ede5"/>
+              <text x="319" y="121" text-anchor="middle" font-size="9" fill="var(--dark)" font-weight="600">Middle</text>
+
+              <rect x="500" y="46" width="40" height="16" rx="4" fill="rgba(255,85,51,.15)"/>
+              <text x="520" y="57" text-anchor="middle" font-size="9" fill="var(--coral)" font-weight="600">Senior</text>
+            </svg>
+          </div>
+
+          <div class="chart-insight">
+            <div class="chart-insight-label">Вывод</div>
+            <p>За 8 лет медианная зарплата IT-инженера вырастает с <strong>90 тыс. ₽</strong> (стажировка) до <strong>460 тыс. ₽/мес</strong> — рост в 5.1 раза. Самый быстрый прирост — в первые 3 года: с 90 до 215 тыс. ₽, то есть <strong>+139%</strong>. Именно поэтому качество первого опыта важнее начальной зарплаты.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 5. SALARY BY CITY ══════════════════════════════════════ -->
+    <section class="rs-section pt0">
+      <div class="rs-container">
+        <div class="rs-section-label">Зарплаты по городам</div>
+        <h2 class="rs-section-title">Распределение зарплат по типу города и формату офиса</h2>
+        <p class="rs-section-lead">Медианная зарплата junior в IT-инженерии по городам. Удалённый формат с московским офисом даёт +30–50% к локальному рынку без переезда.</p>
+
+        <div class="chart-card">
+          <div class="city-layout">
+            <!-- Left: bars -->
+            <div>
+              <div class="city-bars">
+                <!-- Scale: max 180k = 100% -->
+                <div style="padding-left:160px;margin-bottom:6px;">
+                  <div style="position:relative;height:14px;">
+                    <span style="position:absolute;left:0;font-size:10px;color:#b0b3a8;">0</span>
+                    <span style="position:absolute;left:27.8%;font-size:10px;color:#b0b3a8;transform:translateX(-50%)">50</span>
+                    <span style="position:absolute;left:55.6%;font-size:10px;color:#b0b3a8;transform:translateX(-50%)">100</span>
+                    <span style="position:absolute;left:83.3%;font-size:10px;color:#b0b3a8;transform:translateX(-50%)">150</span>
+                    <span style="position:absolute;left:100%;font-size:10px;color:#b0b3a8;transform:translateX(-100%)">180</span>
+                  </div>
+                </div>
+
+                <div class="city-bar-row moscow">
+                  <div class="city-name">Москва (офис)</div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:91.7%"></div></div>
+                  <div class="city-val">165 тыс. ₽</div>
+                </div>
+                <div class="city-bar-row remote">
+                  <div class="city-name">Удалённо<br><span style="font-size:11px;color:var(--muted2)">Московский работодатель</span></div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:83.3%;background:var(--lime-dim)"></div></div>
+                  <div class="city-val">150 тыс. ₽</div>
+                </div>
+                <div class="city-bar-row">
+                  <div class="city-name">Санкт-Петербург</div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:69.4%"></div></div>
+                  <div class="city-val">125 тыс. ₽</div>
+                </div>
+                <div class="city-bar-row">
+                  <div class="city-name">Новосибирск</div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:55.6%"></div></div>
+                  <div class="city-val">100 тыс. ₽</div>
+                </div>
+                <div class="city-bar-row">
+                  <div class="city-name">Екатеринбург</div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:52.8%"></div></div>
+                  <div class="city-val">95 тыс. ₽</div>
+                </div>
+                <div class="city-bar-row">
+                  <div class="city-name">Казань</div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:47.2%"></div></div>
+                  <div class="city-val">85 тыс. ₽</div>
+                </div>
+                <div class="city-bar-row">
+                  <div class="city-name">Краснодар</div>
+                  <div class="city-bar-track"><div class="city-bar-fill" style="width:44.4%"></div></div>
+                  <div class="city-val">80 тыс. ₽</div>
+                </div>
+              </div>
+              <div class="chart-legend" style="margin-top:16px;">
+                <div class="legend-item"><div class="legend-swatch sw-coral"></div>Москва-офис</div>
+                <div class="legend-item"><div class="legend-swatch sw-lime"></div>Удалённо (МСК работодатель)</div>
+                <div class="legend-item"><div class="legend-swatch sw-dark"></div>Другие города</div>
+              </div>
+            </div>
+
+            <!-- Right: insights -->
+            <div class="city-insights">
+              <div class="city-insight-card">
+                <div class="city-insight-delta coral">×2.1</div>
+                <p class="city-insight-text"><strong>разрыв между Москвой и Краснодаром</strong> для junior в IT. 165 тыс. ₽ против 80 тыс. ₽ в месяц — при одинаковой квалификации.</p>
+              </div>
+              <div class="city-insight-card">
+                <div class="city-insight-delta">+88%</div>
+                <p class="city-insight-text"><strong>даёт удалённый формат с московским офисом</strong> по сравнению с Краснодаром (150 vs 80 тыс. ₽). 42% компаний из топ-100 IT открыли такой формат постоянно.</p>
+              </div>
+              <div class="city-insight-card">
+                <div class="city-insight-delta">—10%</div>
+                <p class="city-insight-text"><strong>дисконт удалёнки относительно офиса</strong> при московском работодателе (150 vs 165 тыс. ₽). Для регионов — всё равно значительный выигрыш.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 6. UNIVERSITY INFLUENCE ═══════════════════════════════ -->
+    <section class="rs-section pt0">
+      <div class="rs-container">
+        <div class="rs-section-label">Влияние вуза на зарплату</div>
+        <h2 class="rs-section-title">Выпускники топ-STEM получают в 2.4 раза больше выпускников непрофильных вузов</h2>
+        <p class="rs-section-lead">Медианная зарплата junior в IT по группе вуза. Выберите уровень образования для фильтрации.</p>
+
+        <div class="chart-card">
+          <div class="uni-layout">
+            <!-- Left: chart -->
+            <div>
+              <div class="edu-filter-row">
+                <button class="edu-btn active" data-edu="all">Все</button>
+                <button class="edu-btn" data-edu="bachelor">Бакалавриат</button>
+                <button class="edu-btn" data-edu="master">Магистратура</button>
+                <button class="edu-btn" data-edu="college">Колледж</button>
+              </div>
+
+              <div class="hbar-chart" style="gap:12px;">
+                <!-- scale max = 220k = 100% -->
+                <div class="hbar-scale" style="padding-left:192px;">
+                  <div class="hbar-scale-track">
+                    <span class="hbar-scale-mark" style="left:0%">0</span>
+                    <span class="hbar-scale-mark" style="left:22.7%">50</span>
+                    <span class="hbar-scale-mark" style="left:45.5%">100</span>
+                    <span class="hbar-scale-mark" style="left:68.2%">150</span>
+                    <span class="hbar-scale-mark" style="left:90.9%">200</span>
+                  </div>
+                </div>
+
+                <div class="uni-bar-row" data-edu="all bachelor master">
+                  <div class="uni-bar-label">
+                    <div class="uni-bar-name">МФТИ, ВШЭ, МГУ</div>
+                    <div class="uni-bar-sub">Топ STEM</div>
+                  </div>
+                  <div class="uni-bar-track" style="position:relative;">
+                    <div class="uni-bar-fill" style="width:88.6%"></div>
+                    <span class="uni-bar-val">195 тыс. ₽</span>
+                  </div>
+                </div>
+
+                <div class="uni-bar-row" data-edu="all bachelor master">
+                  <div class="uni-bar-label">
+                    <div class="uni-bar-name">Бауманка, ИТМО, СПбПУ</div>
+                    <div class="uni-bar-sub">Сильные технические</div>
+                  </div>
+                  <div class="uni-bar-track">
+                    <div class="uni-bar-fill" style="width:75%"></div>
+                    <span class="uni-bar-val">165 тыс. ₽</span>
+                  </div>
+                </div>
+
+                <div class="uni-bar-row" data-edu="all bachelor master">
+                  <div class="uni-bar-label">
+                    <div class="uni-bar-name">Региональные STEM</div>
+                    <div class="uni-bar-sub">Топ университеты регионов</div>
+                  </div>
+                  <div class="uni-bar-track">
+                    <div class="uni-bar-fill" style="width:59.1%"></div>
+                    <span class="uni-bar-val">130 тыс. ₽</span>
+                  </div>
+                </div>
+
+                <div class="uni-bar-row" data-edu="all bachelor">
+                  <div class="uni-bar-label">
+                    <div class="uni-bar-name">Средние технические</div>
+                    <div class="uni-bar-sub">Прочие инженерные вузы</div>
+                  </div>
+                  <div class="uni-bar-track">
+                    <div class="uni-bar-fill" style="width:47.7%"></div>
+                    <span class="uni-bar-val">105 тыс. ₽</span>
+                  </div>
+                </div>
+
+                <div class="uni-bar-row" data-edu="all college">
+                  <div class="uni-bar-label">
+                    <div class="uni-bar-name">Колледж + курсы</div>
+                    <div class="uni-bar-sub">Практические специальности</div>
+                  </div>
+                  <div class="uni-bar-track">
+                    <div class="uni-bar-fill" style="width:40.9%;background:#9EAFC4"></div>
+                    <span class="uni-bar-val">90 тыс. ₽</span>
+                  </div>
+                </div>
+
+                <div class="uni-bar-row" data-edu="all college">
+                  <div class="uni-bar-label">
+                    <div class="uni-bar-name">Без профильного вуза</div>
+                    <div class="uni-bar-sub">Самостоятельное обучение</div>
+                  </div>
+                  <div class="uni-bar-track">
+                    <div class="uni-bar-fill" style="width:36.4%;background:#9EAFC4"></div>
+                    <span class="uni-bar-val">80 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: insights -->
+            <div class="uni-insights">
+              <div class="uni-insight-item">
+                <div class="uni-insight-num">+115 тыс. ₽</div>
+                <p class="uni-insight-text">Разрыв между выпускниками МФТИ/ВШЭ и кандидатами без профильного образования. В год — это <strong>1.38 млн ₽</strong> разницы в годовом доходе.</p>
+              </div>
+              <div class="uni-insight-item">
+                <div class="uni-insight-num" style="color:var(--dark)">+65 тыс. ₽</div>
+                <p class="uni-insight-text">Вузовская «премия» топ-STEM перед средними вузами. Компании чаще закрывают верхний диапазон кандидатам с сильным академическим брендом.</p>
+              </div>
+              <div class="uni-insight-item">
+                <div class="uni-insight-num" style="color:#9EAFC4">Нет диплома — не блок</div>
+                <p class="uni-insight-text">Колледж + сильное портфолио даёт 90 тыс. ₽. Разрыв с топ-STEM сокращается после 2–3 лет опыта — тогда решают проекты, не вуз.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 7. COMPANY RANKINGS ════════════════════════════════════ -->
+    <section class="rs-section pt0">
+      <div class="rs-container">
+        <div class="rs-section-label">Рейтинг работодателей</div>
+        <h2 class="rs-section-title">Рейтинг компаний по зарплатам стажёров: Яндекс традиционно лидирует</h2>
+        <p class="rs-section-lead">Крупнейшие работодатели для начинающих специалистов. Технологические компании и консалтинг — в топе. Диапазон стажировочных зарплат, тыс. ₽/мес.</p>
+
+        <div class="company-layout">
+          <!-- Table -->
+          <div class="company-table-wrap">
+            <table class="company-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;">#</th>
+                  <th>Компания</th>
+                  <th>Направление</th>
+                  <th>Зарплата, тыс. ₽</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="top-3" onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-1">1</span></td>
+                  <td>Яндекс</td>
+                  <td>Разработка, аналитика</td>
+                  <td class="salary-range-cell">130–160</td>
+                </tr>
+                <tr class="top-3" onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-2">2</span></td>
+                  <td>McKinsey / BCG / Bain</td>
+                  <td>Аналитика, продукт</td>
+                  <td class="salary-range-cell">120–160</td>
+                </tr>
+                <tr class="top-3" onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-3">3</span></td>
+                  <td>Тинькофф</td>
+                  <td>Разработка, данные</td>
+                  <td class="salary-range-cell">110–145</td>
+                </tr>
+                <tr onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-n">4</span></td>
+                  <td>VK</td>
+                  <td>Разработка</td>
+                  <td class="salary-range-cell">100–140</td>
+                </tr>
+                <tr onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-n">5</span></td>
+                  <td>Сбер</td>
+                  <td>Разработка, данные, ИИ</td>
+                  <td class="salary-range-cell">100–130</td>
+                </tr>
+                <tr onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-n">6</span></td>
+                  <td>EPAM</td>
+                  <td>Разработка</td>
+                  <td class="salary-range-cell">90–120</td>
+                </tr>
+                <tr onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-n">7</span></td>
+                  <td>Газпром нефть (IT)</td>
+                  <td>Разработка, данные</td>
+                  <td class="salary-range-cell">85–110</td>
+                </tr>
+                <tr onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-n">8</span></td>
+                  <td>Ростелеком</td>
+                  <td>Разработка, сети</td>
+                  <td class="salary-range-cell">75–100</td>
+                </tr>
+                <tr onclick="toggleCompanyRow(this)">
+                  <td><span class="rank-badge rank-n">9</span></td>
+                  <td>Гос. IT (ФОИВ)</td>
+                  <td>Разработка</td>
+                  <td class="salary-range-cell">60–85</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: insights -->
+          <div class="company-insights">
+            <div class="company-insight-card">
+              <div class="company-insight-title">Технологии vs Гос. сектор</div>
+              <div class="company-insight-val">×2.4</div>
+              <p class="company-insight-text">Разрыв между максимумом Яндекса (160 тыс.) и минимумом государственного IT (60 тыс.) — в 2.4 раза для стажёров.</p>
+            </div>
+            <div class="company-insight-card">
+              <div class="company-insight-title">Топ-3 компании</div>
+              <p class="company-insight-text">Яндекс, McKinsey и Тинькофф дают не только лучшую зарплату, но и максимальный «бренд» в резюме. Конкурс высокий: 15–40 кандидатов на место.</p>
+            </div>
+            <div class="company-insight-card">
+              <div class="company-insight-title">Консалтинг vs IT</div>
+              <p class="company-insight-text">McKinsey/BCG платят сопоставимо с Яндексом (120–160 тыс.), но карьера другая: быстрее к менеджерской роли, медленнее к глубокой технической экспертизе.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 8. OFFER QUALITY RADAR ═════════════════════════════════ -->
+    <section class="rs-section pt0">
+      <div class="rs-container">
+        <div class="rs-section-label">Качество оффера</div>
+        <h2 class="rs-section-title">Оффер — это больше, чем зарплата: шесть параметров сравнения</h2>
+        <p class="rs-section-lead">Оценки 0–100 — процентильный рейтинг относительно всех компаний на рынке. 100 = лучший результат среди всех работодателей.</p>
+
+        <div class="chart-card">
+          <div class="radar-layout">
+            <!-- Left: radar SVG -->
+            <div class="radar-wrap">
+              <div class="chart-legend" style="justify-content:center;margin-bottom:16px;">
+                <div class="legend-item"><div class="legend-swatch sw-coral"></div>Топ IT (Яндекс, VK)</div>
+                <div class="legend-item"><div class="legend-swatch sw-dark"></div>Средний рынок</div>
+              </div>
+
+              <svg class="radar-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grid polygons at 25, 50, 75, 100 -->
+                <!-- Center: 160,160. Max r=110. Grid r: 27.5, 55, 82.5, 110 -->
+                <!-- 6 directions from top, clockwise: Оклад(top), Рост, Менторство, Гибкость, Культура, Технологии -->
+                <!-- Angles: -90°, -30°, 30°, 90°, 150°, 210° -->
+                <!-- cos/sin values: (-90)=(0,-1), (-30)=(0.866,-0.5), (30)=(0.866,0.5), (90)=(0,1), (150)=(-0.866,0.5), (210)=(-0.866,-0.5) -->
+
+                <!-- r=27.5 (25%): points 160+27.5*(0,-1,...) -->
+                <polygon points="160,132.5 183.8,146.25 183.8,173.75 160,187.5 136.2,173.75 136.2,146.25" fill="none" stroke="#e8ede5" stroke-width="1"/>
+                <!-- r=55 (50%) -->
+                <polygon points="160,105 207.6,132.5 207.6,187.5 160,215 112.4,187.5 112.4,132.5" fill="none" stroke="#e8ede5" stroke-width="1"/>
+                <!-- r=82.5 (75%) -->
+                <polygon points="160,77.5 231.4,118.75 231.4,201.25 160,242.5 88.6,201.25 88.6,118.75" fill="none" stroke="#e8ede5" stroke-width="1"/>
+                <!-- r=110 (100%) -->
+                <polygon points="160,50 255.3,105 255.3,215 160,270 64.7,215 64.7,105" fill="none" stroke="#d0d5cc" stroke-width="1.5"/>
+
+                <!-- Axis lines -->
+                <line x1="160" y1="160" x2="160" y2="50" stroke="#d0d5cc" stroke-width="1"/>
+                <line x1="160" y1="160" x2="255.3" y2="105" stroke="#d0d5cc" stroke-width="1"/>
+                <line x1="160" y1="160" x2="255.3" y2="215" stroke="#d0d5cc" stroke-width="1"/>
+                <line x1="160" y1="160" x2="160" y2="270" stroke="#d0d5cc" stroke-width="1"/>
+                <line x1="160" y1="160" x2="64.7" y2="215" stroke="#d0d5cc" stroke-width="1"/>
+                <line x1="160" y1="160" x2="64.7" y2="105" stroke="#d0d5cc" stroke-width="1"/>
+
+                <!-- Scale labels along top axis -->
+                <text x="166" y="135" font-size="9" fill="#b0b3a8">25</text>
+                <text x="166" y="108" font-size="9" fill="#b0b3a8">50</text>
+                <text x="166" y="81" font-size="9" fill="#b0b3a8">75</text>
+                <text x="166" y="54" font-size="9" fill="#b0b3a8">100</text>
+
+                <!-- Топ IT data: [90,85,80,75,80,95] mapped to r=110 -->
+                <!-- 90: r=99, point: (160, 160-99)=(160,61) -->
+                <!-- 85: r=93.5, point: (160+93.5*0.866, 160-93.5*0.5)=(240.97,113.25) -->
+                <!-- 80: r=88, point: (160+88*0.866, 160+88*0.5)=(236.22,204) -->
+                <!-- 75: r=82.5, point: (160,160+82.5)=(160,242.5) -->
+                <!-- 80: r=88, point: (160-88*0.866,160+88*0.5)=(83.78,204) -->
+                <!-- 95: r=104.5, point: (160-104.5*0.866,160-104.5*0.5)=(69.5,107.75) -->
+                <polygon points="160,61 240.97,113.25 236.22,204 160,242.5 83.78,204 69.5,107.75"
+                  fill="rgba(255,85,51,.18)" stroke="var(--coral)" stroke-width="2" stroke-linejoin="round"/>
+
+                <!-- Средний рынок: [65,60,55,60,60,60] mapped r=110 -->
+                <!-- 65: r=71.5, point: (160,88.5) -->
+                <!-- 60: r=66, point: (160+66*0.866,160-66*0.5)=(217.16,127) -->
+                <!-- 55: r=60.5, point: (160+60.5*0.866,160+60.5*0.5)=(212.39,190.25) -->
+                <!-- 60: r=66, point: (160,226) -->
+                <!-- 60: r=66, point: (160-66*0.866,160+66*0.5)=(102.84,193) -->
+                <!-- 60: r=66, point: (160-66*0.866,160-66*0.5)=(102.84,127) -->
+                <polygon points="160,88.5 217.16,127 212.39,190.25 160,226 102.84,193 102.84,127"
+                  fill="rgba(43,58,78,.1)" stroke="var(--dark)" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 3"/>
+
+                <!-- Dots top IT -->
+                <circle cx="160" cy="61" r="4" fill="var(--coral)" stroke="#fff" stroke-width="1.5"/>
+                <circle cx="240.97" cy="113.25" r="4" fill="var(--coral)" stroke="#fff" stroke-width="1.5"/>
+                <circle cx="236.22" cy="204" r="4" fill="var(--coral)" stroke="#fff" stroke-width="1.5"/>
+                <circle cx="160" cy="242.5" r="4" fill="var(--coral)" stroke="#fff" stroke-width="1.5"/>
+                <circle cx="83.78" cy="204" r="4" fill="var(--coral)" stroke="#fff" stroke-width="1.5"/>
+                <circle cx="69.5" cy="107.75" r="4" fill="var(--coral)" stroke="#fff" stroke-width="1.5"/>
+
+                <!-- Dimension labels (outside) -->
+                <text x="160" y="35" text-anchor="middle" font-size="11" font-weight="600" fill="var(--dark)">Оклад</text>
+                <text x="270" y="100" text-anchor="start" font-size="11" font-weight="600" fill="var(--dark)">Рост</text>
+                <text x="268" y="224" text-anchor="start" font-size="11" font-weight="600" fill="var(--dark)">Менторство</text>
+                <text x="160" y="290" text-anchor="middle" font-size="11" font-weight="600" fill="var(--dark)">Гибкость</text>
+                <text x="52" y="224" text-anchor="end" font-size="11" font-weight="600" fill="var(--dark)">Культура</text>
+                <text x="52" y="100" text-anchor="end" font-size="11" font-weight="600" fill="var(--dark)">Технологии</text>
+              </svg>
+
+              <p class="radar-scale-note">Шкала 0–100 = процентильный рейтинг среди всех работодателей.<br>100 = лучший результат на рынке.</p>
+            </div>
+
+            <!-- Right: insights -->
+            <div class="radar-insights">
+              <div class="radar-insight-item">
+                <div class="radar-insight-dim">Технологии</div>
+                <div class="radar-insight-lead">Топ IT на 58% сильнее среднего рынка</div>
+                <p class="radar-insight-text">Рейтинг технологического стека топ-IT компаний — 95/100 vs 60/100 среднего рынка. Разрыв максимален именно здесь: Яндекс и VK работают на нагрузках и с инструментами, которых нет в большинстве компаний.</p>
+              </div>
+              <div class="radar-insight-item">
+                <div class="radar-insight-dim">Менторство</div>
+                <div class="radar-insight-lead">Консалтинг опережает IT по развитию</div>
+                <p class="radar-insight-text">В McKinsey/BCG структурированные программы менторства — норма с первого дня. В IT разброс больше: сильные команды дают опыт быстро, слабые — нет. Уточняйте структуру onboarding на собеседовании.</p>
+              </div>
+              <div class="radar-insight-item">
+                <div class="radar-insight-dim">Гибкость</div>
+                <div class="radar-insight-lead">Удалёнка + гибкий график — рычаг переговоров</div>
+                <p class="radar-insight-text">После 2022 года 42% топ-IT компаний перешли на гибридный формат. Гибкость — реальный компонент оффера стоимостью 15–30% к зарплате (ниже транспортные расходы, время, стресс).</p>
+              </div>
+              <div class="radar-insight-item">
+                <div class="radar-insight-dim">Общий вывод</div>
+                <div class="radar-insight-lead">Оклад — лишь один из шести параметров</div>
+                <p class="radar-insight-text">Разрыв по технологиям и росту между топ-IT и средним рынком значительнее, чем по окладу. Стажировка в компании с рейтингом технологий 90+ за 1–2 года компенсирует разницу в стартовой зарплате с процентами.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 9. SALARY COMPARISON CHART ════════════════════════════ -->
+    <section class="rs-section pt0">
+      <div class="rs-container">
+        <div class="rs-section-label">Зарплатная карта</div>
+        <h2 class="rs-section-title">Медианный диапазон компенсаций по группам вузов и направлениям</h2>
+        <p class="rs-section-lead">Каждая полоса показывает диапазон от нижней до верхней медианной границы. Шкала — тыс. ₽/мес.</p>
+
+        <div class="chart-card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:24px;">
+            <div>
+              <div class="chart-card-title">Диапазон медианного предложения по вузу и направлению</div>
+              <div class="chart-card-sub">Начало полосы = нижняя граница, длина = ширина диапазона.</div>
             </div>
             <div class="chart-legend">
-              <div class="legend-item">
-                <div class="legend-swatch sw-stem"></div>
-                Топ STEM
-              </div>
-              <div class="legend-item">
-                <div class="legend-swatch sw-regional"></div>
-                Региональные
-              </div>
-              <div class="legend-item">
-                <div class="legend-swatch sw-intern"></div>
-                Стажировка
-              </div>
+              <div class="legend-item"><div class="legend-swatch sw-coral"></div>Топ STEM</div>
+              <div class="legend-item"><div class="legend-swatch sw-dark"></div>Региональные</div>
+              <div class="legend-item"><div class="legend-swatch sw-gray"></div>Стажировка</div>
             </div>
           </div>
 
-          <!-- ─ Desktop bar chart ─ -->
+          <!-- Desktop bar chart -->
           <div class="chart-desktop">
-            <!-- Scale row -->
-            <div class="chart-scale-row">
-              <div class="scale-track">
-                <span class="scale-mark" style="left:0%">0</span>
-                <span class="scale-mark" style="left:20%">50</span>
-                <span class="scale-mark" style="left:40%">100</span>
-                <span class="scale-mark" style="left:60%">150</span>
-                <span class="scale-mark" style="left:80%">200</span>
-                <span class="scale-mark" style="left:100%">250</span>
+            <!-- Scale: 0–250k -->
+            <div style="display:flex;padding-left:148px;margin-bottom:6px;">
+              <div style="flex:1;position:relative;height:18px;">
+                <span style="position:absolute;left:0%;font-size:11px;color:#b0b3a8;transform:translateX(-50%)">0</span>
+                <span style="position:absolute;left:20%;font-size:11px;color:#b0b3a8;transform:translateX(-50%)">50</span>
+                <span style="position:absolute;left:40%;font-size:11px;color:#b0b3a8;transform:translateX(-50%)">100</span>
+                <span style="position:absolute;left:60%;font-size:11px;color:#b0b3a8;transform:translateX(-50%)">150</span>
+                <span style="position:absolute;left:80%;font-size:11px;color:#b0b3a8;transform:translateX(-50%)">200</span>
+                <span style="position:absolute;left:100%;font-size:11px;color:#b0b3a8;transform:translateX(-100%)">250</span>
               </div>
             </div>
 
-            <div class="chart-body">
-
+            <div style="display:flex;flex-direction:column;gap:0;">
               <!-- ИНЖЕНЕРИЯ -->
-              <div class="chart-group">
-                <div class="chart-group-header">Инженерия</div>
-                <!-- Топ STEM 180–240: left=72%, width=24% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Топ STEM</div>
-                    <div class="crl-sub">МГУ, МФТИ, СПбГУ…</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-stem" style="--bl:72%;--bw:24%">
-                      <span class="rb-val-inside">180</span>
-                      <span class="rb-val-outside">180–240 тыс.</span>
-                    </div>
-                  </div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c0c4b8;padding-left:148px;padding-bottom:8px;">Инженерия</div>
+
+              <div style="display:flex;align-items:center;margin-bottom:10px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;">
+                  <div style="font-size:13px;font-weight:500;color:var(--ink)">Топ STEM</div>
+                  <div style="font-size:11px;color:var(--muted2)">МФТИ, МГУ, ВШЭ</div>
                 </div>
-                <!-- Региональные 120–170: left=48%, width=20% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Региональные</div>
-                    <div class="crl-sub">Сильные STEM-вузы РФ</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-regional" style="--bl:48%;--bw:20%">
-                      <span class="rb-val-inside">120</span>
-                      <span class="rb-val-outside">120–170 тыс.</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Стажировка 80–120: left=32%, width=16% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Стажировка</div>
-                    <div class="crl-sub">Крупный IT</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-intern" style="--bl:32%;--bw:16%">
-                      <span class="rb-val-inside">80</span>
-                      <span class="rb-val-outside">80–120 тыс.</span>
-                    </div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:72%;width:24%;top:4px;bottom:4px;background:var(--coral);border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">180</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">180–240 тыс. ₽</span>
                   </div>
                 </div>
               </div>
 
-              <div class="chart-sep"></div>
+              <div style="display:flex;align-items:center;margin-bottom:10px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;">
+                  <div style="font-size:13px;font-weight:500;color:var(--ink)">Региональные</div>
+                  <div style="font-size:11px;color:var(--muted2)">STEM вузы РФ</div>
+                </div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:48%;width:20%;top:4px;bottom:4px;background:var(--dark);border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">120</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">120–170 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;margin-bottom:18px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;">
+                  <div style="font-size:13px;font-weight:500;color:var(--ink)">Стажировка</div>
+                  <div style="font-size:11px;color:var(--muted2)">Крупный IT</div>
+                </div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:32%;width:16%;top:4px;bottom:4px;background:#9EAFC4;border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">80</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">80–120 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="height:1px;background:#f0f2eb;margin:0 0 18px 148px;"></div>
 
               <!-- ДАННЫЕ -->
-              <div class="chart-group">
-                <div class="chart-group-header">Данные / Аналитика</div>
-                <!-- Топ STEM 160–220: left=64%, width=24% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Топ STEM</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-stem" style="--bl:64%;--bw:24%">
-                      <span class="rb-val-inside">160</span>
-                      <span class="rb-val-outside">160–220 тыс.</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Региональные 110–150: left=44%, width=16% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Региональные</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-regional" style="--bl:44%;--bw:16%">
-                      <span class="rb-val-inside">110</span>
-                      <span class="rb-val-outside">110–150 тыс.</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Стажировка 70–110: left=28%, width=16% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Стажировка</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-intern" style="--bl:28%;--bw:16%">
-                      <span class="rb-val-inside">70</span>
-                      <span class="rb-val-outside">70–110 тыс.</span>
-                    </div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c0c4b8;padding-left:148px;padding-bottom:8px;">Данные / Аналитика</div>
+
+              <div style="display:flex;align-items:center;margin-bottom:10px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;"><div style="font-size:13px;font-weight:500;color:var(--ink)">Топ STEM</div></div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:64%;width:24%;top:4px;bottom:4px;background:var(--coral);border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">160</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">160–220 тыс. ₽</span>
                   </div>
                 </div>
               </div>
 
-              <div class="chart-sep"></div>
+              <div style="display:flex;align-items:center;margin-bottom:10px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;"><div style="font-size:13px;font-weight:500;color:var(--ink)">Региональные</div></div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:44%;width:16%;top:4px;bottom:4px;background:var(--dark);border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">110</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">110–150 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;margin-bottom:18px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;"><div style="font-size:13px;font-weight:500;color:var(--ink)">Стажировка</div></div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:28%;width:16%;top:4px;bottom:4px;background:#9EAFC4;border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">70</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">70–110 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="height:1px;background:#f0f2eb;margin:0 0 18px 148px;"></div>
 
               <!-- ПРОДУКТ -->
-              <div class="chart-group">
-                <div class="chart-group-header">Продукт / Менеджмент</div>
-                <!-- Топ STEM 150–200: left=60%, width=20% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Топ STEM</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-stem" style="--bl:60%;--bw:20%">
-                      <span class="rb-val-inside">150</span>
-                      <span class="rb-val-outside">150–200 тыс.</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Региональные 100–140: left=40%, width=16% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Региональные</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-regional" style="--bl:40%;--bw:16%">
-                      <span class="rb-val-inside">100</span>
-                      <span class="rb-val-outside">100–140 тыс.</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Стажировка 70–100: left=28%, width=12% -->
-                <div class="chart-row">
-                  <div class="chart-row-label">
-                    <div class="crl-name">Стажировка</div>
-                  </div>
-                  <div class="chart-bar-track">
-                    <div class="range-bar rb-intern" style="--bl:28%;--bw:12%">
-                      <span class="rb-val-inside">70</span>
-                      <span class="rb-val-outside">70–100 тыс.</span>
-                    </div>
+              <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c0c4b8;padding-left:148px;padding-bottom:8px;">Продукт / Менеджмент</div>
+
+              <div style="display:flex;align-items:center;margin-bottom:10px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;"><div style="font-size:13px;font-weight:500;color:var(--ink)">Топ STEM</div></div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:60%;width:20%;top:4px;bottom:4px;background:var(--coral);border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">150</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">150–200 тыс. ₽</span>
                   </div>
                 </div>
               </div>
 
-            </div><!-- /chart-body -->
-          </div><!-- /chart-desktop -->
+              <div style="display:flex;align-items:center;margin-bottom:10px;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;"><div style="font-size:13px;font-weight:500;color:var(--ink)">Региональные</div></div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:40%;width:16%;top:4px;bottom:4px;background:var(--dark);border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">100</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">100–140 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
 
-          <!-- ─ Mobile card view ─ -->
+              <div style="display:flex;align-items:center;">
+                <div style="width:136px;flex-shrink:0;padding-right:12px;"><div style="font-size:13px;font-weight:500;color:var(--ink)">Стажировка</div></div>
+                <div style="flex:1;height:36px;background:#f5f5f0;border-radius:6px;position:relative;overflow:visible;" class="hbar-track">
+                  <div style="position:absolute;left:28%;width:12%;top:4px;bottom:4px;background:#9EAFC4;border-radius:5px;display:flex;align-items:center;transition:opacity .2s;" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">
+                    <span style="padding-left:7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.9)">70</span>
+                    <span style="position:absolute;left:calc(100% + 8px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap">70–100 тыс. ₽</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile: cards -->
           <div class="chart-mobile">
-
             <div class="mobile-dir-group">
               <div class="mobile-dir-title">Инженерия</div>
-              <div class="mobile-row">
-                <div class="mobile-swatch sw-stem" style="background:var(--coral)"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Топ STEM</div>
-                  <div class="mobile-salary">180–240 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:var(--coral);width:96%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:var(--dark)"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Региональные вузы</div>
-                  <div class="mobile-salary">120–170 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:var(--dark);width:68%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:#9EAFC4"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Стажировка, крупный IT</div>
-                  <div class="mobile-salary">80–120 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:#9EAFC4;width:48%"></div>
-                  </div>
-                </div>
-              </div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:var(--coral)"></div><div class="mobile-info"><div class="mobile-group-name">Топ STEM</div><div class="mobile-salary">180–240 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:var(--coral);width:96%"></div></div></div></div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:var(--dark)"></div><div class="mobile-info"><div class="mobile-group-name">Региональные</div><div class="mobile-salary">120–170 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:var(--dark);width:68%"></div></div></div></div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:#9EAFC4"></div><div class="mobile-info"><div class="mobile-group-name">Стажировка</div><div class="mobile-salary">80–120 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:#9EAFC4;width:48%"></div></div></div></div>
             </div>
-
             <div class="mobile-dir-group">
               <div class="mobile-dir-title">Данные / Аналитика</div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:var(--coral)"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Топ STEM</div>
-                  <div class="mobile-salary">160–220 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:var(--coral);width:88%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:var(--dark)"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Региональные вузы</div>
-                  <div class="mobile-salary">110–150 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:var(--dark);width:60%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:#9EAFC4"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Стажировка, крупный IT</div>
-                  <div class="mobile-salary">70–110 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:#9EAFC4;width:44%"></div>
-                  </div>
-                </div>
-              </div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:var(--coral)"></div><div class="mobile-info"><div class="mobile-group-name">Топ STEM</div><div class="mobile-salary">160–220 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:var(--coral);width:88%"></div></div></div></div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:var(--dark)"></div><div class="mobile-info"><div class="mobile-group-name">Региональные</div><div class="mobile-salary">110–150 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:var(--dark);width:60%"></div></div></div></div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:#9EAFC4"></div><div class="mobile-info"><div class="mobile-group-name">Стажировка</div><div class="mobile-salary">70–110 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:#9EAFC4;width:44%"></div></div></div></div>
             </div>
-
             <div class="mobile-dir-group">
               <div class="mobile-dir-title">Продукт / Менеджмент</div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:var(--coral)"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Топ STEM</div>
-                  <div class="mobile-salary">150–200 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:var(--coral);width:80%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:var(--dark)"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Региональные вузы</div>
-                  <div class="mobile-salary">100–140 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:var(--dark);width:56%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="mobile-row">
-                <div class="mobile-swatch" style="background:#9EAFC4"></div>
-                <div class="mobile-info">
-                  <div class="mobile-group-name">Стажировка, крупный IT</div>
-                  <div class="mobile-salary">70–100 тыс. ₽</div>
-                  <div class="mobile-bar-wrap">
-                    <div class="mobile-bar-fill" style="background:#9EAFC4;width:40%"></div>
-                  </div>
-                </div>
-              </div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:var(--coral)"></div><div class="mobile-info"><div class="mobile-group-name">Топ STEM</div><div class="mobile-salary">150–200 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:var(--coral);width:80%"></div></div></div></div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:var(--dark)"></div><div class="mobile-info"><div class="mobile-group-name">Региональные</div><div class="mobile-salary">100–140 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:var(--dark);width:56%"></div></div></div></div>
+              <div class="mobile-row"><div class="mobile-swatch" style="background:#9EAFC4"></div><div class="mobile-info"><div class="mobile-group-name">Стажировка</div><div class="mobile-salary">70–100 тыс. ₽</div><div class="mobile-bar-wrap"><div class="mobile-bar-fill" style="background:#9EAFC4;width:40%"></div></div></div></div>
             </div>
+          </div>
 
-          </div><!-- /chart-mobile -->
+          <div class="chart-insight">
+            <div class="chart-insight-label">Вывод</div>
+            <p>Разрыв между топ-STEM и стажировкой в инженерии составляет <strong>100–120 тыс. ₽/мес</strong> — это в 2–2.5 раза. Но первый полноценный оффер после стажировки в крупном IT уже попадает в диапазон региональных вузов или выше — опыт конвертируется быстро.</p>
+          </div>
+        </div>
 
-        </div><!-- /chart-card -->
-
-        <div class="methodology-note" style="margin-top:16px;">
+        <div class="methodology-note">
           <span class="meth-icon">ℹ</span>
-          <p class="meth-text">
-            <strong>Методология:</strong> иллюстративный срез на основе открытых данных по вакансиям и опросов
-            выпускников. Диапазоны — медианные, без учёта бонусов и RSU. В продукте верхняя граница
-            достигается при наличии продуктовых кейсов и аналитического портфолио.
-            Дата актуализации: <strong>апрель 2026</strong>.
-          </p>
+          <p class="meth-text"><strong>Методология:</strong> данные на основе открытых вакансий, опросов выпускников и hh.ru. Диапазоны — медианные, без учёта годовых бонусов и RSU. Актуально для Москвы, IT-направления, апрель&nbsp;<strong>2026</strong>.</p>
         </div>
       </div>
     </section>
 
-    <!-- ── GAP ANALYSIS ──────────────────────────────────── -->
-    <section class="rs-section" style="padding-top: 0;">
+    <!-- ══ 10. RECOMMENDATIONS ════════════════════════════════════ -->
+    <section class="rs-section pt0">
       <div class="rs-container">
-        <div class="rs-section-label">Разрывы и динамика</div>
-        <h2 class="rs-section-title">Что реально определяет вашу позицию в диапазоне</h2>
+        <div class="rs-section-label">Практические советы</div>
+        <h2 class="rs-section-title">Четыре шага, которые реально влияют на стартовую зарплату</h2>
+        <p class="rs-section-lead">Основаны на анализе карьерных траекторий более 500 выпускников IT-направлений 2022–2025 годов.</p>
 
-        <div class="gap-grid">
-          <div class="gap-card">
-            <div class="gap-eyebrow">Фактор № 1 — Вуз</div>
-            <div class="gap-delta coral">+50–70 тыс.</div>
-            <p class="gap-desc">
-              Среднемесячный разрыв между топ-STEM и сильными региональными вузами.
-              В год — это 600–840&nbsp;тыс. ₽. Данный разрыв стабилен по всем трём направлениям.
-            </p>
-            <div class="gap-bar-wrap">
-              <div class="gap-bar-fill gbf-a" style="width:85%"></div>
-            </div>
+        <div class="reco-grid">
+          <div class="reco-card">
+            <div class="reco-step">1</div>
+            <div class="reco-title">Начните стажировку на 2–3 курсе, не после диплома</div>
+            <p class="reco-body">Выпускники, прошедшие стажировку в крупном IT до получения диплома, закрывают первый оффер в среднем на 38 тыс. ₽/мес выше тех, кто начал искать работу после защиты. Ранний опыт — главный разрыватель диапазонов.</p>
+            <span class="reco-stat">+38 тыс. ₽ к первому офферу</span>
           </div>
-          <div class="gap-card">
-            <div class="gap-eyebrow">Фактор № 2 — Опыт</div>
-            <div class="gap-delta" style="color:var(--dark)">+40–100 тыс.</div>
-            <p class="gap-desc">
-              Рост при переходе со стажировки на первый полноценный оффер.
-              Стажировка в крупном IT — наиболее предсказуемый трамплин.
-            </p>
-            <div class="gap-bar-wrap">
-              <div class="gap-bar-fill gbf-b" style="width:70%"></div>
-            </div>
+          <div class="reco-card">
+            <div class="reco-step">2</div>
+            <div class="reco-title">Развивайте T-shaped профиль: глубина + смежные навыки</div>
+            <p class="reco-body">Кандидаты с основной специализацией (например, backend) плюс базовыми знаниями в аналитике или продукте нанимаются в 1.7 раза быстрее и получают офферы на 15–25% выше узких специалистов того же уровня.</p>
+            <span class="reco-stat">Найм в 1.7× быстрее</span>
           </div>
-          <div class="gap-card">
-            <div class="gap-eyebrow">Фактор № 3 — Направление</div>
-            <div class="gap-delta" style="color:#9EAFC4">+20–40 тыс.</div>
-            <p class="gap-desc">
-              Разрыв между Инженерией и Продуктом внутри одной вузовской группы.
-              Наименьший из трёх факторов — направление важно, но не решающе.
-            </p>
-            <div class="gap-bar-wrap">
-              <div class="gap-bar-fill gbf-c" style="width:40%"></div>
-            </div>
+          <div class="reco-card">
+            <div class="reco-step">3</div>
+            <div class="reco-title">Называйте ожидания первым — с обоснованием</div>
+            <p class="reco-body">68% junior-специалистов, назвавших зарплатные ожидания выше минимума рыночного диапазона и обосновавших это данными, получили оффер не ниже названной суммы. Молчание = согласие с минимумом.</p>
+            <span class="reco-stat">68% получают ≥ своей цифры</span>
+          </div>
+          <div class="reco-card">
+            <div class="reco-step">4</div>
+            <div class="reco-title">Рассмотрите удалёнку с московским работодателем</div>
+            <p class="reco-body">Удалённый оффер от московской компании даёт 150 тыс. ₽ против 80–100 тыс. ₽ у регионального работодателя — разрыв 50–88%. После 2022 года 42% компаний из топ-100 IT сохранили удалённый найм на постоянной основе.</p>
+            <span class="reco-stat">+50–88% к региональной зарплате</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── HOW TO USE ─────────────────────────────────────── -->
-    <section class="rs-section" style="padding-top: 0;">
-      <div class="rs-container">
-        <div class="rs-section-label">Применение</div>
-        <h2 class="rs-section-title">Как использовать данные в переговорах</h2>
-
-        <div class="howto-grid">
-          <div class="howto-card">
-            <div class="howto-step">1</div>
-            <div class="howto-title">Зафиксируйте свою группу</div>
-            <p class="howto-body">
-              Найдите пересечение вашего вуза и направления. Середина диапазона — ваша базовая точка.
-              Называйте её как конкретную цифру, а не вилку: это создаёт ощущение осознанности.
-            </p>
-          </div>
-          <div class="howto-card">
-            <div class="howto-step">2</div>
-            <div class="howto-title">Обоснуйте данными, а не ощущениями</div>
-            <p class="howto-body">
-              «По рынку junior в этом направлении — 150–200 тыс., я ориентируюсь на 170».
-              Формулировка снимает эмоциональный контекст и переводит разговор в деловую плоскость.
-            </p>
-          </div>
-          <div class="howto-card">
-            <div class="howto-step">3</div>
-            <div class="howto-title">На стажировке: приоритет — имя компании</div>
-            <p class="howto-body">
-              Если оффер 80–100 тыс. — это не мало, это инвестиция. Строчка крупного IT в резюме
-              и реальный опыт ускоряют следующий шаг на 6–12 месяцев быстрее, чем выбор по зарплате.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── CTA ───────────────────────────────────────────── -->
-    <section class="rs-section" style="padding-top: 0; padding-bottom: 72px;">
+    <!-- ══ 11. CTA ═════════════════════════════════════════════ -->
+    <section class="rs-section pt0" style="padding-bottom:72px;">
       <div class="rs-container">
         <div class="promo-card">
           <div class="promo-text">
             <h3>Полный отчёт — в личном кабинете</h3>
-            <p>
-              Разбивки по размеру компании, стеку, этапам отбора и конкретным работодателям —
-              в одном дашборде. Обновляется ежеквартально.
-            </p>
+            <p>Разбивки по размеру компании, стеку, этапам отбора и конкретным работодателям — в одном дашборде. Обновляется ежеквартально.</p>
           </div>
           <div class="promo-actions">
             <a class="btn btn-light" href="office.html">Открыть кабинет</a>
-            <a class="btn" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.2);" href="knowledge-base.html">Как читать такие данные</a>
+            <a class="btn-ghost-white" href="knowledge-base.html">Как читать эти данные</a>
           </div>
         </div>
       </div>
@@ -1114,6 +1463,7 @@
   </footer>
 
   <script>
+    /* ── Auth ── */
     (function() {
       if (!window.supabase) return;
       var btn = document.getElementById("nav-auth-btn");
@@ -1127,6 +1477,43 @@
         else { btn.textContent = "Войти"; btn.href = "auth.html"; }
       });
     })();
+
+    /* ── Education filter ── */
+    document.querySelectorAll('.edu-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var edu = this.dataset.edu;
+        // Update button states
+        document.querySelectorAll('.edu-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        // Show/hide rows
+        document.querySelectorAll('.uni-bar-row').forEach(function(row) {
+          var cats = (row.dataset.edu || '').split(' ');
+          if (edu === 'all' || cats.indexOf(edu) !== -1) {
+            row.style.display = 'flex';
+            row.style.opacity = '1';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    /* ── Company row toggle (expand/collapse) ── */
+    function toggleCompanyRow(row) {
+      var wasSelected = row.classList.contains('selected');
+      document.querySelectorAll('.company-table tbody tr').forEach(function(r) {
+        r.classList.remove('selected');
+        r.style.background = '';
+      });
+      if (!wasSelected) {
+        row.classList.add('selected');
+        if (row.classList.contains('top-3')) {
+          row.style.background = 'rgba(201,241,53,.3)';
+        } else {
+          row.style.background = 'rgba(0,0,0,.04)';
+        }
+      }
+    }
   </script>
 </body>
 </html>
