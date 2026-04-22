@@ -34,7 +34,11 @@ export default function OfficeDemoPage() {
           </div>
         </div>
       </div>
-      <OfficeDashboard email="demo@careerlab.local" displayName="Тестовый пользователь" />
+      <OfficeDashboard
+        userScope="demo-user"
+        email="demo@careerlab.local"
+        displayName="Тестовый пользователь"
+      />
       <SiteFooter />
     </>
   );
