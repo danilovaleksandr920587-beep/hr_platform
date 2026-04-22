@@ -14,6 +14,7 @@ type SimilarVacancy = {
 };
 
 type Props = {
+  viewerScope?: string | null;
   slug: string;
   title: string;
   company: string;
@@ -40,15 +41,15 @@ export function VacancyDetailClient(props: Props) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const sync = () => setSaved(isVacancySaved(props.slug));
+    const sync = () => setSaved(isVacancySaved(props.slug, props.viewerScope));
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
-  }, [props.slug]);
+  }, [props.slug, props.viewerScope]);
 
   function toggleSave() {
     const next = !saved;
-    setVacancySaved(props.slug, next);
+    setVacancySaved(props.slug, next, props.viewerScope);
     setSaved(next);
   }
 

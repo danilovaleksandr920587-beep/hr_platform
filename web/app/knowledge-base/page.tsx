@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { KbArticleTile } from "@/components/knowledge-base/KbArticleTile";
+import { getSessionFromCookies } from "@/lib/auth/session";
 import { listArticles } from "@/lib/data/articles";
 import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { optionalString } from "@/lib/searchParams";
@@ -146,6 +147,7 @@ function ruMaterials(n: number): string {
 }
 
 export default async function KnowledgeBasePage({ searchParams }: PageProps) {
+  const session = await getSessionFromCookies();
   const sp = await searchParams;
   const q = optionalString(sp, "q");
   const rawCat = optionalString(sp, "category");
@@ -407,6 +409,7 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
                         row={article}
                         className={tileClass(row.layout, pos, row.items.length)}
                         showDeco={showDeco(row.layout, pos, row.items.length)}
+                        viewerScope={session?.id ?? null}
                       />
                     ))}
                   </div>

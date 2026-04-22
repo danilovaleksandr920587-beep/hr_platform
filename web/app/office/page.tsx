@@ -46,7 +46,11 @@ export default async function OfficePage() {
 
   return (
     <>
-      <OfficeDashboard email={session.email} displayName={session.displayName} />
+      <OfficeDashboard
+        userScope={session.id}
+        email={session.email}
+        displayName={session.displayName}
+      />
       <SiteFooter />
     </>
   );

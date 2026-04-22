@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { SAVED_ITEMS_EVENT, readSavedSnapshot } from "@/lib/client/saved-items";
 
 type OfficeDashboardProps = {
+  userScope: string;
   email: string;
   displayName?: string | null;
 };
@@ -121,7 +122,7 @@ const ARTICLES = [
 
 type SectionId = "resume" | "salary" | "checklist" | "vacancies" | "articles";
 
-export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
+export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboardProps) {
   const first = firstNameFrom(email, displayName);
   const initials = initialsFrom(email, displayName);
   const fullName = fullNamePlaceholder(email, displayName);
@@ -156,7 +157,7 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
 
   useEffect(() => {
     const sync = () => {
-      const snapshot = readSavedSnapshot();
+      const snapshot = readSavedSnapshot(userScope);
       setSavedCounts({
         vacancies: snapshot.vacancies.size,
         articles: snapshot.articles.size,
@@ -165,7 +166,7 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
-  }, []);
+  }, [userScope]);
 
   const scrollTo = useCallback((id: SectionId) => {
     setActiveNav(id);
@@ -289,15 +290,26 @@ export function OfficeDashboard({ email, displayName }: OfficeDashboardProps) {
                       ["articles", "📚", "Статьи", String(savedCounts.articles)],
                     ] as const
                   ).map(([id, icon, label, count]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      className={`office-nav-link${activeNav === id ? " active" : ""}`}
-                      onClick={() => scrollTo(id)}
-                    >
-                      <span className="nav-icon">{icon}</span> {label}
-                      {count ? <span className="nav-count">{count}</span> : null}
-                    </button>
+                    id === "vacancies" ? (
+                      <Link
+                        key={id}
+                        href="/office/saved-vacancies"
+                        className="office-nav-link"
+                      >
+                        <span className="nav-icon">{icon}</span> {label}
+                        {count ? <span className="nav-count">{count}</span> : null}
+                      </Link>
+                    ) : (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`office-nav-link${activeNav === id ? " active" : ""}`}
+                        onClick={() => scrollTo(id)}
+                      >
+                        <span className="nav-icon">{icon}</span> {label}
+                        {count ? <span className="nav-count">{count}</span> : null}
+                      </button>
+                    )
                   ))}
                   <div
                     style={{

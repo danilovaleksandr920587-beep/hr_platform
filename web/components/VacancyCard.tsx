@@ -1,4 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  SAVED_ITEMS_EVENT,
+  isVacancySaved,
+  setVacancySaved,
+} from "@/lib/client/saved-items";
 import type { VacancyRow } from "@/lib/types";
 
 function tagClass(kind: "exp" | "type" | "format", value: string) {
@@ -30,15 +38,31 @@ const typeLabels: Record<string, string> = {
 export function VacancyCard({
   row,
   index,
+  viewerScope,
 }: {
   row: VacancyRow;
   index: number;
+  viewerScope?: string | null;
 }) {
+  const [saved, setSaved] = useState(false);
   const href = `/vacancies/${row.slug}`;
   const salaryMissing = row.salary_min == null || row.salary_max == null;
   const expLabel = expLabels[row.exp] ?? row.exp;
   const typeLabel = typeLabels[row.type] ?? row.type;
   const fmtLabel = formatLabels[row.format] ?? row.format;
+
+  useEffect(() => {
+    const sync = () => setSaved(isVacancySaved(row.slug, viewerScope));
+    sync();
+    window.addEventListener(SAVED_ITEMS_EVENT, sync);
+    return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
+  }, [row.slug, viewerScope]);
+
+  function toggleSave() {
+    const next = !saved;
+    setVacancySaved(row.slug, next, viewerScope);
+    setSaved(next);
+  }
 
   return (
     <article
@@ -85,6 +109,14 @@ export function VacancyCard({
           <Link className="job-btn-secondary vacancy-card-btn" href={href}>
             Подробнее
           </Link>
+          <button
+            type="button"
+            className="job-btn-secondary vacancy-card-btn"
+            onClick={toggleSave}
+            aria-pressed={saved}
+          >
+            {saved ? "♥ Сохранено" : "♡ Сохранить"}
+          </button>
         </div>
         <div className="job-meta-right">
           <span className="job-date">#{index + 1}</span>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyDetailClient } from "@/components/vacancies/VacancyDetailClient";
+import { getSessionFromCookies } from "@/lib/auth/session";
 import { getVacancyBySlug, listVacancies } from "@/lib/data/vacancies";
 import { buildVacancyStaticParams } from "@/lib/data/vacancy-static-paths";
 import "@/styles/vacancy-detail-ref.css";
@@ -75,6 +76,7 @@ function salaryCompact(min: number | null, max: number | null) {
 }
 
 export default async function VacancyDetailPage({ params }: PageProps) {
+  const session = await getSessionFromCookies();
   const { slug } = await params;
   const row = await getVacancyBySlug(slug);
   if (!row) notFound();
@@ -106,6 +108,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
     <>
       <main>
         <VacancyDetailClient
+          viewerScope={session?.id ?? null}
           slug={row.slug}
           title={row.title}
           company={row.company}

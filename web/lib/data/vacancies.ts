@@ -170,3 +170,34 @@ export async function listVacancySlugs(): Promise<string[]> {
   if (!isPublicSupabaseConfigured()) return [];
   return listPublishedSlugsFromRest("vacancies");
 }
+
+export async function listVacanciesBySlugs(slugs: string[]): Promise<VacancyRow[]> {
+  if (!isPublicSupabaseConfigured()) return [];
+  const clean = [...new Set(slugs.map((s) => s.trim()).filter(Boolean))];
+  if (!clean.length) return [];
+
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
+  const sb: any = supabase;
+  const shapes = vacancyShapes();
+
+  for (const shape of shapes) {
+    const select = shape === "web" ? VACANCY_SELECT_WEB_CARD : VACANCY_SELECT_ROOT_CARD;
+    const { data, error } = await sb
+      .from("vacancies")
+      .select(select)
+      .in("slug", clean)
+      .eq("is_published", true);
+    if (error) {
+      if (shapes.length > 1 && isVacancySchemaMismatchError(error)) continue;
+      console.error("listVacanciesBySlugs", error.message);
+      return [];
+    }
+    const normalized = ((data ?? []) as unknown[]).map((r) =>
+      normalizeVacancyRow(r as Record<string, unknown>),
+    );
+    const bySlug = new Map(normalized.map((v) => [v.slug, v] as const));
+    return clean.map((slug) => bySlug.get(slug)).filter((v): v is VacancyRow => Boolean(v));
+  }
+  return [];
+}

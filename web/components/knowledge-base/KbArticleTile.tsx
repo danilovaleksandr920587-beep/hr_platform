@@ -22,19 +22,21 @@ export function KbArticleTile({
   row,
   className,
   showDeco,
+  viewerScope,
 }: {
   row: ArticleRow;
   className: string;
   showDeco?: boolean;
+  viewerScope?: string | null;
 }) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const sync = () => setSaved(isArticleSaved(row.slug));
+    const sync = () => setSaved(isArticleSaved(row.slug, viewerScope));
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
-  }, [row.slug]);
+  }, [row.slug, viewerScope]);
 
   const toggleSave = useCallback(
     (e: React.MouseEvent) => {
@@ -42,9 +44,9 @@ export function KbArticleTile({
       e.stopPropagation();
       const next = !saved;
       setSaved(next);
-      setArticleSaved(row.slug, next);
+      setArticleSaved(row.slug, next, viewerScope);
     },
-    [row.slug, saved],
+    [row.slug, saved, viewerScope],
   );
 
   const kc = kickerMap[row.cat_slug] ?? "k-resume";

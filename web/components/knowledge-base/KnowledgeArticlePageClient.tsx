@@ -17,6 +17,7 @@ type RelatedArticle = {
 };
 
 type Props = {
+  viewerScope?: string | null;
   slug: string;
   title: string;
   category: string;
@@ -106,7 +107,7 @@ export function KnowledgeArticlePageClient(props: Props) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
 
   useEffect(() => {
-    const syncSaved = () => setSaved(isArticleSaved(props.slug));
+    const syncSaved = () => setSaved(isArticleSaved(props.slug, props.viewerScope));
     syncSaved();
     window.addEventListener(SAVED_ITEMS_EVENT, syncSaved);
 
@@ -118,7 +119,7 @@ export function KnowledgeArticlePageClient(props: Props) {
       setVote(null);
     }
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, syncSaved);
-  }, [props.slug]);
+  }, [props.slug, props.viewerScope]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -148,7 +149,7 @@ export function KnowledgeArticlePageClient(props: Props) {
 
   function toggleSave() {
     const next = !saved;
-    setArticleSaved(props.slug, next);
+    setArticleSaved(props.slug, next, props.viewerScope);
     setSaved(next);
   }
 

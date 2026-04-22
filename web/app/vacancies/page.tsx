@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
+import { getSessionFromCookies } from "@/lib/auth/session";
 import { listVacancies } from "@/lib/data/vacancies";
 import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { multiParam, optionalInt, optionalString } from "@/lib/searchParams";
@@ -19,6 +20,7 @@ type PageProps = {
 };
 
 export default async function VacanciesPage({ searchParams }: PageProps) {
+  const session = await getSessionFromCookies();
   const sp = await searchParams;
   const q = optionalString(sp, "q");
   const filters = {
@@ -137,7 +139,12 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
               ) : (
                 <div className="jobs-list">
                   {rows.map((row, i) => (
-                    <VacancyCard key={row.id} row={row} index={i} />
+                    <VacancyCard
+                      key={row.id}
+                      row={row}
+                      index={i}
+                      viewerScope={session?.id ?? null}
+                    />
                   ))}
                 </div>
               )}

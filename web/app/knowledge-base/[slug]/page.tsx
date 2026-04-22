@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { KnowledgeArticlePageClient } from "@/components/knowledge-base/KnowledgeArticlePageClient";
+import { getSessionFromCookies } from "@/lib/auth/session";
 import { getArticleBySlug, listArticles } from "@/lib/data/articles";
 import { buildArticleStaticParams } from "@/lib/data/article-static-paths";
 import "@/styles/knowledge-article-ref.css";
@@ -37,6 +38,7 @@ export async function generateMetadata({
 }
 
 export default async function ArticlePage({ params }: PageProps) {
+  const session = await getSessionFromCookies();
   const { slug } = await params;
   const row = await getArticleBySlug(slug);
   if (!row) notFound();
@@ -168,6 +170,7 @@ export default async function ArticlePage({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
         <KnowledgeArticlePageClient
+          viewerScope={session?.id ?? null}
           slug={row.slug}
           title={row.title}
           category={row.category}
