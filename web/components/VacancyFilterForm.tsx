@@ -9,6 +9,15 @@ const spheres = [
   { value: "design", label: "Дизайн" },
   { value: "marketing", label: "Маркетинг" },
   { value: "analytics", label: "Аналитика" },
+  { value: "product", label: "Продукт" },
+  { value: "sales", label: "Продажи" },
+  { value: "support", label: "Поддержка" },
+  { value: "hr", label: "HR" },
+  { value: "finance", label: "Финансы" },
+  { value: "operations", label: "Операции" },
+  { value: "security", label: "Безопасность" },
+  { value: "devops", label: "DevOps" },
+  { value: "legal", label: "Юридическое" },
 ];
 const exps = [
   { value: "none", label: "Без опыта" },

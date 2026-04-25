@@ -34,6 +34,21 @@ const typeLabels: Record<string, string> = {
   project: "Проектная работа",
   parttime: "Подработка",
 };
+const sphereLabels: Record<string, string> = {
+  it: "IT",
+  design: "Дизайн",
+  marketing: "Маркетинг",
+  analytics: "Аналитика",
+  product: "Продукт",
+  sales: "Продажи",
+  support: "Поддержка",
+  hr: "HR",
+  finance: "Финансы",
+  operations: "Операции",
+  security: "Безопасность",
+  devops: "DevOps",
+  legal: "Юридическое",
+};
 
 export function VacancyCard({
   row,
@@ -52,6 +67,7 @@ export function VacancyCard({
   const expLabel = expLabels[row.exp] ?? row.exp;
   const typeLabel = typeLabels[row.type] ?? row.type;
   const fmtLabel = formatLabels[row.format] ?? row.format;
+  const sphereLabel = sphereLabels[row.sphere] ?? row.sphere;
   const isLoggedIn = Boolean(viewerScope);
 
   useEffect(() => {
@@ -84,11 +100,15 @@ export function VacancyCard({
       <div className="job-card-top">
         <div className="job-card-left">
           <div className="job-co">{row.company}</div>
+          {row.city ? <div className="job-co">{row.city}</div> : null}
           <h2 className="job-title">
             <Link href={href}>{row.title}</Link>
           </h2>
         </div>
         <div className="job-salary-block">
+          {row.company_logo_url ? (
+            <img src={row.company_logo_url} alt={row.company} style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", marginBottom: 8 }} />
+          ) : null}
           {salaryMissing ? (
             <div className="job-salary na">Не указана</div>
           ) : (
@@ -101,6 +121,9 @@ export function VacancyCard({
       </div>
       <ul className="job-tags" aria-label="Условия">
         <li>
+          <span className="jtag jtag-format">{sphereLabel}</span>
+        </li>
+        <li>
           <span className={tagClass("exp", row.exp)}>{expLabel}</span>
         </li>
         <li>
@@ -110,6 +133,15 @@ export function VacancyCard({
           <span className={tagClass("format", row.format)}>{fmtLabel}</span>
         </li>
       </ul>
+      {row.skills.length ? (
+        <ul className="job-tags" aria-label="Навыки">
+          {row.skills.slice(0, 3).map((skill) => (
+            <li key={skill}>
+              <span className="jtag jtag-format">{skill}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {row.description ? <p className="job-desc">{row.description}</p> : null}
       <footer className="job-card-bottom">
         <div className="job-actions">

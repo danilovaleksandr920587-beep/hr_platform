@@ -55,6 +55,15 @@ const sphereLabels: Record<string, string> = {
   design: "Дизайн",
   marketing: "Маркетинг",
   analytics: "Аналитика",
+  product: "Продукт",
+  sales: "Продажи",
+  support: "Поддержка",
+  hr: "HR",
+  finance: "Финансы",
+  operations: "Операции",
+  security: "Безопасность",
+  devops: "DevOps",
+  legal: "Юридическое",
 };
 
 function fmtMoney(n: number) {
@@ -112,6 +121,10 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           slug={row.slug}
           title={row.title}
           company={row.company}
+          companyAbout={row.company_about}
+          companyLogoUrl={row.company_logo_url}
+          city={row.city}
+          skills={row.skills}
           sphereLabel={sphereLabels[row.sphere] ?? row.sphere}
           salaryMain={salaryMain(row.salary_min, row.salary_max)}
           salaryCompact={salaryCompact(row.salary_min, row.salary_max)}
@@ -122,6 +135,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           description={row.description}
           featured={row.featured}
           publishedAt={row.published_at}
+          sourcePublishedAt={row.source_published_at}
           similar={similarRows}
         />
       </main>
