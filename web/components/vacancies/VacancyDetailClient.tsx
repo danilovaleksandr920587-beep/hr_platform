@@ -18,6 +18,10 @@ type Props = {
   slug: string;
   title: string;
   company: string;
+  companyAbout?: string | null;
+  companyLogoUrl?: string | null;
+  city?: string | null;
+  skills?: string[] | null;
   sphereLabel: string;
   salaryMain: string;
   salaryCompact: string;
@@ -28,6 +32,7 @@ type Props = {
   description: string | null;
   featured: boolean;
   publishedAt: string;
+  sourcePublishedAt?: string | null;
   similar: SimilarVacancy[];
 };
 

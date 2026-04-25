@@ -2,13 +2,13 @@ import type { VacancyRow } from "@/lib/types";
 
 /** Схема из web/supabase/migrations (поля type, featured, search_document). */
 export const VACANCY_SELECT_WEB =
-  "id,slug,title,company,description,sphere,exp,format,type,salary_min,salary_max,search_document,featured,published_at";
+  "id,slug,title,company,description,sphere,exp,format,type,salary_min,salary_max,search_document,featured,published_at,company_about,company_logo_url,city,skills,source_published_at";
 export const VACANCY_SELECT_WEB_CARD =
   "id,slug,title,company,sphere,exp,format,type,salary_min,salary_max,featured,published_at";
 
 /** Схема из supabase/migrations в корне репо (employment_type, is_featured). */
 export const VACANCY_SELECT_ROOT =
-  "id,slug,title,company,description,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured";
+  "id,slug,title,company,description,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured,company_about,company_logo_url,city,skills,source_published_at";
 export const VACANCY_SELECT_ROOT_CARD =
   "id,slug,title,company,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured";
 
@@ -26,7 +26,7 @@ export function isVacancySchemaMismatchError(err: {
   details?: string;
   code?: string;
 }): boolean {
-  const t = `${err.message ?? ""} ${err.details ?? ""} ${err.code ?? ""}`;
+  const t = `${err.message ?? ""} ${err.details ?? ""} ${err.code ?? ""}`.toLowerCase();
   return /column .* does not exist|Could not find the|PGRST204|schema cache/i.test(
     t,
   );
@@ -50,6 +50,11 @@ export function normalizeVacancyRow(
         ? desc
         : "";
 
+  const skillsRaw = row.skills;
+  const skills = Array.isArray(skillsRaw)
+    ? (skillsRaw as unknown[]).map(String)
+    : null;
+
   return {
     id: String(row.id),
     slug: String(row.slug),
@@ -65,5 +70,10 @@ export function normalizeVacancyRow(
     search_document,
     featured,
     published_at: String(row.published_at),
+    company_about: (row.company_about as string | null | undefined) ?? null,
+    company_logo_url: (row.company_logo_url as string | null | undefined) ?? null,
+    city: (row.city as string | null | undefined) ?? null,
+    skills,
+    source_published_at: (row.source_published_at as string | null | undefined) ?? null,
   };
 }

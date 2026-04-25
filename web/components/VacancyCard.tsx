@@ -133,9 +133,9 @@ export function VacancyCard({
           <span className={tagClass("format", row.format)}>{fmtLabel}</span>
         </li>
       </ul>
-      {row.skills.length ? (
+      {row.skills?.length ? (
         <ul className="job-tags" aria-label="Навыки">
-          {row.skills.slice(0, 3).map((skill) => (
+          {row.skills?.slice(0, 3).map((skill) => (
             <li key={skill}>
               <span className="jtag jtag-format">{skill}</span>
             </li>

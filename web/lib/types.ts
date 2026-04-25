@@ -13,6 +13,11 @@ export type VacancyRow = {
   search_document: string | null;
   featured: boolean;
   published_at: string;
+  company_about?: string | null;
+  company_logo_url?: string | null;
+  city?: string | null;
+  skills?: string[] | null;
+  source_published_at?: string | null;
 };
 
 export type ArticleRow = {
