@@ -24,6 +24,26 @@ const DEFAULT_TYPES: FilterOption[] = Object.entries(TYPE_LABELS).map(
   ([value, label]) => ({ value, label }),
 );
 
+function mergeOptions(base: FilterOption[], dynamic?: FilterOption[]): FilterOption[] {
+  if (!dynamic?.length) return base;
+  const byValue = new Map<string, FilterOption>();
+  for (const item of base) byValue.set(item.value, item);
+  for (const item of dynamic) {
+    byValue.set(item.value, { ...byValue.get(item.value), ...item });
+  }
+  const merged: FilterOption[] = [];
+  for (const item of base) {
+    const v = byValue.get(item.value);
+    if (v) {
+      merged.push(v);
+      byValue.delete(item.value);
+    }
+  }
+  // Keep any new/unexpected values from DB visible as well.
+  merged.push(...Array.from(byValue.values()));
+  return merged;
+}
+
 type Props = {
   selected: {
     sphere: string[];
@@ -47,11 +67,11 @@ type Props = {
 export function VacancyFilterForm({ selected, options }: Props) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-  const spheres = options?.sphere?.length ? options.sphere : DEFAULT_SPHERES;
+  const spheres = mergeOptions(DEFAULT_SPHERES, options?.sphere);
   const cities = options?.city?.length ? options.city : [];
-  const exps = options?.exp?.length ? options.exp : DEFAULT_EXPS;
-  const formats = options?.format?.length ? options.format : DEFAULT_FORMATS;
-  const types = options?.type?.length ? options.type : DEFAULT_TYPES;
+  const exps = mergeOptions(DEFAULT_EXPS, options?.exp);
+  const formats = mergeOptions(DEFAULT_FORMATS, options?.format);
+  const types = mergeOptions(DEFAULT_TYPES, options?.type);
 
   const pushFromForm = useCallback(() => {
     const form = formRef.current;
