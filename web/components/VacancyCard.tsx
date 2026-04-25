@@ -8,6 +8,12 @@ import {
   setVacancySaved,
 } from "@/lib/client/saved-items";
 import type { VacancyRow } from "@/lib/types";
+import {
+  EXP_LABELS,
+  FORMAT_LABELS,
+  SPHERE_LABELS,
+  TYPE_LABELS,
+} from "@/lib/vacancy-labels";
 
 function tagClass(kind: "exp" | "type" | "format", value: string) {
   if (kind === "exp") return "jtag jtag-exp";
@@ -18,37 +24,6 @@ function tagClass(kind: "exp" | "type" | "format", value: string) {
   return "jtag jtag-format";
 }
 
-const expLabels: Record<string, string> = {
-  none: "Без опыта",
-  lt1: "До 1 года",
-  "1-3": "1–3 года",
-  gte3: "От 3 лет",
-};
-const formatLabels: Record<string, string> = {
-  remote: "Удалённо",
-  hybrid: "Гибрид",
-  office: "Офис",
-};
-const typeLabels: Record<string, string> = {
-  internship: "Стажировка",
-  project: "Проектная работа",
-  parttime: "Подработка",
-};
-const sphereLabels: Record<string, string> = {
-  it: "IT",
-  design: "Дизайн",
-  marketing: "Маркетинг",
-  analytics: "Аналитика",
-  product: "Продукт",
-  sales: "Продажи",
-  support: "Поддержка",
-  hr: "HR",
-  finance: "Финансы",
-  operations: "Операции",
-  security: "Безопасность",
-  devops: "DevOps",
-  legal: "Юридическое",
-};
 
 export function VacancyCard({
   row,
@@ -64,11 +39,13 @@ export function VacancyCard({
   const loginHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const href = `/vacancies/${row.slug}`;
   const salaryMissing = row.salary_min == null || row.salary_max == null;
-  const expLabel = expLabels[row.exp] ?? row.exp;
-  const typeLabel = typeLabels[row.type] ?? row.type;
-  const fmtLabel = formatLabels[row.format] ?? row.format;
-  const sphereLabel = sphereLabels[row.sphere] ?? row.sphere;
+  const expLabel = EXP_LABELS[row.exp] ?? row.exp;
+  const typeLabel = TYPE_LABELS[row.type] ?? row.type;
+  const fmtLabel = FORMAT_LABELS[row.format] ?? row.format;
+  const sphereLabel = SPHERE_LABELS[row.sphere] ?? row.sphere;
   const isLoggedIn = Boolean(viewerScope);
+  const applyHref = row.apply_url || href;
+  const applyIsExternal = Boolean(row.apply_url);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -145,7 +122,12 @@ export function VacancyCard({
       {row.description ? <p className="job-desc">{row.description}</p> : null}
       <footer className="job-card-bottom">
         <div className="job-actions">
-          <Link className="job-btn-primary vacancy-card-btn" href={href}>
+          <Link
+            className="job-btn-primary vacancy-card-btn"
+            href={applyHref}
+            target={applyIsExternal ? "_blank" : undefined}
+            rel={applyIsExternal ? "noopener noreferrer" : undefined}
+          >
             Откликнуться
           </Link>
           <Link className="job-btn-secondary vacancy-card-btn" href={href}>

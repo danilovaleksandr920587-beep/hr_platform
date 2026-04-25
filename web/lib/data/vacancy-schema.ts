@@ -2,15 +2,15 @@ import type { VacancyRow } from "@/lib/types";
 
 /** Схема из web/supabase/migrations (поля type, featured, search_document). */
 export const VACANCY_SELECT_WEB =
-  "id,slug,title,company,description,sphere,exp,format,type,salary_min,salary_max,search_document,featured,published_at,company_about,company_logo_url,city,skills,source_published_at";
+  "id,slug,title,company,description,sphere,exp,format,type,salary_min,salary_max,apply_url,search_document,featured,published_at,company_about,company_logo_url,city,skills,source_published_at";
 export const VACANCY_SELECT_WEB_CARD =
-  "id,slug,title,company,sphere,exp,format,type,salary_min,salary_max,featured,published_at";
+  "id,slug,title,company,city,skills,source_published_at,company_logo_url,sphere,exp,format,type,salary_min,salary_max,apply_url,featured,published_at";
 
 /** Схема из supabase/migrations в корне репо (employment_type, is_featured). */
 export const VACANCY_SELECT_ROOT =
-  "id,slug,title,company,description,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured,company_about,company_logo_url,city,skills,source_published_at";
+  "id,slug,title,company,description,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,company_about,company_logo_url,city,skills,source_published_at";
 export const VACANCY_SELECT_ROOT_CARD =
-  "id,slug,title,company,sphere,exp,format,employment_type,salary_min,salary_max,published_at,is_featured";
+  "id,slug,title,company,city,skills,source_published_at,company_logo_url,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured";
 
 export type VacancyDbShape = "web" | "root";
 
@@ -67,6 +67,7 @@ export function normalizeVacancyRow(
     type,
     salary_min: (row.salary_min as number | null) ?? null,
     salary_max: (row.salary_max as number | null) ?? null,
+    apply_url: (row.apply_url as string | null | undefined) ?? null,
     search_document,
     featured,
     published_at: String(row.published_at),

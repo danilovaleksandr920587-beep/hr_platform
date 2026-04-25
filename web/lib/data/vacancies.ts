@@ -12,10 +12,18 @@ import {
   VACANCY_SELECT_WEB,
   type VacancyDbShape,
 } from "@/lib/data/vacancy-schema";
+import {
+  EXP_LABELS,
+  FORMAT_LABELS,
+  SPHERE_LABELS,
+  TYPE_LABELS,
+  type FilterOption,
+} from "@/lib/vacancy-labels";
 
 export type VacancyFilters = {
   q?: string;
   sphere?: string[];
+  city?: string[];
   exp?: string[];
   format?: string[];
   type?: string[];
@@ -38,11 +46,13 @@ function applyCommonFilters<
   },
 >(q: T, shape: VacancyDbShape, filters: VacancyFilters): T {
   const spheres = filters.sphere?.filter(Boolean) ?? [];
+  const cities = filters.city?.filter(Boolean) ?? [];
   const exps = filters.exp?.filter(Boolean) ?? [];
   const formats = filters.format?.filter(Boolean) ?? [];
   const types = filters.type?.filter(Boolean) ?? [];
 
   if (spheres.length) q = q.in("sphere", spheres);
+  if (cities.length) q = q.in("city", cities);
   if (exps.length) q = q.in("exp", exps);
   if (formats.length) q = q.in("format", formats);
 
@@ -62,6 +72,55 @@ function applyCommonFilters<
       .gte("salary_max", lo);
   }
   return q;
+}
+
+function countOptions(rows: VacancyRow[], key: keyof VacancyRow): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const row of rows) {
+    const val = row[key];
+    if (typeof val !== "string") continue;
+    const v = val.trim();
+    if (!v) continue;
+    out.set(v, (out.get(v) ?? 0) + 1);
+  }
+  return out;
+}
+
+export async function listVacancyFilterOptions(): Promise<{
+  sphere: FilterOption[];
+  city: FilterOption[];
+  exp: FilterOption[];
+  format: FilterOption[];
+  type: FilterOption[];
+}> {
+  const rows = await listVacancies({ fields: "card", limit: 1000 });
+  const sphereCounts = countOptions(rows, "sphere");
+  const cityCounts = countOptions(rows, "city");
+  const expCounts = countOptions(rows, "exp");
+  const formatCounts = countOptions(rows, "format");
+  const typeCounts = countOptions(rows, "type");
+
+  const mapOptions = (
+    counts: Map<string, number>,
+    labels: Record<string, string>,
+  ): FilterOption[] =>
+    Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({
+        value,
+        label: labels[value] ?? value,
+        count,
+      }));
+
+  return {
+    sphere: mapOptions(sphereCounts, SPHERE_LABELS),
+    city: Array.from(cityCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({ value, label: value, count })),
+    exp: mapOptions(expCounts, EXP_LABELS),
+    format: mapOptions(formatCounts, FORMAT_LABELS),
+    type: mapOptions(typeCounts, TYPE_LABELS),
+  };
 }
 
 export async function listVacancies(

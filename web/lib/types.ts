@@ -10,6 +10,7 @@ export type VacancyRow = {
   type: string;
   salary_min: number | null;
   salary_max: number | null;
+  apply_url?: string | null;
   search_document: string | null;
   featured: boolean;
   published_at: string;

@@ -33,6 +33,7 @@ type Props = {
   featured: boolean;
   publishedAt: string;
   sourcePublishedAt?: string | null;
+  applyUrl?: string | null;
   similar: SimilarVacancy[];
 };
 
@@ -74,6 +75,8 @@ export function VacancyDetailClient(props: Props) {
       : props.typeLabel.toLowerCase().includes("проект")
         ? "kvref-jtag-type-project"
         : "kvref-jtag-type-junior";
+  const applyHref = props.applyUrl || "/office";
+  const applyIsExternal = Boolean(props.applyUrl);
 
   return (
     <div className="kvref">
@@ -92,10 +95,23 @@ export function VacancyDetailClient(props: Props) {
           <div className="kvref-vac-header">
             <div className="kvref-vac-header-top">
               <div className="kvref-vac-company-row">
-                <div className="kvref-company-logo">{props.company.slice(0, 2).toUpperCase()}</div>
+                <div className="kvref-company-logo">
+                  {props.companyLogoUrl ? (
+                    <img
+                      src={props.companyLogoUrl}
+                      alt={props.company}
+                      style={{ width: 36, height: 36, objectFit: "contain" }}
+                    />
+                  ) : (
+                    props.company.slice(0, 2).toUpperCase()
+                  )}
+                </div>
                 <div>
                   <div className="kvref-company-name">{props.company}</div>
-                  <div className="kvref-company-meta">{props.sphereLabel} · {props.formatLabel}</div>
+                  <div className="kvref-company-meta">
+                    {props.sphereLabel} · {props.formatLabel}
+                    {props.city ? ` · ${props.city}` : ""}
+                  </div>
                 </div>
               </div>
 
@@ -107,7 +123,6 @@ export function VacancyDetailClient(props: Props) {
                 <span className="kvref-jtag kvref-jtag-exp">{props.expLabel}</span>
                 <span className={`kvref-jtag ${typeClass}`}>{props.typeLabel}</span>
                 <span className="kvref-jtag kvref-jtag-format">{props.formatLabel}</span>
-                <span className="kvref-jtag kvref-jtag-bonus">Оплачивается</span>
               </div>
 
               <div className="kvref-vac-salary-row">
@@ -117,41 +132,67 @@ export function VacancyDetailClient(props: Props) {
             </div>
 
             <div className="kvref-vac-cta-strip">
-              <Link className="kvref-btn-apply-lime" href="/office">Откликнуться</Link>
+              <Link
+                className="kvref-btn-apply-lime"
+                href={applyHref}
+                target={applyIsExternal ? "_blank" : undefined}
+                rel={applyIsExternal ? "noopener noreferrer" : undefined}
+              >
+                Откликнуться
+              </Link>
               <button type="button" className={`kvref-btn-save${saved ? " on" : ""}`} onClick={toggleSave}>
                 {saved ? "♥" : "♡"}
               </button>
-              <span className="kvref-vac-deadline">Обновлено <strong>{monthYear(props.publishedAt)}</strong></span>
+              <span className="kvref-vac-deadline">
+                Обновлено <strong>{monthYear(props.sourcePublishedAt ?? props.publishedAt)}</strong>
+              </span>
             </div>
 
             <div className="kvref-conditions-grid">
-              <div className="kvref-cond-item"><span className="kvref-cond-label">Формат</span><span className="kvref-cond-value">{props.formatLabel}</span><span className="kvref-cond-sub">Гибкий режим</span></div>
-              <div className="kvref-cond-item"><span className="kvref-cond-label">Тип занятости</span><span className="kvref-cond-value">{props.typeLabel}</span><span className="kvref-cond-sub">По вакансии</span></div>
-              <div className="kvref-cond-item"><span className="kvref-cond-label">Опыт</span><span className="kvref-cond-value">{props.expLabel}</span><span className="kvref-cond-sub">Смотрите требования</span></div>
+              <div className="kvref-cond-item"><span className="kvref-cond-label">Формат</span><span className="kvref-cond-value">{props.formatLabel}</span></div>
+              <div className="kvref-cond-item"><span className="kvref-cond-label">Тип занятости</span><span className="kvref-cond-value">{props.typeLabel}</span></div>
+              <div className="kvref-cond-item"><span className="kvref-cond-label">Опыт</span><span className="kvref-cond-value">{props.expLabel}</span></div>
             </div>
           </div>
 
           <div className="kvref-vac-body">
+            {props.companyAbout ? (
+              <div className="kvref-vac-section">
+                <div className="kvref-vac-section-title">О компании</div>
+                <p className="kvref-body-p">{props.companyAbout}</p>
+              </div>
+            ) : null}
             <div className="kvref-vac-section">
               <div className="kvref-vac-section-title">О роли</div>
-              <p className="kvref-body-p">{props.description ?? "Описание будет опубликовано в ближайшее время. Откликайтесь, чтобы команда связалась с вами и рассказала детали по задачам и процессу."}</p>
-              <p className="kvref-body-p">Роль открыта для кандидатов, которые хотят быстро расти и решать практические задачи в команде с менторской поддержкой.</p>
+              <p className="kvref-body-p">
+                {props.description ??
+                  "Описание не было получено из источника. Перейдите по кнопке отклика на страницу компании."}
+              </p>
             </div>
 
-            <div className="kvref-vac-section">
-              <div className="kvref-vac-section-title">Что важно</div>
-              <div className="kvref-req-list">
-                <div className="kvref-req-item"><div className="kvref-req-dot kvref-req-dot-must">✓</div><div>Базовые навыки по направлению вакансии и готовность учиться быстро</div></div>
-                <div className="kvref-req-item"><div className="kvref-req-dot kvref-req-dot-must">✓</div><div>Ответственность за сроки и понятная коммуникация с командой</div></div>
-                <div className="kvref-req-item"><div className="kvref-req-dot kvref-req-dot-nice">+</div><div>Проектный опыт (учебный/пет-проекты/фриланс) будет плюсом</div></div>
+            {props.skills?.length ? (
+              <div className="kvref-vac-section">
+                <div className="kvref-vac-section-title">Навыки</div>
+                <div className="kvref-vac-tags">
+                  {props.skills.map((skill) => (
+                    <span key={skill} className="kvref-jtag kvref-jtag-format">{skill}</span>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             <div className="kvref-vac-section">
               <div className="kvref-vac-section-title">Как откликнуться</div>
               <p className="kvref-body-p">Нажмите «Откликнуться», заполните короткую форму и прикрепите резюме. Команда обычно отвечает в течение 3 рабочих дней.</p>
               <div style={{ marginTop: 20 }}>
-                <Link className="kvref-btn-apply-lime" href="/office">Откликнуться на вакансию</Link>
+                <Link
+                  className="kvref-btn-apply-lime"
+                  href={applyHref}
+                  target={applyIsExternal ? "_blank" : undefined}
+                  rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                >
+                  Откликнуться на вакансию
+                </Link>
               </div>
             </div>
           </div>
@@ -164,13 +205,20 @@ export function VacancyDetailClient(props: Props) {
               <div className="kvref-sa-title">{props.title} · {props.company}</div>
             </div>
             <div className="kvref-sa-body">
-              <Link className="kvref-sa-btn" href="/office">Откликнуться</Link>
+              <Link
+                className="kvref-sa-btn"
+                href={applyHref}
+                target={applyIsExternal ? "_blank" : undefined}
+                rel={applyIsExternal ? "noopener noreferrer" : undefined}
+              >
+                Откликнуться
+              </Link>
               <button type="button" className="kvref-sa-save" onClick={toggleSave}>{saved ? "♥ Сохранено" : "♡ Сохранить вакансию"}</button>
               <div className="kvref-sa-divider" />
               <div className="kvref-sa-meta">
                 <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📍</span><span className="kvref-sa-meta-text"><strong>{props.sphereLabel}</strong></span></div>
-                <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">🕐</span><span className="kvref-sa-meta-text"><strong>{props.formatLabel}</strong>, гибкий график</span></div>
-                <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📅</span><span className="kvref-sa-meta-text">Обновлено <strong>{monthYear(props.publishedAt)}</strong></span></div>
+                <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">🕐</span><span className="kvref-sa-meta-text"><strong>{props.formatLabel}</strong></span></div>
+                <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📅</span><span className="kvref-sa-meta-text">Обновлено <strong>{monthYear(props.sourcePublishedAt ?? props.publishedAt)}</strong></span></div>
               </div>
             </div>
           </div>

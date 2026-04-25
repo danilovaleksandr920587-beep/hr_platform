@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { listVacancies } from "@/lib/data/vacancies";
+import { listVacancies, listVacancyFilterOptions } from "@/lib/data/vacancies";
 import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { multiParam, optionalInt, optionalString } from "@/lib/searchParams";
 
@@ -26,6 +26,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
   const filters = {
     q: q || undefined,
     sphere: multiParam(sp, "sphere"),
+    city: multiParam(sp, "city"),
     exp: multiParam(sp, "exp"),
     format: multiParam(sp, "format"),
     type: multiParam(sp, "type"),
@@ -34,7 +35,10 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
   };
 
   const supabaseEnvOk = isPublicSupabaseConfigured();
-  const rows = await listVacancies(filters);
+  const [rows, filterOptions] = await Promise.all([
+    listVacancies(filters),
+    listVacancyFilterOptions(),
+  ]);
   const count = rows.length;
   const noun =
     count % 10 === 1 && count % 100 !== 11
@@ -47,6 +51,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
 
   const filterFormKey = [
     [...filters.sphere].sort().join(","),
+    [...filters.city].sort().join(","),
     [...filters.exp].sort().join(","),
     [...filters.format].sort().join(","),
     [...filters.type].sort().join(","),
@@ -85,6 +90,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
               key={filterFormKey}
               selected={{
                 sphere: filters.sphere,
+                city: filters.city,
                 exp: filters.exp,
                 format: filters.format,
                 type: filters.type,
@@ -94,6 +100,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                   filters.salaryTo != null ? String(filters.salaryTo) : "",
                 q,
               }}
+              options={filterOptions}
             />
             <div className="vacancies-main jl-results">
               <div className="results-meta">

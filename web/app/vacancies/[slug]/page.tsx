@@ -5,6 +5,7 @@ import { VacancyDetailClient } from "@/components/vacancies/VacancyDetailClient"
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { getVacancyBySlug, listVacancies } from "@/lib/data/vacancies";
 import { buildVacancyStaticParams } from "@/lib/data/vacancy-static-paths";
+import { EXP_LABELS, FORMAT_LABELS, SPHERE_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
 import "@/styles/vacancy-detail-ref.css";
 
 export const revalidate = 300;
@@ -31,40 +32,6 @@ export async function generateMetadata({
   };
 }
 
-const expLabels: Record<string, string> = {
-  none: "Без опыта",
-  lt1: "До 1 года",
-  "1-3": "1–3 года",
-  gte3: "От 3 лет",
-};
-
-const formatLabels: Record<string, string> = {
-  remote: "Удалённо",
-  hybrid: "Гибрид",
-  office: "Офис",
-};
-
-const typeLabels: Record<string, string> = {
-  internship: "Стажировка",
-  project: "Проектная работа",
-  parttime: "Подработка",
-};
-
-const sphereLabels: Record<string, string> = {
-  it: "IT",
-  design: "Дизайн",
-  marketing: "Маркетинг",
-  analytics: "Аналитика",
-  product: "Продукт",
-  sales: "Продажи",
-  support: "Поддержка",
-  hr: "HR",
-  finance: "Финансы",
-  operations: "Операции",
-  security: "Безопасность",
-  devops: "DevOps",
-  legal: "Юридическое",
-};
 
 function fmtMoney(n: number) {
   return n.toLocaleString("ru-RU");
@@ -96,7 +63,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
     .filter((x) => x.slug !== row.slug)
     .slice(0, 4)
     .map((x) => {
-      const tLabel = typeLabels[x.type] ?? x.type;
+      const tLabel = TYPE_LABELS[x.type] ?? x.type;
       const typeClass =
         x.type === "internship"
           ? "kvref-jtag-type-intern"
@@ -125,17 +92,22 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           companyLogoUrl={row.company_logo_url}
           city={row.city}
           skills={row.skills}
-          sphereLabel={sphereLabels[row.sphere] ?? row.sphere}
+          sphereLabel={SPHERE_LABELS[row.sphere] ?? row.sphere}
           salaryMain={salaryMain(row.salary_min, row.salary_max)}
           salaryCompact={salaryCompact(row.salary_min, row.salary_max)}
-          salaryNote="до вычета налогов · ежемесячно"
-          expLabel={expLabels[row.exp] ?? row.exp}
-          typeLabel={typeLabels[row.type] ?? row.type}
-          formatLabel={formatLabels[row.format] ?? row.format}
+          salaryNote={
+            row.salary_min != null || row.salary_max != null
+              ? "ежемесячно"
+              : "зарплата не указана в источнике"
+          }
+          expLabel={EXP_LABELS[row.exp] ?? row.exp}
+          typeLabel={TYPE_LABELS[row.type] ?? row.type}
+          formatLabel={FORMAT_LABELS[row.format] ?? row.format}
           description={row.description}
           featured={row.featured}
           publishedAt={row.published_at}
           sourcePublishedAt={row.source_published_at}
+          applyUrl={row.apply_url}
           similar={similarRows}
         />
       </main>

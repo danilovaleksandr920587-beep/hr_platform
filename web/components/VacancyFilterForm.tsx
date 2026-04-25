@@ -3,42 +3,31 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
+import {
+  EXP_LABELS,
+  FORMAT_LABELS,
+  SPHERE_LABELS,
+  TYPE_LABELS,
+  type FilterOption,
+} from "@/lib/vacancy-labels";
 
-const spheres = [
-  { value: "it", label: "IT" },
-  { value: "design", label: "Дизайн" },
-  { value: "marketing", label: "Маркетинг" },
-  { value: "analytics", label: "Аналитика" },
-  { value: "product", label: "Продукт" },
-  { value: "sales", label: "Продажи" },
-  { value: "support", label: "Поддержка" },
-  { value: "hr", label: "HR" },
-  { value: "finance", label: "Финансы" },
-  { value: "operations", label: "Операции" },
-  { value: "security", label: "Безопасность" },
-  { value: "devops", label: "DevOps" },
-  { value: "legal", label: "Юридическое" },
-];
-const exps = [
-  { value: "none", label: "Без опыта" },
-  { value: "lt1", label: "До 1 года" },
-  { value: "1-3", label: "1–3 года" },
-  { value: "gte3", label: "От 3 лет" },
-];
-const formats = [
-  { value: "remote", label: "Удалёнка" },
-  { value: "hybrid", label: "Гибрид" },
-  { value: "office", label: "Офис" },
-];
-const types = [
-  { value: "internship", label: "Стажировка" },
-  { value: "project", label: "Проектная работа" },
-  { value: "parttime", label: "Подработка" },
-];
+const DEFAULT_SPHERES: FilterOption[] = Object.entries(SPHERE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
+const DEFAULT_EXPS: FilterOption[] = Object.entries(EXP_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
+const DEFAULT_FORMATS: FilterOption[] = Object.entries(FORMAT_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
+const DEFAULT_TYPES: FilterOption[] = Object.entries(TYPE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 type Props = {
   selected: {
     sphere: string[];
+    city: string[];
     exp: string[];
     format: string[];
     type: string[];
@@ -46,11 +35,23 @@ type Props = {
     salaryTo: string;
     q: string;
   };
+  options?: {
+    sphere?: FilterOption[];
+    city?: FilterOption[];
+    exp?: FilterOption[];
+    format?: FilterOption[];
+    type?: FilterOption[];
+  };
 };
 
-export function VacancyFilterForm({ selected }: Props) {
+export function VacancyFilterForm({ selected, options }: Props) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const spheres = options?.sphere?.length ? options.sphere : DEFAULT_SPHERES;
+  const cities = options?.city?.length ? options.city : [];
+  const exps = options?.exp?.length ? options.exp : DEFAULT_EXPS;
+  const formats = options?.format?.length ? options.format : DEFAULT_FORMATS;
+  const types = options?.type?.length ? options.type : DEFAULT_TYPES;
 
   const pushFromForm = useCallback(() => {
     const form = formRef.current;
@@ -128,6 +129,27 @@ export function VacancyFilterForm({ selected }: Props) {
                 ))}
               </div>
             </div>
+            {cities.length ? (
+              <div className="filter-group">
+                <p className="filter-group-title" id="filter-city">
+                  Город
+                </p>
+                <div className="filter-check-list" role="group" aria-labelledby="filter-city">
+                  {cities.map((s) => (
+                    <label key={s.value} className="filter-check">
+                      <input
+                        type="checkbox"
+                        name="city"
+                        value={s.value}
+                        defaultChecked={selected.city.includes(s.value)}
+                      />
+                      <span className="filter-check-box" aria-hidden="true" />
+                      <span>{s.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <div className="filter-group">
               <p className="filter-group-title" id="filter-format">
                 Формат
