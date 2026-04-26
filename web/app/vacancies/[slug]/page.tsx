@@ -104,6 +104,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           typeLabel={TYPE_LABELS[row.type] ?? row.type}
           formatLabel={FORMAT_LABELS[row.format] ?? row.format}
           description={row.description}
+          descriptionBlocks={row.description_blocks}
           featured={row.featured}
           publishedAt={row.published_at}
           sourcePublishedAt={row.source_published_at}

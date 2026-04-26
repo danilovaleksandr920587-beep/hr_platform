@@ -39,22 +39,23 @@ function mergeOptions(base: FilterOption[], dynamic?: FilterOption[]): FilterOpt
       byValue.delete(item.value);
     }
   }
-  // Keep any new/unexpected values from DB visible as well.
   merged.push(...Array.from(byValue.values()));
   return merged;
 }
 
+export type VacancyFilterSelected = {
+  sphere: string[];
+  city: string[];
+  exp: string[];
+  format: string[];
+  type: string[];
+  salaryFrom: string;
+  salaryTo: string;
+  q: string;
+};
+
 type Props = {
-  selected: {
-    sphere: string[];
-    city: string[];
-    exp: string[];
-    format: string[];
-    type: string[];
-    salaryFrom: string;
-    salaryTo: string;
-    q: string;
-  };
+  selected: VacancyFilterSelected;
   options?: {
     sphere?: FilterOption[];
     city?: FilterOption[];
@@ -64,27 +65,60 @@ type Props = {
   };
 };
 
+function toggleInList(list: string[], value: string): string[] {
+  const set = new Set(list);
+  if (set.has(value)) set.delete(value);
+  else set.add(value);
+  return Array.from(set);
+}
+
+function filtersToSearchParams(f: VacancyFilterSelected): URLSearchParams {
+  const p = new URLSearchParams();
+  for (const v of f.sphere) p.append("sphere", v);
+  for (const v of f.city) p.append("city", v);
+  for (const v of f.exp) p.append("exp", v);
+  for (const v of f.format) p.append("format", v);
+  for (const v of f.type) p.append("type", v);
+  const sf = f.salaryFrom.trim();
+  const st = f.salaryTo.trim();
+  if (sf) p.set("salary_from", sf);
+  if (st) p.set("salary_to", st);
+  const q = f.q.trim();
+  if (q) p.set("q", q);
+  return p;
+}
+
 export function VacancyFilterForm({ selected, options }: Props) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+
   const spheres = mergeOptions(DEFAULT_SPHERES, options?.sphere);
   const cities = options?.city?.length ? options.city : [];
   const exps = mergeOptions(DEFAULT_EXPS, options?.exp);
   const formats = mergeOptions(DEFAULT_FORMATS, options?.format);
   const types = mergeOptions(DEFAULT_TYPES, options?.type);
 
-  const pushFromForm = useCallback(() => {
+  const pushFilters = useCallback(
+    (next: VacancyFilterSelected) => {
+      const params = filtersToSearchParams(next);
+      const qs = params.toString();
+      router.push(qs ? `/vacancies?${qs}` : "/vacancies", { scroll: false });
+    },
+    [router],
+  );
+
+  const pushSalaryFromForm = useCallback(() => {
     const form = formRef.current;
     if (!form) return;
     const fd = new FormData(form);
-    const params = new URLSearchParams();
-    for (const [key, val] of fd.entries()) {
-      if (val === "") continue;
-      params.append(key, String(val));
-    }
-    const qs = params.toString();
-    router.push(qs ? `/vacancies?${qs}` : "/vacancies", { scroll: false });
-  }, [router]);
+    const from = String(fd.get("salary_from") ?? "").trim();
+    const to = String(fd.get("salary_to") ?? "").trim();
+    pushFilters({
+      ...selected,
+      salaryFrom: from,
+      salaryTo: to,
+    });
+  }, [pushFilters, selected]);
 
   return (
     <aside className="filter-panel filter-panel-sticky">
@@ -103,12 +137,7 @@ export function VacancyFilterForm({ selected, options }: Props) {
           className="filter-form"
           action="/vacancies"
           method="get"
-          onChange={(e) => {
-            const t = e.target;
-            if (t instanceof HTMLInputElement && t.type === "checkbox") {
-              pushFromForm();
-            }
-          }}
+          role="search"
         >
           <div className="filter-groups">
             <div className="filter-group">
@@ -122,7 +151,13 @@ export function VacancyFilterForm({ selected, options }: Props) {
                       type="checkbox"
                       name="sphere"
                       value={s.value}
-                      defaultChecked={selected.sphere.includes(s.value)}
+                      checked={selected.sphere.includes(s.value)}
+                      onChange={() =>
+                        pushFilters({
+                          ...selected,
+                          sphere: toggleInList(selected.sphere, s.value),
+                        })
+                      }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
                     <span>{s.label}</span>
@@ -141,7 +176,13 @@ export function VacancyFilterForm({ selected, options }: Props) {
                       type="checkbox"
                       name="exp"
                       value={s.value}
-                      defaultChecked={selected.exp.includes(s.value)}
+                      checked={selected.exp.includes(s.value)}
+                      onChange={() =>
+                        pushFilters({
+                          ...selected,
+                          exp: toggleInList(selected.exp, s.value),
+                        })
+                      }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
                     <span>{s.label}</span>
@@ -161,7 +202,13 @@ export function VacancyFilterForm({ selected, options }: Props) {
                         type="checkbox"
                         name="city"
                         value={s.value}
-                        defaultChecked={selected.city.includes(s.value)}
+                        checked={selected.city.includes(s.value)}
+                        onChange={() =>
+                          pushFilters({
+                            ...selected,
+                            city: toggleInList(selected.city, s.value),
+                          })
+                        }
                       />
                       <span className="filter-check-box" aria-hidden="true" />
                       <span>{s.label}</span>
@@ -181,7 +228,13 @@ export function VacancyFilterForm({ selected, options }: Props) {
                       type="checkbox"
                       name="format"
                       value={s.value}
-                      defaultChecked={selected.format.includes(s.value)}
+                      checked={selected.format.includes(s.value)}
+                      onChange={() =>
+                        pushFilters({
+                          ...selected,
+                          format: toggleInList(selected.format, s.value),
+                        })
+                      }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
                     <span>{s.label}</span>
@@ -200,7 +253,13 @@ export function VacancyFilterForm({ selected, options }: Props) {
                       type="checkbox"
                       name="type"
                       value={s.value}
-                      defaultChecked={selected.type.includes(s.value)}
+                      checked={selected.type.includes(s.value)}
+                      onChange={() =>
+                        pushFilters({
+                          ...selected,
+                          type: toggleInList(selected.type, s.value),
+                        })
+                      }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
                     <span>{s.label}</span>
@@ -216,7 +275,10 @@ export function VacancyFilterForm({ selected, options }: Props) {
                 Пустые поля — без фильтра по сумме. Уход с поля или Enter —
                 применить.
               </p>
-              <div className="filter-salary-row">
+              <div
+                key={`salary-${selected.salaryFrom}|${selected.salaryTo}`}
+                className="filter-salary-row"
+              >
                 <label className="filter-salary-field">
                   <span className="filter-salary-label">От</span>
                   <input
@@ -227,11 +289,11 @@ export function VacancyFilterForm({ selected, options }: Props) {
                     step={1000}
                     inputMode="numeric"
                     placeholder="—"
-                    defaultValue={selected.salaryFrom}
+                    defaultValue={selected.salaryFrom || ""}
                     aria-labelledby="filter-salary"
-                    onBlur={pushFromForm}
+                    onBlur={pushSalaryFromForm}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") pushFromForm();
+                      if (e.key === "Enter") pushSalaryFromForm();
                     }}
                   />
                   <span className="filter-salary-currency">₽</span>
@@ -246,11 +308,11 @@ export function VacancyFilterForm({ selected, options }: Props) {
                     step={1000}
                     inputMode="numeric"
                     placeholder="—"
-                    defaultValue={selected.salaryTo}
+                    defaultValue={selected.salaryTo || ""}
                     aria-labelledby="filter-salary"
-                    onBlur={pushFromForm}
+                    onBlur={pushSalaryFromForm}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") pushFromForm();
+                      if (e.key === "Enter") pushSalaryFromForm();
                     }}
                   />
                   <span className="filter-salary-currency">₽</span>
@@ -259,11 +321,11 @@ export function VacancyFilterForm({ selected, options }: Props) {
             </div>
           </div>
           <div className="filter-bottom-actions">
-            <input type="hidden" name="q" value={selected.q} />
+            <input type="hidden" name="q" value={selected.q} readOnly />
             <button
               type="button"
               className="btn btn-dark filter-submit-btn"
-              onClick={pushFromForm}
+              onClick={pushSalaryFromForm}
             >
               Применить зарплату
             </button>

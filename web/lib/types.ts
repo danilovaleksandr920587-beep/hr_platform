@@ -4,6 +4,7 @@ export type VacancyRow = {
   title: string;
   company: string;
   description: string | null;
+  description_blocks?: VacancyDescriptionBlock[] | null;
   sphere: string;
   exp: string;
   format: string;
@@ -19,6 +20,13 @@ export type VacancyRow = {
   city?: string | null;
   skills?: string[] | null;
   source_published_at?: string | null;
+};
+
+export type VacancyDescriptionBlock = {
+  kind: "about" | "tasks" | "requirements" | "conditions" | "stack" | "other";
+  title: string;
+  body: string | null;
+  items: string[];
 };
 
 export type ArticleRow = {

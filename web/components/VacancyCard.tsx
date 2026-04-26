@@ -119,7 +119,6 @@ export function VacancyCard({
           ))}
         </ul>
       ) : null}
-      {row.description ? <p className="job-desc">{row.description}</p> : null}
       <footer className="job-card-bottom">
         <div className="job-actions">
           <Link

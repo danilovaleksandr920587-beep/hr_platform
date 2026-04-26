@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SAVED_ITEMS_EVENT, isVacancySaved, setVacancySaved } from "@/lib/client/saved-items";
+import type { VacancyDescriptionBlock } from "@/lib/types";
 
 type SimilarVacancy = {
   slug: string;
@@ -30,6 +31,7 @@ type Props = {
   typeLabel: string;
   formatLabel: string;
   description: string | null;
+  descriptionBlocks?: VacancyDescriptionBlock[] | null;
   featured: boolean;
   publishedAt: string;
   sourcePublishedAt?: string | null;
@@ -45,6 +47,7 @@ function monthYear(iso: string): string {
 
 export function VacancyDetailClient(props: Props) {
   const [saved, setSaved] = useState(false);
+  const preserveLineBreaks = { whiteSpace: "pre-line" as const };
 
   useEffect(() => {
     const sync = () => setSaved(isVacancySaved(props.slug, props.viewerScope));
@@ -77,6 +80,12 @@ export function VacancyDetailClient(props: Props) {
         : "kvref-jtag-type-junior";
   const applyHref = props.applyUrl || "/office";
   const applyIsExternal = Boolean(props.applyUrl);
+
+  const roleBlocks = props.descriptionBlocks?.length
+    ? props.descriptionBlocks
+    : props.description
+      ? [{ kind: "other", title: "О роли", body: props.description, items: [] }]
+      : [];
 
   return (
     <div className="kvref">
@@ -163,11 +172,34 @@ export function VacancyDetailClient(props: Props) {
               </div>
             ) : null}
             <div className="kvref-vac-section">
-              <div className="kvref-vac-section-title">О роли</div>
-              <p className="kvref-body-p">
-                {props.description ??
-                  "Описание не было получено из источника. Перейдите по кнопке отклика на страницу компании."}
-              </p>
+              {roleBlocks.length ? (
+                roleBlocks.map((block, idx) => (
+                  <div key={`${block.kind}-${idx}`} style={{ marginBottom: 16 }}>
+                    <div className="kvref-vac-section-title">{block.title}</div>
+                    {block.body ? (
+                      <p className="kvref-body-p" style={preserveLineBreaks}>
+                        {block.body}
+                      </p>
+                    ) : null}
+                    {block.items?.length ? (
+                      <ul className="kvref-body-p" style={{ marginTop: 8, paddingLeft: 18 }}>
+                        {block.items.map((item, itemIdx) => (
+                          <li key={`${block.kind}-${idx}-${itemIdx}`} style={preserveLineBreaks}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="kvref-vac-section-title">О роли</div>
+                  <p className="kvref-body-p">
+                    Описание не было получено из источника. Перейдите по кнопке отклика на страницу компании.
+                  </p>
+                </>
+              )}
             </div>
 
             {props.skills?.length ? (
