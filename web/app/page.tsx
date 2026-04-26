@@ -22,7 +22,7 @@ function formatJobSalary(min: number | null, max: number | null): string {
 }
 
 function jobMeta(row: VacancyRow): string {
-  return [row.format, row.type].filter(Boolean).join(" · ");
+  return [row.company, row.format || row.type].filter(Boolean).join(" · ");
 }
 
 export default async function HomePage() {
@@ -37,30 +37,39 @@ export default async function HomePage() {
           <div className="cl-hero-blob" aria-hidden="true" />
           <div className="cl-hero-blob2" aria-hidden="true" />
 
-          <Link href="/vacancies" className="cl-hero-float">
+          <div className="cl-hero-float" aria-label="Свежие стажировки">
             <div className="cl-hf-label">Свежие стажировки</div>
-            <div className="cl-hf-row">
-              <div>
-                <div className="cl-hf-job">Frontend-стажёр</div>
-                <div className="cl-hf-meta">Orbit Tech · Удалённо</div>
+            {previewVacancies.length ? (
+              previewVacancies.map((vacancy, idx) => (
+                <Link
+                  key={vacancy.slug}
+                  href={`/vacancies/${vacancy.slug}`}
+                  className="cl-hf-row"
+                >
+                  <div>
+                    <div className="cl-hf-job">{vacancy.title}</div>
+                    <div className="cl-hf-meta">{jobMeta(vacancy)}</div>
+                  </div>
+                  <span
+                    className={`cl-hf-tag ${idx === 0 ? "cl-hf-tag--lime" : "cl-hf-tag--gray"}`}
+                  >
+                    {formatJobSalary(vacancy.salary_min, vacancy.salary_max)}
+                  </span>
+                </Link>
+              ))
+            ) : (
+              <div className="cl-hf-row">
+                <div>
+                  <div className="cl-hf-job">Сейчас обновляем подборку</div>
+                  <div className="cl-hf-meta">Загляните в полный список вакансий</div>
+                </div>
+                <span className="cl-hf-tag cl-hf-tag--gray">—</span>
               </div>
-              <span className="cl-hf-tag cl-hf-tag--lime">45–55 тыс</span>
-            </div>
-            <div className="cl-hf-row">
-              <div>
-                <div className="cl-hf-job">Продуктовый аналитик</div>
-                <div className="cl-hf-meta">Nova Bank · Гибрид</div>
-              </div>
-              <span className="cl-hf-tag cl-hf-tag--gray">80–100 тыс</span>
-            </div>
-            <div className="cl-hf-row">
-              <div>
-                <div className="cl-hf-job">Data Engineer</div>
-                <div className="cl-hf-meta">Stream Analytics · Офис</div>
-              </div>
-              <span className="cl-hf-tag cl-hf-tag--gray">120–150 тыс</span>
-            </div>
-          </Link>
+            )}
+            <Link href="/vacancies" className="cl-hf-more">
+              Смотреть все вакансии
+            </Link>
+          </div>
 
           <p className="cl-hero-eyebrow">для студентов и выпускников</p>
           <h1 id="cl-hero-title" className="cl-hero-title">
@@ -91,16 +100,16 @@ export default async function HomePage() {
           </div>
           <div className="cl-hero-stats">
             <div className="cl-hero-stat">
-              <div className="cl-hero-stat-num">12 000+</div>
-              <div className="cl-hero-stat-label">вакансий в базе</div>
+              <div className="cl-hero-stat-num">200+</div>
+              <div className="cl-hero-stat-label">вакансий от топ-работодателей</div>
             </div>
             <div className="cl-hero-stat">
-              <div className="cl-hero-stat-num">2 400+</div>
-              <div className="cl-hero-stat-label">стажировок в 2026</div>
+              <div className="cl-hero-stat-num">AI-разбор</div>
+              <div className="cl-hero-stat-label">резюме за секунды</div>
             </div>
             <div className="cl-hero-stat">
-              <div className="cl-hero-stat-num">+67%</div>
-              <div className="cl-hero-stat-label">рост рынка за год</div>
+              <div className="cl-hero-stat-num">Зарплаты</div>
+              <div className="cl-hero-stat-label">и карьерные треки по рынку</div>
             </div>
           </div>
         </section>
