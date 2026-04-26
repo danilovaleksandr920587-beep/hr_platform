@@ -31,7 +31,7 @@
   background: var(--cl-lime);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: flex-end;
   padding: calc(60px + env(safe-area-inset-top, 0px) + 12px)
     clamp(1rem, 4vw, 60px) 64px;
   position: relative;
@@ -1219,10 +1219,10 @@ a.cl-cta-btn:hover {
 
 @media (max-width: 900px) {
   .home-careerlab-scope .cl-hero {
-    justify-content: flex-start;
-    min-height: auto;
+    justify-content: flex-end;
+    min-height: 104dvh;
     padding-top: calc(52px + env(safe-area-inset-top, 0px) + 24px);
-    padding-bottom: 3rem;
+    padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
   }
 
   .cl-hero-search-wrap {
