@@ -32,7 +32,8 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 12px) clamp(1rem, 4vw, 60px) clamp(80px, 14vh, 160px);
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 12px)
+    clamp(1rem, 4vw, 60px) 64px;
   position: relative;
   overflow: hidden;
 }
@@ -69,8 +70,7 @@
   width: min(280px, calc(100% - 2rem));
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
   animation: cl-float 4s ease-in-out infinite;
-  text-decoration: none;
-  color: inherit;
+  z-index: 2;
 }
 
 @keyframes cl-float {
@@ -97,6 +97,9 @@
   justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px solid var(--cl-border);
+  text-decoration: none;
+  color: inherit;
+  gap: 12px;
 }
 
 .cl-hf-row:last-child {
@@ -107,11 +110,33 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--cl-dark);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cl-hf-meta {
   font-size: 11px;
   color: #bbb;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cl-hf-more {
+  display: inline-flex;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--cl-dark2);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cl-hf-more:hover {
+  text-decoration: underline;
 }
 
 .cl-hf-tag {
@@ -139,6 +164,7 @@
   color: rgba(13, 15, 8, 0.5);
   margin-bottom: 16px;
   animation: cl-fadeUp 0.6s 0.1s both;
+  z-index: 1;
 }
 
 .cl-hero-title {
@@ -149,8 +175,9 @@
   color: var(--cl-dark);
   letter-spacing: -0.04em;
   margin: 0 0 20px;
-  max-width: 640px;
+  max-width: min(640px, calc(100% - 340px));
   animation: cl-fadeUp 0.6s 0.2s both;
+  z-index: 1;
 }
 
 .cl-hero-title em {
@@ -162,9 +189,10 @@
   font-size: 16px;
   color: rgba(13, 15, 8, 0.6);
   line-height: 1.7;
-  max-width: 420px;
+  max-width: min(420px, calc(100% - 340px));
   margin: 0 0 32px;
   animation: cl-fadeUp 0.6s 0.3s both;
+  z-index: 1;
 }
 
 .cl-hero-search-wrap {
@@ -173,6 +201,8 @@
   gap: 10px;
   animation: cl-fadeUp 0.6s 0.4s both;
   margin-bottom: 48px;
+  max-width: min(520px, calc(100% - 340px));
+  z-index: 1;
 }
 
 .cl-hero-search {
@@ -229,6 +259,7 @@
   flex-wrap: wrap;
   gap: 0;
   animation: cl-fadeUp 0.6s 0.5s both;
+  z-index: 1;
 }
 
 .cl-hero-stat {
@@ -1188,9 +1219,9 @@ a.cl-cta-btn:hover {
 @media (max-width: 900px) {
   .home-careerlab-scope .cl-hero {
     justify-content: flex-start;
-    min-height: auto;
+    min-height: 110dvh;
     padding-top: calc(52px + env(safe-area-inset-top, 0px));
-    padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(3rem, env(safe-area-inset-bottom, 0px));
   }
 
   .cl-hero-search-wrap {
@@ -1201,11 +1232,17 @@ a.cl-cta-btn:hover {
     font-size: clamp(30px, 9vw, 52px);
     line-height: 1.05;
     margin-bottom: 14px;
+    max-width: 100%;
   }
 
   .cl-hero-sub {
     font-size: 15px;
     margin-bottom: 20px;
+    max-width: 100%;
+  }
+
+  .cl-hero-search-wrap {
+    max-width: 100%;
   }
 
   .cl-hero-stat {
