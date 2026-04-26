@@ -100,8 +100,8 @@ export default async function HomePage() {
           </div>
           <div className="cl-hero-stats">
             <div className="cl-hero-stat">
-              <div className="cl-hero-stat-num">200+</div>
-              <div className="cl-hero-stat-label">вакансий от топ-работодателей</div>
+              <div className="cl-hero-stat-num">200+ вакансий</div>
+              <div className="cl-hero-stat-label">от топ-работодателей</div>
             </div>
             <div className="cl-hero-stat">
               <div className="cl-hero-stat-num">AI-разбор</div>

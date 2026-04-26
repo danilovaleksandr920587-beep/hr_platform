@@ -15,7 +15,7 @@ import {
   TYPE_LABELS,
 } from "@/lib/vacancy-labels";
 
-const DESCRIPTION_PREVIEW_MAX = 220;
+const DESCRIPTION_PREVIEW_MAX = 130;
 
 function vacancyDescriptionPreview(
   text: string | null | undefined,
@@ -89,7 +89,7 @@ export function VacancyCard({
       ) : null}
       <div className="job-card-top">
         <div className="job-card-left">
-          <div className="job-co">{row.company}</div>
+          <div className="job-company">{row.company}</div>
           {row.city ? <div className="job-co">{row.city}</div> : null}
           <h2 className="job-title">
             <Link href={href}>{row.title}</Link>
@@ -158,9 +158,6 @@ export function VacancyCard({
           >
             {saved ? "♥ Сохранено" : "♡ Сохранить"}
           </button>
-        </div>
-        <div className="job-meta-right">
-          <span className="job-date">#{index + 1}</span>
         </div>
       </footer>
       {loginHint ? (

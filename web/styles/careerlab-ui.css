@@ -635,11 +635,19 @@ body.careerlab-site .active-filter-pill {
 }
 
 .job-co {
-  font-size: 14px;
+  font-size: 11px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 2px;
+}
+
+.job-company {
+  font-size: 15px;
   font-weight: 600;
   color: var(--dark);
   letter-spacing: -0.01em;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .job-title {
