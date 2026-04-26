@@ -1219,10 +1219,10 @@ a.cl-cta-btn:hover {
 
 @media (max-width: 900px) {
   .home-careerlab-scope .cl-hero {
-    justify-content: flex-end;
-    min-height: 100dvh;
-    padding-top: calc(52px + env(safe-area-inset-top, 0px));
-    padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 0px));
+    justify-content: flex-start;
+    min-height: auto;
+    padding-top: calc(52px + env(safe-area-inset-top, 0px) + 24px);
+    padding-bottom: 3rem;
   }
 
   .cl-hero-search-wrap {

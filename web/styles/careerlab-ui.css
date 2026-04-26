@@ -664,11 +664,6 @@ body.careerlab-site .active-filter-pill {
   font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
   word-break: break-word;
 }
 

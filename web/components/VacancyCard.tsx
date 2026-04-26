@@ -15,7 +15,7 @@ import {
   TYPE_LABELS,
 } from "@/lib/vacancy-labels";
 
-const DESCRIPTION_PREVIEW_MAX = 130;
+const DESCRIPTION_PREVIEW_MAX = 9999;
 
 function vacancyDescriptionPreview(
   text: string | null | undefined,

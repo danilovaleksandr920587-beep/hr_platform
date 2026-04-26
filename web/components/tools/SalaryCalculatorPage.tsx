@@ -196,7 +196,7 @@ export function SalaryCalculatorPage() {
               </div>
             </div>
 
-            <button className="calc-btn" type="button" onClick={() => setCalculated(true)}>Рассчитать зарплату ✦</button>
+            <button className="calc-btn" type="button" onClick={() => setCalculated(true)}>Рассчитать зарплату</button>
           </div>
         </div>
 
