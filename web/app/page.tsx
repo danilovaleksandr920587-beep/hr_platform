@@ -26,13 +26,7 @@ function jobMeta(row: VacancyRow): string {
 }
 
 export default async function HomePage() {
-  const STATIC_PREVIEW = [
-    { slug: "stajer-v-otdel-razvitia-instrumentov-upravlenia-dannymi-alefa-bank", title: "Стажёр в отдел анализа данных", company: "Альфа-Банк", format: "Гибрид", type: "internship", salary_min: 80000, salary_max: 100000 },
-    { slug: "produktovyj-dizajner-stajer-v-gruppu-dizajna-andeks-id-andeks", title: "Продуктовый дизайнер (стажёр)", company: "Яндекс", format: "Офис", type: "internship", salary_min: 90000, salary_max: 120000 },
-    { slug: "vacancies", title: "Стажёр-маркетолог (FMCG)", company: "Mars", format: "Гибрид", type: "internship", salary_min: 70000, salary_max: 90000 },
-  ] as const;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const previewVacancies = STATIC_PREVIEW as unknown as any[];
+  const previewVacancies = (await listVacancies({})).slice(0, 3);
 
   return (
     <div className="home-careerlab-scope">
