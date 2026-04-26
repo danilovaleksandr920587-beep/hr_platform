@@ -429,7 +429,7 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
                   5 вопросов — узнаешь, что стоит повторить. Без регистрации, без спама, результат
                   сразу.
                 </p>
-                <Link className="promo-btn" href="/research">
+                <Link className="promo-btn" href="/knowledge-base/test">
                   Пройти тест →
                 </Link>
               </div>

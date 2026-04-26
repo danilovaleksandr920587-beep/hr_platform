@@ -9,10 +9,11 @@ export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = window.localStorage.getItem(STORAGE_KEY);
-    if (!consent) {
-      setVisible(true);
-    }
+    const raf = window.requestAnimationFrame(() => {
+      const consent = window.localStorage.getItem(STORAGE_KEY);
+      if (!consent) setVisible(true);
+    });
+    return () => window.cancelAnimationFrame(raf);
   }, []);
 
   function handleConsent(value: "accepted" | "declined") {

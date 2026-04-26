@@ -178,12 +178,12 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     { id: "7", done: false, label: "Изучи зарплатный рынок в своём направлении", href: "/tools/salary-calculator" },
   ]);
 
-  // Mark resume as done when score arrives
-  useEffect(() => {
-    if (resumeScore !== null) {
-      setCheckRows((rows) => rows.map((r) => r.id === "1" ? { ...r, done: true } : r));
+  const handleScoreChange = useCallback((score: number | null) => {
+    setResumeScore(score);
+    if (score !== null) {
+      setCheckRows((rows) => rows.map((r) => (r.id === "1" ? { ...r, done: true } : r)));
     }
-  }, [resumeScore]);
+  }, []);
 
   const progress = useMemo(() => {
     const done = checkRows.filter((r) => r.done).length;
@@ -338,7 +338,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                   Оценить под вакансию →
                 </Link>
               </div>
-              <InlineResumeAnalyzer userScope={userScope} onScoreChange={setResumeScore} />
+              <InlineResumeAnalyzer userScope={userScope} onScoreChange={handleScoreChange} />
             </div>
 
             {/* ── Salary section ── */}
@@ -367,7 +367,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                   <div className="sh-median">
                     <span style={shMedianHint}>Медиана рынка</span>
                     <span className="sh-median-val">115 000 ₽</span>
-                    <span className="sh-median-badge">Апрель 2025</span>
+                    <span className="sh-median-badge">Апрель 2026</span>
                   </div>
                 </div>
 

@@ -29,11 +29,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
         <h1 className="page-title">Вход</h1>
         <p className="hero-text">
           Войдите или зарегистрируйтесь — после входа откроется{" "}
-          <Link href="/office">личный кабинет</Link>.{" "}
-          <Link href="/office-demo" className="text-link">
-            Демо кабинета без входа
-          </Link>{" "}
-          — для проверки вёрстки.
+          <Link href="/office">личный кабинет</Link>.
         </p>
         {err === "auth" ? (
           <p className="hero-text" style={{ color: "var(--coral)" }}>

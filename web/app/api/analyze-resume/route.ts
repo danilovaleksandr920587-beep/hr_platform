@@ -6,55 +6,108 @@ const YGPT_FOLDER_ID = process.env.YANDEX_GPT_FOLDER_ID ?? "";
 const YGPT_MODEL = `gpt://${YGPT_FOLDER_ID}/yandexgpt/latest`;
 const YGPT_ENDPOINT = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
 const MAX_CHARS = 12000;
+const MIN_SECTION_ISSUES = 3;
 
 function isConfigured() {
   return YGPT_API_KEY.length > 10 && YGPT_FOLDER_ID.length > 5;
 }
 
-// ─── Track 2: Vacancy-specific ────────────────────────────────────────────────
-const SYSTEM_PROMPT_VACANCY = `Ты — senior рекрутер с 10+ годами опыта найма в IT, продукте, аналитике, маркетинге.
+type RawIssue = {
+  type?: unknown;
+  kind?: unknown;
+  title?: unknown;
+  description?: unknown;
+  evidence?: unknown;
+  whyItMatters?: unknown;
+  rewrite?: unknown;
+  questionToCandidate?: unknown;
+  impact?: unknown;
+  confidence?: unknown;
+  fix?: unknown;
+};
 
-Задача: детально проанализировать резюме относительно вакансии и дать конкретные инсайты.
+type RawSection = {
+  id?: unknown;
+  title?: unknown;
+  icon?: unknown;
+  status?: unknown;
+  issues?: unknown;
+};
 
-Правила:
-- Отвечай ТОЛЬКО валидным JSON без markdown-обёртки
-- Цитируй конкретные фразы из резюме и вакансии в кавычках
-- В каждой секции ОБЯЗАТЕЛЬНО минимум 1 issue — если хорошо, конкретно объясни ЧТО хорошо и почему это сильная сторона
-- Давай инсайты рекрутера: что думает HR читая это резюме, что вызывает сомнения, что привлекает
-- Fix — конкретная готовая формулировка, которую можно скопировать в резюме
-- Оценивай честно, не завышай score
-- Пиши по-русски
+type RawResult = {
+  score?: unknown;
+  verdict?: unknown;
+  sections?: unknown;
+  topActions?: unknown;
+  expectedSkills?: unknown;
+  targetInfo?: unknown;
+};
 
-Формат ответа:
+const SECTION_META = {
+  skills: { title: "Ключевые навыки", icon: "🎯" },
+  experience: { title: "Опыт и достижения", icon: "💼" },
+  fit: { title: "Позиционирование", icon: "🏆" },
+  structure: { title: "Структура резюме", icon: "📋" },
+} as const;
+
+type SectionId = keyof typeof SECTION_META;
+
+const SYSTEM_PROMPT_COMMON = `Ты — senior рекрутер с 10+ годами опыта найма в IT, аналитике, продукте и маркетинге.
+
+Твоя задача — дать ПОЛЕЗНЫЙ и ДОКАЗУЕМЫЙ разбор резюме.
+
+Критически важные правила:
+- Отвечай только валидным JSON без markdown и пояснений.
+- Не придумывай опыт, достижения, навыки или требования, которых нет в тексте.
+- Для каждого problem обязательно дай evidence (точная цитата из текста в кавычках).
+- Если данных не хватает, не выдумывай rewrite: запиши questionToCandidate.
+- Разделяй strength (что реально хорошо) и problem (что мешает пройти скрининг).
+- whyItMatters должен объяснять, как это влияет на рекрутера, ATS или шанс приглашения.
+- rewrite должен быть коротким и копируемым, только если он честно вытекает из фактов.
+- confidence показывает уверенность вывода: high/medium/low.
+- impact показывает полезность исправления: high/medium/low.
+- Можно оставить секцию без problem, если объективно проблем нет.
+- Язык ответа: русский.`;
+
+const RESPONSE_SCHEMA = `Формат JSON:
 {
   "score": <0-100>,
-  "verdict": "<честный итоговый вывод 1-2 предложения>",
+  "verdict": "<1-2 предложения>",
+  "targetInfo": "<роль> · <уровень>",
+  "expectedSkills": ["..."],
   "sections": [
     {
-      "id": "skills",
-      "title": "Ключевые навыки",
-      "icon": "🎯",
-      "status": "<good|warning|critical>",
+      "id": "skills|experience|fit|structure",
+      "title": "<название секции>",
+      "icon": "<иконка>",
+      "status": "good|warning|critical",
       "issues": [
         {
-          "type": "<good|warning|critical>",
-          "title": "<конкретный заголовок до 60 символов>",
-          "description": "<инсайт рекрутера: что видит HR, почему это важно, конкретные детали из текстов>",
-          "fix": "<готовая формулировка для резюме — только для warning/critical>"
+          "type": "good|warning|critical",
+          "kind": "strength|problem",
+          "title": "<до 60 символов>",
+          "description": "<что именно увидел рекрутер>",
+          "evidence": "<точная цитата или краткая привязка к факту>",
+          "whyItMatters": "<почему это влияет на отбор>",
+          "rewrite": "<готовая формулировка для резюме, если уместно>",
+          "questionToCandidate": "<что уточнить у кандидата, если не хватает данных>",
+          "impact": "high|medium|low",
+          "confidence": "high|medium|low"
         }
       ]
-    },
-    { "id": "experience", "title": "Опыт и достижения", "icon": "💼", "status": "...", "issues": [...] },
-    { "id": "fit", "title": "Позиционирование", "icon": "🏆", "status": "...", "issues": [...] },
-    { "id": "structure", "title": "Структура резюме", "icon": "📋", "status": "...", "issues": [...] }
+    }
   ],
-  "topActions": ["<конкретное действие с примером готовой фразы>", "...", "..."]
+  "topActions": [
+    "<действие: что сделать + пример формулировки>",
+    "<...>",
+    "<...>"
+  ]
 }`;
 
 function buildVacancyPrompt(resumeText: string, vacancyText: string) {
   const r = resumeText.slice(0, MAX_CHARS);
   const v = vacancyText.slice(0, MAX_CHARS);
-  return `Проанализируй резюме относительно вакансии как опытный рекрутер.
+  return `Проанализируй резюме относительно вакансии.
 
 === РЕЗЮМЕ ===
 ${r}
@@ -62,84 +115,114 @@ ${r}
 === ВАКАНСИЯ ===
 ${v}
 
-Дай глубокий анализ по 4 секциям:
-1. skills (Ключевые навыки) — сравни навыки из резюме с требованиями вакансии, цитируй конкретные пункты
-2. experience (Опыт и достижения) — есть ли измеримые результаты? что думает рекрутер видя этот опыт?
-3. fit (Позиционирование) — насколько очевидно из резюме что человек хочет и подходит для ЭТОЙ роли?
-4. structure (Структура резюме) — ATS, форматирование, логика подачи информации
+Задачи:
+1) Определи ключевые требования из вакансии (обязательные vs желательные).
+2) Сопоставь их с резюме на основе цитат.
+3) Для каждой секции дай strengths и problems только по фактам.
+4) В topActions оставь 3 шага с максимальным impact.
 
-В каждой секции минимум 1 issue. Если хорошо — напиши что конкретно сильно и почему.
-topActions: 3 самых важных действия прямо сейчас.`;
+${RESPONSE_SCHEMA}`;
 }
 
 // ─── Track 1: General / auto-detect ───────────────────────────────────────────
-const SYSTEM_PROMPT_GENERAL = `Ты — senior рекрутер с 10+ годами опыта найма в разных сферах.
+const SYSTEM_PROMPT_VACANCY = `${SYSTEM_PROMPT_COMMON}
 
-Задача: определить целевую роль кандидата из резюме, составить список ожидаемых навыков и дать глубокий анализ резюме.
+Контекст: анализ резюме относительно конкретной вакансии.`;
 
-Правила:
-- Отвечай ТОЛЬКО валидным JSON без markdown-обёртки
-- Цитируй конкретные фразы и данные из резюме
-- В каждой секции ОБЯЗАТЕЛЬНО минимум 1 issue — если хорошо, объясни ЧТО именно сильно и почему это конкурентное преимущество
-- expectedSkills — навыки которые рекрутёры ИЩУТ для обнаруженной роли, отсортированные от критически важных к желательным
-- Давай инсайты рекрутера: что привлекает, что вызывает сомнения, как резюме воспринимается при первом просмотре (6-10 секунд)
-- fix — конкретная готовая формулировка, которую можно скопировать в резюме
-- Пиши по-русски
+const SYSTEM_PROMPT_GENERAL = `${SYSTEM_PROMPT_COMMON}
 
-Формат ответа:
-{
-  "score": <0-100>,
-  "verdict": "<честный итоговый вывод 1-2 предложения>",
-  "targetInfo": "<определённая роль> · <уровень>",
-  "expectedSkills": [
-    "<критически важный навык #1 для этой роли>",
-    "<критически важный навык #2>",
-    "... (8-12 пунктов от обязательных к желательным)"
-  ],
-  "sections": [
-    {
-      "id": "skills",
-      "title": "Ключевые навыки",
-      "icon": "🎯",
-      "status": "<good|warning|critical>",
-      "issues": [
-        {
-          "type": "<good|warning|critical>",
-          "title": "<конкретный заголовок до 60 символов>",
-          "description": "<инсайт рекрутера с конкретикой из резюме: что видит HR, что думает, почему это важно для данной роли>",
-          "fix": "<готовая формулировка для резюме — только для warning/critical>"
-        }
-      ]
-    },
-    { "id": "experience", "title": "Опыт и достижения", "icon": "💼", "status": "...", "issues": [...] },
-    { "id": "fit", "title": "Позиционирование", "icon": "🏆", "status": "...", "issues": [...] },
-    { "id": "structure", "title": "Структура резюме", "icon": "📋", "status": "...", "issues": [...] }
-  ],
-  "topActions": [
-    "<конкретное действие #1 с готовой формулировкой>",
-    "<конкретное действие #2>",
-    "<конкретное действие #3>"
-  ]
-}`;
+Контекст: анализ резюме без конкретной вакансии.`;
 
-function buildGeneralPrompt(resumeText: string, level: string) {
+function buildGeneralPrompt(resumeText: string, level: string, targetRole: string) {
   const r = resumeText.slice(0, MAX_CHARS);
   return `Проанализируй резюме кандидата как опытный рекрутер.
 
 Уровень кандидата (указан пользователем): ${level}
+Целевая роль (указана пользователем): ${targetRole}
 
 === РЕЗЮМЕ ===
 ${r}
 
 Задачи:
-1. Определи из резюме целевую роль и сферу кандидата → запиши в targetInfo: "<Роль> · ${level}"
-2. expectedSkills: 8-12 навыков которые рекрутёры ИЩУТ для этой роли, от критически важных к желательным
-3. Секция "Ключевые навыки": какие навыки для этой роли есть в резюме? чего критически не хватает? цитируй из резюме
-4. Секция "Опыт и достижения": есть ли измеримые результаты? конкретные проекты? что думает рекрутер читая этот блок?
-5. Секция "Позиционирование": насколько чётко резюме позиционирует кандидата для этой роли? понятно ли за 10 секунд кто это и чего хочет?
-6. Секция "Структура резюме": ATS, логика подачи, форматирование, читаемость
-7. В каждой секции минимум 1 issue с конкретным инсайтом рекрутера. Если хорошо — объясни почему это сильная сторона.
-8. topActions: 3 самых важных действия с готовыми формулировками для резюме`;
+1) Используй targetRole как приоритетную цель. Если роль конфликтует с текстом резюме, отметь это в fit.
+2) Сформируй expectedSkills (8-12) для этой роли, отсортируй по важности.
+3) Дай sections c strengths/problems и evidence.
+4) В topActions оставь 3 самых полезных действия с готовыми фразами.
+
+${RESPONSE_SCHEMA}`;
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(asString).filter(Boolean);
+}
+
+function normalizeIssue(raw: RawIssue) {
+  const type = raw.type === "critical" || raw.type === "warning" || raw.type === "good" ? raw.type : "warning";
+  const kind = raw.kind === "strength" || raw.kind === "problem" ? raw.kind : (type === "good" ? "strength" : "problem");
+  const title = asString(raw.title) || (kind === "strength" ? "Сильная сторона" : "Точка роста");
+  const description = asString(raw.description) || "Недостаточно данных для детального комментария.";
+  const evidence = asString(raw.evidence);
+  const whyItMatters = asString(raw.whyItMatters);
+  const rewrite = asString(raw.rewrite) || asString(raw.fix);
+  const questionToCandidate = asString(raw.questionToCandidate);
+  const impact = raw.impact === "high" || raw.impact === "medium" || raw.impact === "low" ? raw.impact : "medium";
+  const confidence = raw.confidence === "high" || raw.confidence === "medium" || raw.confidence === "low" ? raw.confidence : "medium";
+
+  return { type, kind, title, description, evidence, whyItMatters, rewrite, questionToCandidate, impact, confidence };
+}
+
+function normalizeResult(input: RawResult, mode: "general" | "vacancy", targetLevel: string) {
+  const rawScore = typeof input.score === "number" ? input.score : Number(input.score);
+  const score = Number.isFinite(rawScore) ? Math.max(0, Math.min(100, Math.round(rawScore))) : 55;
+  const verdict = asString(input.verdict) || "Разбор готов. Используйте рекомендации с высоким impact в первую очередь.";
+  const targetInfo = asString(input.targetInfo) || `Целевая роль · ${targetLevel}`;
+  const expectedSkills = asStringArray(input.expectedSkills).slice(0, 12);
+
+  const rawSections = Array.isArray(input.sections) ? input.sections as RawSection[] : [];
+  const sections: Array<{ id: string; title: string; icon: string; status: "good" | "warning" | "critical"; issues: ReturnType<typeof normalizeIssue>[] }> = [];
+
+  for (const id of Object.keys(SECTION_META) as SectionId[]) {
+    const src = rawSections.find((s) => asString(s.id) === id);
+    const status = src?.status === "good" || src?.status === "warning" || src?.status === "critical" ? src.status : "warning";
+    const issuesRaw = Array.isArray(src?.issues) ? src?.issues as RawIssue[] : [];
+    const issues = issuesRaw.map(normalizeIssue).filter((issue) => {
+      if (issue.kind === "problem") {
+        return Boolean(issue.evidence || issue.questionToCandidate);
+      }
+      return true;
+    }).slice(0, MIN_SECTION_ISSUES);
+
+    sections.push({
+      id,
+      title: asString(src?.title) || SECTION_META[id].title,
+      icon: asString(src?.icon) || SECTION_META[id].icon,
+      status,
+      issues,
+    });
+  }
+
+  const topActionsFromIssues = sections
+    .flatMap((section) => section.issues)
+    .filter((issue) => issue.kind === "problem" && issue.impact === "high" && (issue.rewrite || issue.questionToCandidate))
+    .slice(0, 3)
+    .map((issue) => issue.rewrite || `Уточнить: ${issue.questionToCandidate}`);
+
+  const topActions = (topActionsFromIssues.length ? topActionsFromIssues : asStringArray(input.topActions)).slice(0, 3);
+
+  return {
+    score,
+    verdict,
+    targetInfo,
+    expectedSkills,
+    sections,
+    topActions,
+    mode,
+  };
 }
 
 export async function POST(request: Request) {
@@ -152,6 +235,7 @@ export async function POST(request: Request) {
     vacancyText?: string;
     mode?: "general" | "vacancy";
     targetLevel?: string;
+    targetRole?: string;
     autoDetect?: boolean;
   };
   try {
@@ -160,7 +244,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
   }
 
-  const { resumeText = "", vacancyText = "", mode = "vacancy", targetLevel = "Junior" } = body;
+  const { resumeText = "", vacancyText = "", mode = "vacancy", targetLevel = "Junior", targetRole = "Автоопределение" } = body;
 
   if (resumeText.trim().length < 30) {
     return NextResponse.json({ error: "Резюме слишком короткое" }, { status: 400 });
@@ -171,7 +255,7 @@ export async function POST(request: Request) {
 
   if (mode === "general") {
     systemPrompt = SYSTEM_PROMPT_GENERAL;
-    userPrompt = buildGeneralPrompt(resumeText, targetLevel);
+    userPrompt = buildGeneralPrompt(resumeText, targetLevel, targetRole);
   } else {
     if (vacancyText.trim().length < 20) {
       return NextResponse.json({ error: "Вакансия слишком короткая" }, { status: 400 });
@@ -217,13 +301,14 @@ export async function POST(request: Request) {
 
   const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
 
-  let result: unknown;
+  let result: RawResult;
   try {
-    result = JSON.parse(cleaned);
+    result = JSON.parse(cleaned) as RawResult;
   } catch {
     console.error("Invalid JSON:", cleaned.slice(0, 500));
     return NextResponse.json({ error: "Неверный формат ответа — попробуйте ещё раз" }, { status: 502 });
   }
 
-  return NextResponse.json({ result, mode });
+  const normalized = normalizeResult(result, mode, targetLevel);
+  return NextResponse.json({ result: normalized, mode });
 }

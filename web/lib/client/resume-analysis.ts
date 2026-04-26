@@ -1,9 +1,19 @@
 export type AnalysisMode = "general" | "vacancy";
+export type AnalysisIssueKind = "problem" | "strength";
+export type AnalysisIssueImpact = "high" | "medium" | "low";
+export type AnalysisIssueConfidence = "high" | "medium" | "low";
 
 export type AnalysisIssue = {
   type: "good" | "warning" | "critical";
+  kind?: AnalysisIssueKind;
   title: string;
   description: string;
+  evidence?: string;
+  whyItMatters?: string;
+  rewrite?: string;
+  questionToCandidate?: string;
+  impact?: AnalysisIssueImpact;
+  confidence?: AnalysisIssueConfidence;
   fix?: string;
 };
 

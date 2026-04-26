@@ -1,6 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { officeGuard } from "@/lib/auth/office-guard";
 
+function canonicalHostRedirect(request: NextRequest) {
+  const hostname = request.nextUrl.hostname;
+  if (!hostname.startsWith("www.")) return null;
+
+  const redirectUrl = request.nextUrl.clone();
+  redirectUrl.hostname = hostname.slice(4);
+  redirectUrl.port = "";
+  return NextResponse.redirect(redirectUrl, 308);
+}
+
 function legacyHtmlRedirect(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
@@ -28,6 +38,9 @@ function legacyHtmlRedirect(request: NextRequest) {
 }
 
 export async function middleware(request: NextRequest) {
+  const canonical = canonicalHostRedirect(request);
+  if (canonical) return canonical;
+
   const legacy = legacyHtmlRedirect(request);
   if (legacy) return legacy;
   return await officeGuard(request);

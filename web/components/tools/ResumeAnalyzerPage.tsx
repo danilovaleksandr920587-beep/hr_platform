@@ -25,13 +25,18 @@ function scoreLocal(resume: string, vacancy: string): ResumeAnalysisResult {
       id: "skills", title: "Навыки и требования", icon: "🎯",
       status: matchRate > 0.7 ? "good" : matchRate > 0.45 ? "warning" : "critical",
       issues: required.length === 0
-        ? [{ type: "warning", title: "Добавьте полный текст вакансии", description: "Для точного анализа навыков вставьте полное описание вакансии." }]
+        ? [{ type: "warning", kind: "problem", title: "Добавьте полный текст вакансии", description: "Для точного анализа навыков вставьте полное описание вакансии.", whyItMatters: "Без требований невозможно дать точные рекомендации.", impact: "high", confidence: "high" }]
         : [
-            ...(matched.length ? [{ type: "good" as const, title: `${matched.length} из ${required.length} навыков совпадают`, description: `Совпадения: ${matched.join(", ")}.` }] : []),
+            ...(matched.length ? [{ type: "good" as const, kind: "strength" as const, title: `${matched.length} из ${required.length} навыков совпадают`, description: `Совпадения: ${matched.join(", ")}.`, evidence: `Найдены совпадения по ключевым словам: ${matched.join(", ")}.`, whyItMatters: "Рекрутер быстрее видит релевантность кандидата.", impact: "high" as const, confidence: "high" as const }] : []),
             ...required.filter(k => !matched.includes(k)).slice(0, 3).map(k => ({
               type: "critical" as const, title: `Навык не найден: ${k}`,
               description: `Вакансия требует ${k}, в резюме упоминаний нет.`,
-              fix: `Добавьте блок с ${k} и конкретным примером использования.`,
+              kind: "problem" as const,
+              evidence: `В вакансии есть требование "${k}", в тексте резюме совпадения не найдены.`,
+              whyItMatters: "Отсутствие ключевого навыка снижает шанс пройти первичный скрининг.",
+              rewrite: `Добавьте блок с ${k} и конкретным примером использования.`,
+              impact: "high" as const,
+              confidence: "high" as const,
             })),
           ],
     },
@@ -39,23 +44,23 @@ function scoreLocal(resume: string, vacancy: string): ResumeAnalysisResult {
       id: "experience", title: "Опыт и результаты", icon: "💼",
       status: hasExperience ? "good" : "warning",
       issues: hasExperience
-        ? [{ type: "good", title: "Опыт/проекты присутствуют", description: "В резюме есть описание опыта или проектов." }]
-        : [{ type: "warning", title: "Мало конкретики в опыте", description: "Рекрутёру сложно понять практический бэкграунд.", fix: "Добавьте 2-3 проекта: что сделали → чем → результат." }],
+        ? [{ type: "good", kind: "strength", title: "Опыт/проекты присутствуют", description: "В резюме есть описание опыта или проектов.", whyItMatters: "Наличие примеров опыта повышает доверие к резюме.", impact: "medium", confidence: "medium" }]
+        : [{ type: "warning", kind: "problem", title: "Мало конкретики в опыте", description: "Рекрутёру сложно понять практический бэкграунд.", whyItMatters: "Без конкретики сложно оценить уровень и пользу кандидата.", rewrite: "Добавьте 2-3 проекта: что сделали → чем → результат.", impact: "high", confidence: "high" }],
     },
     {
       id: "structure", title: "Структура и ATS", icon: "📋",
       status: hasStructure ? "good" : "warning",
       issues: [
         ...(hasStructure ? [{ type: "good" as const, title: "Структура читаема", description: "Есть стандартные секции, ATS распознает резюме." }]
-          : [{ type: "warning" as const, title: "Нет стандартных секций", description: "ATS может не прочитать резюме без заголовков.", fix: "Добавьте секции: Навыки / Опыт / Образование." }]),
+          : [{ type: "warning" as const, kind: "problem" as const, title: "Нет стандартных секций", description: "ATS может не прочитать резюме без заголовков.", whyItMatters: "Секции помогают ATS и рекрутерам быстро сканировать документ.", rewrite: "Добавьте секции: Навыки / Опыт / Образование.", impact: "high" as const, confidence: "high" as const }]),
         ...(hasNumbers ? [{ type: "good" as const, title: "Есть цифры и метрики", description: "Измеримые результаты повышают доверие." }]
-          : [{ type: "warning" as const, title: "Нет метрик", description: "Нет цифр, подтверждающих результаты.", fix: "Добавьте 2-3 метрики: %, объём данных, скорость." }]),
+          : [{ type: "warning" as const, kind: "problem" as const, title: "Нет метрик", description: "Нет цифр, подтверждающих результаты.", whyItMatters: "Цифры показывают масштаб и результативность работы.", rewrite: "Добавьте 2-3 метрики: %, объём данных, скорость.", impact: "high" as const, confidence: "high" as const }]),
       ],
     },
     {
       id: "fit", title: "Соответствие уровню", icon: "🏆",
       status: score >= 60 ? "good" : score >= 40 ? "warning" : "critical",
-      issues: [{ type: score >= 60 ? "good" : "warning", title: score >= 60 ? "Уровень соответствует" : "Есть пробелы", description: score >= 60 ? "Резюме подходит под требования вакансии." : "Нужна доработка под конкретную вакансию." }],
+      issues: [{ type: score >= 60 ? "good" : "warning", kind: score >= 60 ? "strength" : "problem", title: score >= 60 ? "Уровень соответствует" : "Есть пробелы", description: score >= 60 ? "Резюме подходит под требования вакансии." : "Нужна доработка под конкретную вакансию.", impact: "medium", confidence: "medium" }],
     },
   ];
 
@@ -85,6 +90,20 @@ const examples: Record<string, string> = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null }) {
+  if (!userScope) {
+    return (
+      <div className="section">
+        <div className="container" style={{ maxWidth: 640, textAlign: "center", padding: "80px 24px" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🔐</div>
+          <h1 className="page-title" style={{ marginBottom: 12 }}>Войдите, чтобы оценить резюме</h1>
+          <p className="hero-text" style={{ marginBottom: 28 }}>AI-разбор резюме доступен после регистрации — это бесплатно и занимает 30 секунд.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <a href="/login?next=/tools/resume-analyzer" className="btn btn-coral">Войти или зарегистрироваться</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [step, setStep] = useState(1);
   const [mode, setMode] = useState<"file" | "text">("file");
   const [resumeText, setResumeText] = useState("");
@@ -319,7 +338,10 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
                                 <div className="issue-text">
                                   <strong>{issue.title}</strong>
                                   {issue.description}
-                                  {issue.fix && <div className="issue-fix">→ {issue.fix}</div>}
+                                  {issue.evidence && <div className="issue-fix">Доказательство: {issue.evidence}</div>}
+                                  {issue.whyItMatters && <div className="issue-fix">Почему важно: {issue.whyItMatters}</div>}
+                                  {(issue.rewrite || issue.fix) && <div className="issue-fix">Как переписать: {issue.rewrite || issue.fix}</div>}
+                                  {issue.questionToCandidate && <div className="issue-fix">Что уточнить: {issue.questionToCandidate}</div>}
                                 </div>
                               </div>
                             ))}

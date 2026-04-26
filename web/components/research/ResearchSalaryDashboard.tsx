@@ -572,7 +572,7 @@ export function ResearchSalaryDashboard() {
         <div className="wrap">
           <p className="eyebrow">Аналитика по вузам</p>
           <h2 className="t-title">Выпускники МФТИ получают<br />в 1.8 раза больше среднего вуза</h2>
-          <p className="sec-lede">Медианная зарплата junior по вузу и направлению. Тыс. ₽/мес.</p>
+          <p className="sec-lede">Медианная зарплата выпускников с 2–3 годами опыта. Тыс. ₽/мес.</p>
           <div className="pills">
             {(["it", "econ", "eng"] as UniField[]).map((field) => (
               <button

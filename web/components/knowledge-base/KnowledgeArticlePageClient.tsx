@@ -103,29 +103,43 @@ export function KnowledgeArticlePageClient(props: Props) {
   const parsed = useMemo(() => parseMarkdown(props.body), [props.body]);
   const [activeHeading, setActiveHeading] = useState(parsed.headings[0]?.id ?? "");
   const [progress, setProgress] = useState(0);
-  const [saved, setSaved] = useState(false);
-  const [vote, setVote] = useState<"up" | "down" | null>(null);
-
-  useEffect(() => {
-    const syncSaved = () => setSaved(isArticleSaved(props.slug, props.viewerScope));
-    syncSaved();
-    window.addEventListener(SAVED_ITEMS_EVENT, syncSaved);
-
+  const [saved, setSaved] = useState(() =>
+    typeof window !== "undefined" ? isArticleSaved(props.slug, props.viewerScope) : false,
+  );
+  const [vote, setVote] = useState<"up" | "down" | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const raw = localStorage.getItem(VOTE_KEY);
       const map = raw ? (JSON.parse(raw) as Record<string, "up" | "down">) : {};
-      setVote(map[props.slug] ?? null);
+      return map[props.slug] ?? null;
     } catch {
-      setVote(null);
+      return null;
     }
-    return () => window.removeEventListener(SAVED_ITEMS_EVENT, syncSaved);
+  });
+
+  useEffect(() => {
+    const syncSaved = () => setSaved(isArticleSaved(props.slug, props.viewerScope));
+    window.addEventListener(SAVED_ITEMS_EVENT, syncSaved);
+    const timer = window.setTimeout(() => {
+      syncSaved();
+      try {
+        const raw = localStorage.getItem(VOTE_KEY);
+        const map = raw ? (JSON.parse(raw) as Record<string, "up" | "down">) : {};
+        setVote(map[props.slug] ?? null);
+      } catch {
+        setVote(null);
+      }
+    }, 0);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(SAVED_ITEMS_EVENT, syncSaved);
+    };
   }, [props.slug, props.viewerScope]);
 
   useEffect(() => {
     const onScroll = () => {
       const article = document.getElementById("kbad-article");
       if (!article) return;
-      const rect = article.getBoundingClientRect();
       const total = article.scrollHeight - window.innerHeight;
       if (total <= 0) {
         setProgress(100);
@@ -173,7 +187,22 @@ export function KnowledgeArticlePageClient(props: Props) {
     }
   }
 
-  let headingIdx = 0;
+  const headingIdsByBlock = useMemo(() => {
+    return parsed.blocks
+      .reduce<{ ids: Array<string | null>; headingCount: number }>(
+        (acc, block) => {
+          const b = block.trim();
+          if (!b.startsWith("## ") && !b.startsWith("# ")) {
+            return { ids: [...acc.ids, null], headingCount: acc.headingCount };
+          }
+          const txt = b.replace(/^#{1,2}\s+/, "").trim();
+          const id = parsed.headings[acc.headingCount]?.id ?? `s-${slugify(txt)}`;
+          return { ids: [...acc.ids, id], headingCount: acc.headingCount + 1 };
+        },
+        { ids: [], headingCount: 0 },
+      )
+      .ids;
+  }, [parsed.blocks, parsed.headings]);
 
   return (
     <div className="kbad">
@@ -253,8 +282,7 @@ export function KnowledgeArticlePageClient(props: Props) {
 
                 if (b.startsWith("## ") || b.startsWith("# ")) {
                   const txt = b.replace(/^#{1,2}\s+/, "").trim();
-                  const id = parsed.headings[headingIdx]?.id ?? `s-${slugify(txt)}`;
-                  headingIdx += 1;
+                  const id = headingIdsByBlock[i] ?? `s-${slugify(txt)}`;
                   return <h2 key={i} id={id}>{txt}</h2>;
                 }
 

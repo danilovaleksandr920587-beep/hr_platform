@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   saveResumeAnalysis,
   loadResumeAnalysis,
@@ -10,6 +10,7 @@ import {
 import type { ResumeAnalysisResult } from "@/lib/client/resume-analysis";
 
 const LEVELS = ["Стажёр", "Junior", "Middle", "Senior"];
+const ROLES = ["Автоопределение", "Маркетинг", "Аналитика", "Frontend", "Product", "Другая роль"];
 
 function scoreLocal(resume: string, level: string): ResumeAnalysisResult {
   const hasNumbers = /\d/.test(resume);
@@ -22,10 +23,10 @@ function scoreLocal(resume: string, level: string): ResumeAnalysisResult {
     verdict: "Базовая оценка — ИИ-анализ временно недоступен, попробуйте ещё раз.",
     expectedSkills: [],
     sections: [
-      { id: "skills", title: "Ключевые навыки", icon: "🎯", status: "warning", issues: [{ type: "warning", title: "ИИ-анализ недоступен", description: "Используется базовая оценка. Попробуйте снова через несколько секунд." }] },
-      { id: "experience", title: "Опыт и достижения", icon: "💼", status: hasExperience ? "good" : "warning", issues: [{ type: hasExperience ? "good" : "warning", title: hasExperience ? "Опыт присутствует" : "Добавьте описание опыта", description: hasExperience ? "В резюме есть раздел с опытом или проектами." : "Не найдено описание опыта или проектов." }] },
-      { id: "fit", title: "Позиционирование", icon: "🏆", status: "warning", issues: [{ type: "warning", title: "Требует анализа ИИ", description: "Оценка позиционирования доступна только через ИИ-анализ." }] },
-      { id: "structure", title: "Структура резюме", icon: "📋", status: hasStructure ? "good" : "warning", issues: [{ type: hasStructure ? "good" : "warning", title: hasStructure ? "Структура читаема" : "Нет стандартных секций", description: hasStructure ? "Есть основные разделы резюме." : "Добавьте секции: Навыки, Опыт, Образование." }] },
+      { id: "skills", title: "Ключевые навыки", icon: "🎯", status: "warning", issues: [{ type: "warning", kind: "problem", title: "ИИ-анализ недоступен", description: "Используется базовая оценка. Попробуйте снова через несколько секунд.", whyItMatters: "Без ИИ-разбора рекомендации менее персонализированы.", impact: "medium", confidence: "high" }] },
+      { id: "experience", title: "Опыт и достижения", icon: "💼", status: hasExperience ? "good" : "warning", issues: [{ type: hasExperience ? "good" : "warning", kind: hasExperience ? "strength" : "problem", title: hasExperience ? "Опыт присутствует" : "Добавьте описание опыта", description: hasExperience ? "В резюме есть раздел с опытом или проектами." : "Не найдено описание опыта или проектов.", whyItMatters: hasExperience ? "Наличие опыта повышает доверие рекрутера." : "Без конкретного опыта сложнее пройти первичный скрининг.", rewrite: hasExperience ? undefined : "Добавьте 2-3 пункта: задача → действия → результат.", impact: hasExperience ? "medium" : "high", confidence: "high" }] },
+      { id: "fit", title: "Позиционирование", icon: "🏆", status: "warning", issues: [{ type: "warning", kind: "problem", title: "Требует анализа ИИ", description: "Оценка позиционирования доступна только через ИИ-анализ.", impact: "medium", confidence: "high" }] },
+      { id: "structure", title: "Структура резюме", icon: "📋", status: hasStructure ? "good" : "warning", issues: [{ type: hasStructure ? "good" : "warning", kind: hasStructure ? "strength" : "problem", title: hasStructure ? "Структура читаема" : "Нет стандартных секций", description: hasStructure ? "Есть основные разделы резюме." : "Добавьте секции: Навыки, Опыт, Образование.", whyItMatters: hasStructure ? "Структурный документ проще читать рекрутеру." : "Без секций ATS может хуже распознать документ.", rewrite: hasStructure ? undefined : "Добавьте секции: Навыки / Опыт / Образование.", impact: hasStructure ? "low" : "high", confidence: "high" }] },
     ],
     topActions: ["Добавьте конкретные результаты с цифрами", "Укажите ключевые навыки для целевой роли", "Структурируйте резюме: Навыки / Опыт / Образование"],
     mode: "general",
@@ -45,6 +46,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [level, setLevel] = useState("Junior");
+  const [targetRole, setTargetRole] = useState("Автоопределение");
 
   const [analyzing, setAnalyzing] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -59,8 +61,15 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
   useEffect(() => {
     const latest = loadResumeAnalysis(userScope);
     const hist = loadResumeHistory(userScope);
-    if (latest) { setResult(latest); setPanel("result"); onScoreChange?.(latest.score); }
-    setHistory(hist);
+    const timer = window.setTimeout(() => {
+      if (latest) {
+        setResult(latest);
+        setPanel("result");
+        onScoreChange?.(latest.score);
+      }
+      setHistory(hist);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [userScope, onScoreChange]);
 
   async function onFile(file: File | null) {
@@ -115,7 +124,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
       const res = await fetch("/api/analyze-resume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "general", resumeText, autoDetect: true, targetLevel: level }),
+        body: JSON.stringify({ mode: "general", resumeText, autoDetect: targetRole === "Автоопределение", targetLevel: level, targetRole }),
         signal: AbortSignal.timeout(55_000),
       });
       const data = (await res.json()) as { result?: ResumeAnalysisResult; error?: string };
@@ -230,6 +239,21 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
               ))}
             </div>
           </div>
+          <div style={{ marginBottom: 16 }}>
+            <div className="ia-selector-label" style={{ marginBottom: 8 }}>Целевая роль</div>
+            <div className="ia-level-pills">
+              {ROLES.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  className={`ia-level-pill${targetRole === r ? " active" : ""}`}
+                  onClick={() => setTargetRole(r)}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Upload zone */}
           {!showTextarea ? (
@@ -311,7 +335,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
           </button>
 
           <div style={{ fontSize: 11, color: "var(--muted)", textAlign: "center", marginTop: 8 }}>
-            ИИ определит вашу целевую роль из резюме и оценит соответствие
+            ИИ оценит резюме под выбранную цель и покажет доказуемые рекомендации
           </div>
         </div>
       )}
@@ -393,7 +417,10 @@ function AnalysisDetail({ result, onReAnalyze }: { result: ResumeAnalysisResult;
                     <div className="issue-text">
                       <strong>{issue.title}</strong>
                       {issue.description}
-                      {issue.fix && <div className="issue-fix">→ {issue.fix}</div>}
+                      {issue.evidence && <div className="issue-fix">Доказательство: {issue.evidence}</div>}
+                      {issue.whyItMatters && <div className="issue-fix">Почему важно: {issue.whyItMatters}</div>}
+                      {(issue.rewrite || issue.fix) && <div className="issue-fix">Как переписать: {issue.rewrite || issue.fix}</div>}
+                      {issue.questionToCandidate && <div className="issue-fix">Что уточнить: {issue.questionToCandidate}</div>}
                     </div>
                   </div>
                 ))}

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "marketing_no_metrics",
+    "mode": "general",
+    "targetLevel": "Junior",
+    "targetRole": "Маркетинг",
+    "resumeText": "Маркетолог-стажер. Вела соцсети бренда, писала посты, делала презентации. Работала с командой дизайна и подрядчиками.",
+    "vacancyText": "",
+    "expectedChecks": [
+      "Есть минимум 1 problem в sections.experience с whyItMatters",
+      "Есть recommendation с rewrite или questionToCandidate",
+      "Нет выдуманных инструментов, отсутствующих в resumeText"
+    ]
+  },
+  {
+    "id": "frontend_with_projects",
+    "mode": "vacancy",
+    "targetLevel": "Junior",
+    "targetRole": "Frontend",
+    "resumeText": "Junior Frontend. React, TypeScript, Git. Проект: личный кабинет на React, сократил время загрузки страницы на 35%.",
+    "vacancyText": "Ищем стажера Frontend: React, TypeScript, REST API, Figma.",
+    "expectedChecks": [
+      "В sections.skills есть strength с evidence",
+      "Отсутствующие навыки из вакансии отражены как problem c evidence",
+      "topActions содержит не более 3 пунктов"
+    ]
+  },
+  {
+    "id": "analyst_role_mismatch",
+    "mode": "general",
+    "targetLevel": "Junior",
+    "targetRole": "Аналитика",
+    "resumeText": "SMM-специалист: контент-план, креативы, коммуникация с блогерами. SQL и анализ данных не использовал.",
+    "vacancyText": "",
+    "expectedChecks": [
+      "В sections.fit есть problem с описанием разрыва роли",
+      "Есть questionToCandidate для недостающих данных",
+      "confidence не выше medium для предположений без фактов"
+    ]
+  }
+]

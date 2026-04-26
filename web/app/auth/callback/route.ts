@@ -26,75 +26,88 @@ async function handleYandex(code: string, next: string): Promise<NextResponse> {
   const redirectUri = process.env.YANDEX_REDIRECT_URI;
 
   if (!clientId || !clientSecret || !redirectUri || !isPasswordAuthConfigured()) {
+    console.error("[auth:yandex] missing required env for Yandex OAuth or password auth");
     return NextResponse.redirect(`${origin}/login?error=auth`);
   }
 
-  const tokenRes = await fetch("https://oauth.yandex.ru/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-    }),
-  });
+  try {
+    const tokenRes = await fetch("https://oauth.yandex.ru/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+      }),
+    });
 
-  if (!tokenRes.ok) {
+    if (!tokenRes.ok) {
+      console.error("[auth:yandex] token exchange failed", { status: tokenRes.status });
+      return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+
+    const tokenData = (await tokenRes.json()) as { access_token?: string };
+    const accessToken = tokenData.access_token;
+    if (!accessToken) {
+      console.error("[auth:yandex] token exchange missing access_token");
+      return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+
+    const infoRes = await fetch("https://login.yandex.ru/info?format=json", {
+      headers: { Authorization: `OAuth ${accessToken}` },
+    });
+
+    if (!infoRes.ok) {
+      console.error("[auth:yandex] profile request failed", { status: infoRes.status });
+      return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+
+    const info = (await infoRes.json()) as {
+      id?: string;
+      default_email?: string;
+      real_name?: string;
+      display_name?: string;
+      login?: string;
+    };
+
+    const yandexId = info.id;
+    const email = (info.default_email ?? "").toLowerCase().trim();
+    const displayName = (info.real_name ?? info.display_name ?? info.login ?? email)
+      .trim()
+      .slice(0, 200);
+
+    if (!yandexId || !email) {
+      console.error("[auth:yandex] profile is missing id or email");
+      return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+
+    const sql = getSql();
+    type Row = { id: string; email: string; display_name: string };
+
+    const rows = (await sql`
+      insert into careerlab_accounts (email, display_name, password_hash)
+      values (${email}, ${displayName}, ${"oauth:yandex:" + yandexId})
+      on conflict (email) do update
+        set display_name = excluded.display_name
+      returning id, email, display_name
+    `) as Row[];
+
+    const row = rows[0];
+    if (!row) {
+      console.error("[auth:yandex] upsert returned no row");
+      return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+
+    const token = await signAuthToken({ id: row.id, email: row.email, displayName: row.display_name });
+    const res = NextResponse.redirect(`${origin}${next}`);
+    res.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions());
+    return res;
+  } catch (error) {
+    console.error("[auth:yandex] unexpected callback error", error);
     return NextResponse.redirect(`${origin}/login?error=auth`);
   }
-
-  const tokenData = (await tokenRes.json()) as { access_token?: string };
-  const accessToken = tokenData.access_token;
-  if (!accessToken) {
-    return NextResponse.redirect(`${origin}/login?error=auth`);
-  }
-
-  const infoRes = await fetch("https://login.yandex.ru/info?format=json", {
-    headers: { Authorization: `OAuth ${accessToken}` },
-  });
-
-  if (!infoRes.ok) {
-    return NextResponse.redirect(`${origin}/login?error=auth`);
-  }
-
-  const info = (await infoRes.json()) as {
-    id?: string;
-    default_email?: string;
-    real_name?: string;
-    display_name?: string;
-    login?: string;
-  };
-
-  const yandexId = info.id;
-  const email = (info.default_email ?? "").toLowerCase().trim();
-  const displayName = (info.real_name ?? info.display_name ?? info.login ?? email).trim().slice(0, 200);
-
-  if (!yandexId || !email) {
-    return NextResponse.redirect(`${origin}/login?error=auth`);
-  }
-
-  const sql = getSql();
-  type Row = { id: string; email: string; display_name: string };
-
-  const rows = (await sql`
-    insert into careerlab_accounts (email, display_name, password_hash)
-    values (${email}, ${displayName}, ${"oauth:yandex:" + yandexId})
-    on conflict (email) do update
-      set display_name = excluded.display_name
-    returning id, email, display_name
-  `) as Row[];
-
-  const row = rows[0];
-  if (!row) {
-    return NextResponse.redirect(`${origin}/login?error=auth`);
-  }
-
-  const token = await signAuthToken({ id: row.id, email: row.email, displayName: row.display_name });
-  const res = NextResponse.redirect(`${origin}${next}`);
-  res.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions());
-  return res;
 }
 
 export async function GET(request: Request) {

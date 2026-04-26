@@ -635,11 +635,11 @@ body.careerlab-site .active-filter-pill {
 }
 
 .job-co {
-  font-size: 11px;
-  color: var(--muted2);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
 }
 
 .job-title {
@@ -649,6 +649,19 @@ body.careerlab-site .active-filter-pill {
   line-height: 1.3;
   letter-spacing: -0.01em;
   margin: 0;
+}
+
+.job-desc {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .job-salary-block {

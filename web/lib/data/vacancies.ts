@@ -134,6 +134,8 @@ export async function listVacancies(
   const shapes = vacancyShapes();
   const fieldMode = filters.fields ?? "full";
   const needle = filters.q?.trim();
+  // Keep query builder loosely typed to avoid deep generic instantiation in Next build.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb: any = supabase;
 
   for (const shape of shapes) {
@@ -145,6 +147,7 @@ export async function listVacancies(
         : fieldMode === "card"
           ? VACANCY_SELECT_ROOT_CARD
           : VACANCY_SELECT_ROOT;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let q: any = sb
       .from("vacancies")
       .select(select)
@@ -202,6 +205,7 @@ export async function getVacancyBySlug(
   if (!supabase) return null;
 
   const shapes = vacancyShapes();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb: any = supabase;
   for (const shape of shapes) {
     const select = shape === "web" ? VACANCY_SELECT_WEB : VACANCY_SELECT_ROOT;
@@ -237,6 +241,7 @@ export async function listVacanciesBySlugs(slugs: string[]): Promise<VacancyRow[
 
   const supabase = createPublicSupabaseClient();
   if (!supabase) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb: any = supabase;
   const shapes = vacancyShapes();
 

@@ -15,6 +15,18 @@ import {
   TYPE_LABELS,
 } from "@/lib/vacancy-labels";
 
+const DESCRIPTION_PREVIEW_MAX = 220;
+
+function vacancyDescriptionPreview(
+  text: string | null | undefined,
+): string | null {
+  if (!text?.trim()) return null;
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= DESCRIPTION_PREVIEW_MAX) return normalized;
+  const cut = normalized.slice(0, DESCRIPTION_PREVIEW_MAX - 1).trimEnd();
+  return `${cut}…`;
+}
+
 function tagClass(kind: "exp" | "type" | "format", value: string) {
   if (kind === "exp") return "jtag jtag-exp";
   if (kind === "format") return "jtag jtag-format";
@@ -46,6 +58,7 @@ export function VacancyCard({
   const isLoggedIn = Boolean(viewerScope);
   const applyHref = row.apply_url || href;
   const applyIsExternal = Boolean(row.apply_url);
+  const descriptionPreview = vacancyDescriptionPreview(row.description);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -96,6 +109,11 @@ export function VacancyCard({
           )}
         </div>
       </div>
+      {descriptionPreview ? (
+        <p className="job-desc" title={row.description ?? undefined}>
+          {descriptionPreview}
+        </p>
+      ) : null}
       <ul className="job-tags" aria-label="Условия">
         <li>
           <span className="jtag jtag-format">{sphereLabel}</span>

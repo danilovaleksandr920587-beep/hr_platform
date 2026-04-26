@@ -1,6 +1,6 @@
 # CareerLab (Next.js + Supabase)
 
-Публичные страницы с **SSR/ISR** и данными из Supabase, защита `/office` через `@supabase/ssr` и middleware.
+Публичные страницы с **SSR/ISR** и данными из Supabase, защита `/office` через middleware и cookie `careerlab_session`.
 
 ## Переменные окружения
 
@@ -10,11 +10,17 @@
 - `NEXT_PUBLIC_SITE_URL` — канонический URL (например `https://your-domain.vercel.app`) для `metadataBase`, sitemap и корректного `emailRedirectTo` при magic link.
 - `SUPABASE_SERVICE_ROLE_KEY` — только на сервере; в этом шаблоне UI его не использует.
 - `DATABASE_URL`, `AUTH_SECRET` — обязательны для локальной email/password авторизации кабинета.
+- `YANDEX_CLIENT_ID`, `YANDEX_CLIENT_SECRET`, `YANDEX_REDIRECT_URI` — обязательны для входа через Яндекс.
 - SMTP для восстановления пароля (server-only):
   - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
   - опционально `MAIL_APP_NAME` (по умолчанию `CareerLab`)
 
-В Supabase Auth → URL Configuration добавьте redirect: `https://<ваш-домен>/auth/callback` (и `http://localhost:3000/auth/callback` для разработки).
+Для OAuth важно выбрать один канонический домен (например, `https://lab-career.ru`) и использовать его везде:
+- `NEXT_PUBLIC_SITE_URL`
+- `YANDEX_REDIRECT_URI`
+- callback URL в кабинете Яндекса
+
+Иначе можно получить split-domain (`www`/без `www`) и потерю auth-cookie после редиректа.
 
 ## Миграции
 
@@ -26,6 +32,14 @@ npx supabase db push
 ```
 
 Либо выполните SQL из `supabase/migrations/` вручную в SQL Editor.
+
+Обязательные миграции для кабинета:
+- `web/supabase/migrations/20260422140000_careerlab_accounts.sql`
+- `web/supabase/migrations/20260422170000_password_reset_tokens.sql`
+- Проверочный SQL: `web/supabase/snippets/check_office_auth_setup.sql`
+- RLS follow-up для пользовательских таблиц: `web/supabase/snippets/check_rls_for_user_tables.sql`
+
+RLS-политики для `vacancies`/`articles` нужны для публичного чтения из Supabase клиентом, но не участвуют в server-side логине через таблицу `careerlab_accounts`.
 
 ## Скрипты
 

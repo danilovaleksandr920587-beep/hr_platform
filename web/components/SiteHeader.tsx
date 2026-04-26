@@ -47,10 +47,6 @@ export function SiteHeader() {
   const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
-    close();
-  }, [pathname, close]);
-
-  useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();

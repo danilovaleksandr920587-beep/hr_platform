@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 
+function safeNext(raw: string | null, fallback = "/office") {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return fallback;
+  return raw;
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const next = searchParams.get("next") ?? "/office";
+  const next = safeNext(searchParams.get("next"));
 
   const clientId = process.env.YANDEX_CLIENT_ID;
   const redirectUri = process.env.YANDEX_REDIRECT_URI;
