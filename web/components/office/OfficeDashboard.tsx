@@ -101,7 +101,7 @@ const ARTICLES = [
     ctag: "ctag-salary",
     tag: "Зарплаты",
     time: "5 мин",
-    title: "Зарплаты Junior-разработчиков в 2025",
+    title: "Зарплаты Junior-разработчиков в 2026",
   },
 ] as const;
 
