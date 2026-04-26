@@ -99,9 +99,7 @@ export function VacancyCard({
           {row.company_logo_url ? (
             <img src={row.company_logo_url} alt={row.company} style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", marginBottom: 8 }} />
           ) : null}
-          {salaryMissing ? (
-            <div className="job-salary na">Не указана</div>
-          ) : (
+          {salaryMissing ? null : (
             <div className="job-salary">
               {row.salary_min!.toLocaleString("ru-RU")} —{" "}
               {row.salary_max!.toLocaleString("ru-RU")} ₽

@@ -18,7 +18,7 @@ function formatJobSalary(min: number | null, max: number | null): string {
   if (min != null && max != null) return `${fmt(min)}–${fmt(max)} ₽`;
   if (max != null) return `до ${fmt(max)} ₽`;
   if (min != null) return `от ${fmt(min)} ₽`;
-  return "По согласованию";
+  return "";
 }
 
 function jobMeta(row: VacancyRow): string {
@@ -26,7 +26,13 @@ function jobMeta(row: VacancyRow): string {
 }
 
 export default async function HomePage() {
-  const previewVacancies = (await listVacancies({})).slice(0, 3);
+  const STATIC_PREVIEW = [
+    { slug: "stajer-v-otdel-razvitia-instrumentov-upravlenia-dannymi-alefa-bank", title: "Стажёр в отдел анализа данных", company: "Альфа-Банк", format: "Гибрид", type: "internship", salary_min: 80000, salary_max: 100000 },
+    { slug: "produktovyj-dizajner-stajer-v-gruppu-dizajna-andeks-id-andeks", title: "Продуктовый дизайнер (стажёр)", company: "Яндекс", format: "Офис", type: "internship", salary_min: 90000, salary_max: 120000 },
+    { slug: "vacancies", title: "Стажёр-маркетолог (FMCG)", company: "Mars", format: "Гибрид", type: "internship", salary_min: 70000, salary_max: 90000 },
+  ] as const;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const previewVacancies = STATIC_PREVIEW as unknown as any[];
 
   return (
     <div className="home-careerlab-scope">
@@ -50,11 +56,11 @@ export default async function HomePage() {
                     <div className="cl-hf-job">{vacancy.title}</div>
                     <div className="cl-hf-meta">{jobMeta(vacancy)}</div>
                   </div>
-                  <span
-                    className={`cl-hf-tag ${idx === 0 ? "cl-hf-tag--lime" : "cl-hf-tag--gray"}`}
-                  >
-                    {formatJobSalary(vacancy.salary_min, vacancy.salary_max)}
-                  </span>
+                  {formatJobSalary(vacancy.salary_min, vacancy.salary_max) ? (
+                    <span className={`cl-hf-tag ${idx === 0 ? "cl-hf-tag--lime" : "cl-hf-tag--gray"}`}>
+                      {formatJobSalary(vacancy.salary_min, vacancy.salary_max)}
+                    </span>
+                  ) : null}
                 </Link>
               ))
             ) : (
