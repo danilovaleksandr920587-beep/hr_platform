@@ -37,6 +37,10 @@ export const metadata: Metadata = {
     locale: "ru_RU",
     siteName: "CareerLab",
   },
+  twitter: {
+    card: "summary_large_image",
+    site: "@careerlab_ru",
+  },
 };
 
 export default function RootLayout({
@@ -50,7 +54,7 @@ export default function RootLayout({
       className={`${golos.variable} ${unbounded.variable}`}
     >
       <head>
-        <Script id="yandex-metrika" strategy="beforeInteractive">
+        <Script id="yandex-metrika" strategy="afterInteractive">
           {`
             (function(m,e,t,r,i,k,a){
               m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -84,6 +88,34 @@ export default function RootLayout({
             />
           </div>
         </noscript>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "CareerLab",
+                url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://lab-career.ru",
+                sameAs: [],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "CareerLab",
+                url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://lab-career.ru",
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: {
+                    "@type": "EntryPoint",
+                    urlTemplate: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://lab-career.ru"}/vacancies?q={search_term_string}`,
+                  },
+                  "query-input": "required name=search_term_string",
+                },
+              },
+            ]),
+          }}
+        />
         <SiteHeader />
         {children}
         <CookieBanner />

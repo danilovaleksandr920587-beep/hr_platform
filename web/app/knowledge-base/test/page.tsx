@@ -7,9 +7,10 @@ import "@/styles/knowledge-cluster.css";
 const cluster = clusterBySlug("test");
 
 export const metadata: Metadata = {
-  title: "Хаб: тестовые задания",
+  title: "Тестовые задания — как выполнить и оформить",
   description:
-    "Как решать тестовые, оценивать сроки и проходить live coding без стресса.",
+    "Как решать тестовые задания, оценивать сроки и проходить live coding без стресса.",
+  alternates: { canonical: "/knowledge-base/test" },
 };
 
 export default async function TestClusterPage() {

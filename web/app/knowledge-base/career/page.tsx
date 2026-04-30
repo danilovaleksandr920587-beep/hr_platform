@@ -7,9 +7,10 @@ import "@/styles/knowledge-cluster.css";
 const cluster = clusterBySlug("career");
 
 export const metadata: Metadata = {
-  title: "Хаб: карьера и рост",
+  title: "Карьерный рост после первого оффера — гайды и советы",
   description:
     "План развития после первого оффера: компетенции, рост роли и карьерная стратегия.",
+  alternates: { canonical: "/knowledge-base/career" },
 };
 
 export default async function CareerClusterPage() {

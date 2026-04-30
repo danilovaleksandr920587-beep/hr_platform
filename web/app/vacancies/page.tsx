@@ -10,7 +10,19 @@ import { multiParam, optionalInt, optionalString } from "@/lib/searchParams";
 export const metadata: Metadata = {
   title: "Вакансии и стажировки — CareerLab",
   description:
-    "Стажировки и junior: фильтры по сфере, опыту, формату и зарплате. Поиск по названию и компании.",
+    "Стажировки и junior-вакансии для студентов и выпускников: фильтры по сфере, опыту, формату и зарплате. Топовые работодатели на CareerLab.",
+  alternates: { canonical: "/vacancies" },
+  openGraph: {
+    title: "Вакансии и стажировки — CareerLab",
+    description:
+      "Стажировки и junior-вакансии для студентов и выпускников: фильтры по сфере, опыту, формату и зарплате.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Вакансии и стажировки — CareerLab",
+    description:
+      "Стажировки и junior-вакансии для студентов и выпускников: фильтры по сфере, опыту, формату и зарплате.",
+  },
 };
 
 export const revalidate = 120;

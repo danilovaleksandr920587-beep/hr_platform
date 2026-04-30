@@ -7,9 +7,10 @@ import "@/styles/knowledge-cluster.css";
 const cluster = clusterBySlug("salary");
 
 export const metadata: Metadata = {
-  title: "Хаб: зарплата и офферы",
+  title: "Зарплата на собеседовании — как назвать цифру и вести переговоры",
   description:
     "Переговоры о зарплате, вилки, аргументация и разбор компенсации в оффере.",
+  alternates: { canonical: "/knowledge-base/salary" },
 };
 
 export default async function SalaryClusterPage() {

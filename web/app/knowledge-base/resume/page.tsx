@@ -7,9 +7,10 @@ import "@/styles/knowledge-cluster.css";
 const cluster = clusterBySlug("resume");
 
 export const metadata: Metadata = {
-  title: "Хаб: резюме",
+  title: "Резюме для стажировки и первой работы — гайды и шаблоны",
   description:
-    "Структура, ATS и примеры резюме для стажировок и первой работы.",
+    "Структура, ATS-оптимизация и примеры резюме для студентов и выпускников без опыта.",
+  alternates: { canonical: "/knowledge-base/resume" },
 };
 
 export default async function ResumeClusterPage() {

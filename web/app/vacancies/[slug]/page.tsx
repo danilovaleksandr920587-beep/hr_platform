@@ -22,12 +22,38 @@ export async function generateMetadata({
   const { slug } = await params;
   const row = await getVacancyBySlug(slug);
   if (!row) return { title: "Вакансия не найдена" };
+
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+    "http://localhost:3000";
+
+  const salaryPart =
+    row.salary_min != null || row.salary_max != null
+      ? `. Зарплата: ${
+          row.salary_min && row.salary_max
+            ? `от ${row.salary_min.toLocaleString("ru-RU")} до ${row.salary_max.toLocaleString("ru-RU")} ₽`
+            : row.salary_min
+              ? `от ${row.salary_min.toLocaleString("ru-RU")} ₽`
+              : `до ${row.salary_max!.toLocaleString("ru-RU")} ₽`
+        }`
+      : "";
+  const cityPart = row.city ? ` в ${row.city}` : "";
+  const description =
+    row.description ??
+    `${row.title} в ${row.company}${cityPart}${salaryPart}. Откликнись на CareerLab.`;
+
   return {
     title: row.title,
-    description: row.description ?? `${row.company} · ${row.title}`,
+    description,
+    alternates: { canonical: `${base}/vacancies/${row.slug}` },
     openGraph: {
       title: row.title,
-      description: row.description ?? undefined,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: row.title,
+      description,
     },
   };
 }
@@ -50,6 +76,13 @@ function salaryCompact(min: number | null, max: number | null) {
   if (max != null) return `до ${Math.round(max / 1000)} тыс ₽`;
   return "Не указана";
 }
+
+const EMPLOYMENT_TYPE_MAP: Record<string, string> = {
+  internship: "INTERN",
+  parttime: "PART_TIME",
+  project: "CONTRACTOR",
+  fulltime: "FULL_TIME",
+};
 
 export default async function VacancyDetailPage({ params }: PageProps) {
   const session = await getSessionFromCookies();
@@ -80,9 +113,77 @@ export default async function VacancyDetailPage({ params }: PageProps) {
       };
     });
 
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+    "http://localhost:3000";
+  const vacancyUrl = `${base}/vacancies/${row.slug}`;
+
+  const jobPostingJsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: row.title,
+    description: row.description ?? `${row.title} в ${row.company}`,
+    datePosted: row.source_published_at ?? row.published_at,
+    hiringOrganization: {
+      "@type": "Organization",
+      name: row.company,
+      ...(row.company_logo_url ? { logo: row.company_logo_url } : {}),
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: row.city ?? "Россия",
+        addressCountry: "RU",
+      },
+    },
+    employmentType: EMPLOYMENT_TYPE_MAP[row.type] ?? "OTHER",
+    url: vacancyUrl,
+  };
+
+  if (row.salary_min != null || row.salary_max != null) {
+    jobPostingJsonLd.baseSalary = {
+      "@type": "MonetaryAmount",
+      currency: "RUB",
+      value: {
+        "@type": "QuantitativeValue",
+        ...(row.salary_min != null ? { minValue: row.salary_min } : {}),
+        ...(row.salary_max != null ? { maxValue: row.salary_max } : {}),
+        unitText: "MONTH",
+      },
+    };
+  }
+
+  if (row.format === "remote") {
+    jobPostingJsonLd.jobLocationType = "TELECOMMUTE";
+  }
+
+  if (row.apply_url) {
+    jobPostingJsonLd.directApply = false;
+    jobPostingJsonLd.url = row.apply_url;
+  }
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Главная", item: `${base}/` },
+      { "@type": "ListItem", position: 2, name: "Вакансии", item: `${base}/vacancies` },
+      { "@type": "ListItem", position: 3, name: row.title, item: vacancyUrl },
+    ],
+  };
+
   return (
     <>
       <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
         <VacancyDetailClient
           viewerScope={session?.id ?? null}
           slug={row.slug}

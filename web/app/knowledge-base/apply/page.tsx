@@ -7,9 +7,10 @@ import "@/styles/knowledge-cluster.css";
 const cluster = clusterBySlug("apply");
 
 export const metadata: Metadata = {
-  title: "Хаб: отклики",
+  title: "Отклики и сопроводительные письма — стратегия поиска работы",
   description:
     "Сопроводительные письма и стратегия откликов: как повысить шанс ответа от работодателя.",
+  alternates: { canonical: "/knowledge-base/apply" },
 };
 
 export default async function ApplyClusterPage() {

@@ -8,9 +8,26 @@ import type { VacancyRow } from "@/lib/types";
 import "@/styles/home-redesign.css";
 
 export const metadata: Metadata = {
-  title: "Главная",
+  title: {
+    absolute:
+      "CareerLab — Стажировки и Junior-вакансии | Первая работа для студентов",
+  },
   description:
     "Стажировки и junior-вакансии, зарплатные ориентиры и гайды к интервью — в одном месте.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title:
+      "CareerLab — Стажировки и Junior-вакансии | Первая работа для студентов",
+    description:
+      "Стажировки и junior-вакансии, зарплатные ориентиры и гайды к интервью — в одном месте.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "CareerLab — Стажировки и Junior-вакансии | Первая работа для студентов",
+    description:
+      "Стажировки и junior-вакансии, зарплатные ориентиры и гайды к интервью — в одном месте.",
+  },
 };
 
 function formatJobSalary(min: number | null, max: number | null): string {
