@@ -27,6 +27,8 @@ export async function generateMetadata({
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
     "http://localhost:3000";
 
+  const isArchived = row.is_archived ?? false;
+
   const salaryPart =
     row.salary_min != null || row.salary_max != null
       ? `. Зарплата: ${
@@ -38,21 +40,30 @@ export async function generateMetadata({
         }`
       : "";
   const cityPart = row.city ? ` в ${row.city}` : "";
-  const description =
-    row.description ??
-    `${row.title} в ${row.company}${cityPart}${salaryPart}. Откликнись на CareerLab.`;
+  const description = isArchived
+    ? `Вакансия закрыта. ${row.description?.slice(0, 130) ?? `${row.title} в ${row.company}${cityPart}${salaryPart}.`}`
+    : (row.description ??
+        `${row.title} в ${row.company}${cityPart}${salaryPart}. Откликнись на CareerLab.`);
+
+  const titleBase = isArchived
+    ? `[Архив] ${row.title} — ${row.company}`
+    : row.title;
 
   return {
-    title: row.title,
+    title: titleBase,
     description,
     alternates: { canonical: `${base}/vacancies/${row.slug}` },
+    robots: {
+      index: true,   // архивные страницы остаются в индексе
+      follow: true,
+    },
     openGraph: {
-      title: row.title,
+      title: titleBase,
       description,
     },
     twitter: {
       card: "summary_large_image",
-      title: row.title,
+      title: titleBase,
       description,
     },
   };
@@ -90,6 +101,9 @@ export default async function VacancyDetailPage({ params }: PageProps) {
   const row = await getVacancyBySlug(slug);
   if (!row) notFound();
 
+  const isArchived = row.is_archived ?? false;
+
+  // Похожие — только из активных вакансий (is_archived=false применяется в listVacancies)
   const similarRows = (
     await listVacancies({ sphere: [row.sphere], fields: "card", limit: 8 })
   )
@@ -124,6 +138,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
     title: row.title,
     description: row.description ?? `${row.title} в ${row.company}`,
     datePosted: row.source_published_at ?? row.published_at,
+    ...(isArchived ? { validThrough: row.published_at } : {}),
     hiringOrganization: {
       "@type": "Organization",
       name: row.company,
@@ -193,6 +208,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           companyLogoUrl={row.company_logo_url}
           city={row.city}
           skills={row.skills}
+          sphere={row.sphere}
           sphereLabel={SPHERE_LABELS[row.sphere] ?? row.sphere}
           salaryMain={salaryMain(row.salary_min, row.salary_max)}
           salaryCompact={salaryCompact(row.salary_min, row.salary_max)}
@@ -211,6 +227,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           sourcePublishedAt={row.source_published_at}
           applyUrl={row.apply_url}
           similar={similarRows}
+          isArchived={isArchived}
         />
       </main>
       <SiteFooter />
