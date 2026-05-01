@@ -20,6 +20,7 @@ export type VacancyRow = {
   city?: string | null;
   skills?: string[] | null;
   source_published_at?: string | null;
+  is_archived?: boolean;
 };
 
 export type VacancyDescriptionBlock = {
