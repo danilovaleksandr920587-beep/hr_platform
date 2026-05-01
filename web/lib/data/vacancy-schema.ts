@@ -2,15 +2,15 @@ import type { VacancyRow } from "@/lib/types";
 
 /** Схема из web/supabase/migrations (поля type, featured, search_document). */
 export const VACANCY_SELECT_WEB =
-  "id,slug,title,company,description,description_blocks,sphere,exp,format,type,salary_min,salary_max,apply_url,search_document,featured,published_at,company_about,company_logo_url,city,skills,source_published_at";
+  "id,slug,title,company,description,description_blocks,sphere,exp,format,type,salary_min,salary_max,apply_url,search_document,featured,published_at,company_about,company_logo_url,city,skills,source_published_at,is_archived";
 export const VACANCY_SELECT_WEB_CARD =
-  "id,slug,title,company,description,city,skills,source_published_at,company_logo_url,sphere,exp,format,type,salary_min,salary_max,apply_url,featured,published_at";
+  "id,slug,title,company,description,city,skills,source_published_at,company_logo_url,sphere,exp,format,type,salary_min,salary_max,apply_url,featured,published_at,is_archived";
 
 /** Схема из supabase/migrations в корне репо (employment_type, is_featured). */
 export const VACANCY_SELECT_ROOT =
-  "id,slug,title,company,description,description_blocks,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,company_about,company_logo_url,city,skills,source_published_at";
+  "id,slug,title,company,description,description_blocks,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,company_about,company_logo_url,city,skills,source_published_at,is_archived";
 export const VACANCY_SELECT_ROOT_CARD =
-  "id,slug,title,company,description,city,skills,source_published_at,company_logo_url,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured";
+  "id,slug,title,company,description,city,skills,source_published_at,company_logo_url,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,is_archived";
 
 export type VacancyDbShape = "web" | "root";
 
@@ -99,5 +99,6 @@ export function normalizeVacancyRow(
     city: (row.city as string | null | undefined) ?? null,
     skills,
     source_published_at: (row.source_published_at as string | null | undefined) ?? null,
+    is_archived: Boolean(row.is_archived ?? false),
   };
 }
