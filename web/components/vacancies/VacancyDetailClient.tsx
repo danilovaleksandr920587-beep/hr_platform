@@ -23,6 +23,7 @@ type Props = {
   companyLogoUrl?: string | null;
   city?: string | null;
   skills?: string[] | null;
+  sphere: string;
   sphereLabel: string;
   salaryMain: string;
   salaryCompact: string;
@@ -37,6 +38,7 @@ type Props = {
   sourcePublishedAt?: string | null;
   applyUrl?: string | null;
   similar: SimilarVacancy[];
+  isArchived?: boolean;
 };
 
 function monthYear(iso: string): string {
@@ -48,6 +50,8 @@ function monthYear(iso: string): string {
 export function VacancyDetailClient(props: Props) {
   const [saved, setSaved] = useState(false);
   const preserveLineBreaks = { whiteSpace: "pre-line" as const };
+  const isArchived = props.isArchived ?? false;
+  const similarHref = `/vacancies?sphere=${encodeURIComponent(props.sphere)}`;
 
   useEffect(() => {
     const sync = () => setSaved(isVacancySaved(props.slug, props.viewerScope));
@@ -99,6 +103,21 @@ export function VacancyDetailClient(props: Props) {
         <span className="kvref-bc-current">{props.title} — {props.company}</span>
       </div>
 
+      {isArchived && (
+        <div className="kvref-archive-notice">
+          <div className="kvref-archive-notice__icon">📦</div>
+          <div className="kvref-archive-notice__content">
+            <p className="kvref-archive-notice__title">Вакансия закрыта</p>
+            <span className="kvref-archive-notice__sub">
+              Набор на эту позицию завершён. Ниже — полное описание, которое остаётся для истории.
+            </span>
+          </div>
+          <Link href={similarHref} className="kvref-archive-notice__cta">
+            Похожие вакансии →
+          </Link>
+        </div>
+      )}
+
       <div className="kvref-layout">
         <div className="kvref-main-col">
           <div className="kvref-vac-header">
@@ -124,7 +143,13 @@ export function VacancyDetailClient(props: Props) {
                 </div>
               </div>
 
-              {props.featured ? <div className="kvref-featured-badge">⭐ Рекомендуем</div> : null}
+              {isArchived && (
+                <div className="kvref-archive-badge">🗄 Вакансия в архиве</div>
+              )}
+
+              {!isArchived && props.featured ? (
+                <div className="kvref-featured-badge">⭐ Рекомендуем</div>
+              ) : null}
 
               <h1 className="kvref-vac-title">{props.title}</h1>
 
@@ -141,14 +166,23 @@ export function VacancyDetailClient(props: Props) {
             </div>
 
             <div className="kvref-vac-cta-strip">
-              <Link
-                className="kvref-btn-apply-lime"
-                href={applyHref}
-                target={applyIsExternal ? "_blank" : undefined}
-                rel={applyIsExternal ? "noopener noreferrer" : undefined}
-              >
-                Откликнуться
-              </Link>
+              {isArchived ? (
+                <>
+                  <span className="kvref-archive-status">🔒 Вакансия закрыта</span>
+                  <Link className="kvref-btn-similar" href={similarHref}>
+                    Найти похожие →
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  className="kvref-btn-apply-lime"
+                  href={applyHref}
+                  target={applyIsExternal ? "_blank" : undefined}
+                  rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                >
+                  Откликнуться
+                </Link>
+              )}
               <button type="button" className={`kvref-btn-save${saved ? " on" : ""}`} onClick={toggleSave}>
                 {saved ? "♥" : "♡"}
               </button>
@@ -214,38 +248,51 @@ export function VacancyDetailClient(props: Props) {
             ) : null}
 
             <div className="kvref-vac-section">
-              <div className="kvref-vac-section-title">Как откликнуться</div>
-              <p className="kvref-body-p">Нажмите «Откликнуться», заполните короткую форму и прикрепите резюме. Команда обычно отвечает в течение 3 рабочих дней.</p>
-              <div style={{ marginTop: 20 }}>
-                <Link
-                  className="kvref-btn-apply-lime"
-                  href={applyHref}
-                  target={applyIsExternal ? "_blank" : undefined}
-                  rel={applyIsExternal ? "noopener noreferrer" : undefined}
-                >
-                  Откликнуться на вакансию
-                </Link>
-              </div>
+              {isArchived ? (
+                <>
+                  <div className="kvref-vac-section-title">Позиция закрыта — смотри похожие</div>
+                  <p className="kvref-body-p">
+                    Набор на эту позицию уже завершён. Но в {props.sphereLabel} регулярно появляются новые вакансии — посмотри актуальные предложения.
+                  </p>
+                  <div style={{ marginTop: 20 }}>
+                    <Link className="kvref-btn-similar" href={similarHref}>
+                      Смотреть похожие вакансии →
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="kvref-vac-section-title">Как откликнуться</div>
+                  <p className="kvref-body-p">Нажмите «Откликнуться», заполните короткую форму и прикрепите резюме. Команда обычно отвечает в течение 3 рабочих дней.</p>
+                  <div style={{ marginTop: 20 }}>
+                    <Link
+                      className="kvref-btn-apply-lime"
+                      href={applyHref}
+                      target={applyIsExternal ? "_blank" : undefined}
+                      rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                    >
+                      Откликнуться на вакансию
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
 
         <aside className="kvref-sidebar">
-          <div className="kvref-sidebar-apply">
-            <div className="kvref-sa-header">
-              <div className="kvref-sa-salary">{props.salaryCompact}</div>
-              <div className="kvref-sa-title">{props.title} · {props.company}</div>
-            </div>
-            <div className="kvref-sa-body">
-              <Link
-                className="kvref-sa-btn"
-                href={applyHref}
-                target={applyIsExternal ? "_blank" : undefined}
-                rel={applyIsExternal ? "noopener noreferrer" : undefined}
-              >
-                Откликнуться
-              </Link>
-              <button type="button" className="kvref-sa-save" onClick={toggleSave}>{saved ? "♥ Сохранено" : "♡ Сохранить вакансию"}</button>
+          {isArchived ? (
+            <div className="kvref-sidebar-apply">
+              <div className="kvref-sa-archive-notice">
+                <div className="kvref-sa-archive-icon">📦</div>
+                <p className="kvref-sa-archive-title">Вакансия закрыта</p>
+                <p className="kvref-sa-archive-sub">
+                  Набор завершён. Но у {props.company} могут быть другие открытые позиции в {props.sphereLabel}.
+                </p>
+                <Link className="kvref-sa-archive-btn" href={similarHref}>
+                  Найти похожие вакансии
+                </Link>
+              </div>
               <div className="kvref-sa-divider" />
               <div className="kvref-sa-meta">
                 <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📍</span><span className="kvref-sa-meta-text"><strong>{props.sphereLabel}</strong></span></div>
@@ -253,7 +300,31 @@ export function VacancyDetailClient(props: Props) {
                 <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📅</span><span className="kvref-sa-meta-text">Обновлено <strong>{monthYear(props.sourcePublishedAt ?? props.publishedAt)}</strong></span></div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="kvref-sidebar-apply">
+              <div className="kvref-sa-header">
+                <div className="kvref-sa-salary">{props.salaryCompact}</div>
+                <div className="kvref-sa-title">{props.title} · {props.company}</div>
+              </div>
+              <div className="kvref-sa-body">
+                <Link
+                  className="kvref-sa-btn"
+                  href={applyHref}
+                  target={applyIsExternal ? "_blank" : undefined}
+                  rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                >
+                  Откликнуться
+                </Link>
+                <button type="button" className="kvref-sa-save" onClick={toggleSave}>{saved ? "♥ Сохранено" : "♡ Сохранить вакансию"}</button>
+                <div className="kvref-sa-divider" />
+                <div className="kvref-sa-meta">
+                  <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📍</span><span className="kvref-sa-meta-text"><strong>{props.sphereLabel}</strong></span></div>
+                  <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">🕐</span><span className="kvref-sa-meta-text"><strong>{props.formatLabel}</strong></span></div>
+                  <div className="kvref-sa-meta-row"><span className="kvref-sa-meta-icon">📅</span><span className="kvref-sa-meta-text">Обновлено <strong>{monthYear(props.sourcePublishedAt ?? props.publishedAt)}</strong></span></div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {props.similar.length ? (
             <div className="kvref-similar-block">
