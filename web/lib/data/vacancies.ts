@@ -151,7 +151,8 @@ export async function listVacancies(
     let q: any = sb
       .from("vacancies")
       .select(select)
-      .eq("is_published", true);
+      .eq("is_published", true)
+      .eq("is_archived", false);  // ← скрываем архивные из листинга
 
     q =
       shape === "web"
@@ -214,6 +215,7 @@ export async function getVacancyBySlug(
       .select(select)
       .eq("slug", slug)
       .eq("is_published", true)
+      // is_archived НЕ фильтруем — страница должна отдаваться для SEO
       .maybeSingle();
 
     if (error) {
