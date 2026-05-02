@@ -119,9 +119,11 @@ export function VacancyCard({
         <li>
           <span className={tagClass("exp", row.exp)}>{expLabel}</span>
         </li>
-        <li>
-          <span className={tagClass("type", row.type)}>{typeLabel}</span>
-        </li>
+        {row.type ? (
+          <li>
+            <span className={tagClass("type", row.type)}>{typeLabel}</span>
+          </li>
+        ) : null}
         <li>
           <span className={tagClass("format", row.format)}>{fmtLabel}</span>
         </li>

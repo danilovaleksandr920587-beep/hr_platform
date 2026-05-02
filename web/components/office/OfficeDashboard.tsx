@@ -72,38 +72,39 @@ const JOBS: {
   },
 ];
 
-const ARTICLES = [
-  {
-    href: "/knowledge-base/resume",
-    visual: "cv-resume",
-    icon: "📄",
-    stat: "CV",
-    ctag: "ctag-resume",
-    tag: "Резюме",
-    time: "7 мин",
-    title: "Как написать резюме без опыта работы",
-  },
-  {
-    href: "/knowledge-base/interview",
-    visual: "cv-interview",
-    icon: "🎤",
-    stat: "20",
-    ctag: "ctag-interview",
-    tag: "Интервью",
-    time: "12 мин",
-    title: "Топ-20 вопросов на собеседовании в IT",
-  },
-  {
-    href: "/knowledge-base/salary",
-    visual: "cv-salary",
-    icon: "💰",
-    stat: "₽",
-    ctag: "ctag-salary",
-    tag: "Зарплаты",
-    time: "5 мин",
-    title: "Зарплаты Junior-разработчиков в 2026",
-  },
-] as const;
+const CAT_SLUG_VISUAL: Record<string, string> = {
+  resume: "cv-resume",
+  interview: "cv-interview",
+  test: "cv-test",
+  salary: "cv-salary",
+  apply: "cv-resume",
+  career: "cv-resume",
+};
+const CAT_SLUG_CTAG: Record<string, string> = {
+  resume: "ctag-resume",
+  interview: "ctag-interview",
+  test: "ctag-test",
+  salary: "ctag-salary",
+  apply: "ctag-resume",
+  career: "ctag-resume",
+};
+const CAT_SLUG_ICON: Record<string, string> = {
+  resume: "📄",
+  interview: "🎯",
+  test: "🧪",
+  salary: "💬",
+  apply: "📨",
+  career: "🚀",
+};
+
+type SavedArticle = {
+  slug: string;
+  title: string;
+  category: string;
+  cat_slug: string;
+  read_time: number;
+  excerpt: string;
+};
 
 type SectionId = "resume" | "salary" | "checklist" | "vacancies" | "articles";
 
@@ -127,6 +128,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
   const [profileLevel, setProfileLevel] = useState("Junior");
   const [profileFormat, setProfileFormat] = useState("Гибрид");
   const [profileCity, setProfileCity] = useState("Москва");
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Derived display values
   const displayFirstName = profileFirstName || email.split("@")[0] || "друг";
@@ -161,8 +163,14 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     setProfileFormat(formFmt);
     setProfileCity(formCity);
     setModalOpen(false);
+    void fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firstName: formFn, surname: formLn, direction: formDir, level: formLvl, format: formFmt, city: formCity }),
+    });
   }
 
+  const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resumeScore, setResumeScore] = useState<number | null>(null);
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
@@ -199,6 +207,21 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
         vacancies: snapshot.vacancies.size,
         articles: snapshot.articles.size,
       });
+      const slugs = [...snapshot.articles];
+      if (slugs.length === 0) {
+        setSavedArticles([]);
+        return;
+      }
+      void fetch("/api/articles/by-slugs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slugs }),
+      })
+        .then((r) => r.json())
+        .then((data: { rows?: SavedArticle[] }) => {
+          setSavedArticles(Array.isArray(data.rows) ? data.rows : []);
+        })
+        .catch(() => {});
     };
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
@@ -217,6 +240,25 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
   const closeModalBg = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) setModalOpen(false);
   }, []);
+
+  useEffect(() => {
+    if (profileLoaded) return;
+    void fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data: { profile?: { firstName: string; surname: string; direction: string; level: string; format: string; city: string } | null }) => {
+        const p = data.profile;
+        if (p) {
+          if (p.firstName) setProfileFirstName(p.firstName);
+          if (p.surname) setProfileSurname(p.surname);
+          if (p.direction) setProfileDirection(p.direction);
+          if (p.level) setProfileLevel(p.level);
+          if (p.format) setProfileFormat(p.format);
+          if (p.city) setProfileCity(p.city);
+        }
+        setProfileLoaded(true);
+      })
+      .catch(() => setProfileLoaded(true));
+  }, [profileLoaded]);
 
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
@@ -279,24 +321,17 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                       ["vacancies", "🔖", "Подборка", String(savedCounts.vacancies)],
                       ["articles", "📚", "Статьи", String(savedCounts.articles)],
                     ] as const
-                  ).map(([id, icon, label, count]) =>
-                    id === "vacancies" ? (
-                      <Link key={id} href="/office/saved-vacancies" className="office-nav-link">
-                        <span className="nav-icon">{icon}</span> {label}
-                        {count ? <span className="nav-count">{count}</span> : null}
-                      </Link>
-                    ) : (
-                      <button
-                        key={id}
-                        type="button"
-                        className={`office-nav-link${activeNav === id ? " active" : ""}`}
-                        onClick={() => scrollTo(id)}
-                      >
-                        <span className="nav-icon">{icon}</span> {label}
-                        {count ? <span className="nav-count">{count}</span> : null}
-                      </button>
-                    )
-                  )}
+                  ).map(([id, icon, label, count]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`office-nav-link${activeNav === id ? " active" : ""}`}
+                      onClick={() => scrollTo(id)}
+                    >
+                      <span className="nav-icon">{icon}</span> {label}
+                      {count ? <span className="nav-count">{count}</span> : null}
+                    </button>
+                  ))}
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border2)" }}>
                     <button
                       type="button"
@@ -452,7 +487,10 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
             <div id="vacancies">
               <div className="section-hdr">
                 <span className="section-hdr-title">Подборка для тебя</span>
-                <Link href="/vacancies" className="section-hdr-link">Все вакансии →</Link>
+                <div style={{ display: "flex", gap: 16 }}>
+                  <Link href="/office/saved-vacancies" className="section-hdr-link">Сохранённые ({savedCounts.vacancies}) →</Link>
+                  <Link href="/vacancies" className="section-hdr-link">Все вакансии →</Link>
+                </div>
               </div>
               <div className="section-badge">На основе профиля: IT · Junior · Москва · Сохранено: {savedCounts.vacancies}</div>
 
@@ -471,10 +509,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                     </ul>
                     <div className="job-card-bottom">
                       <div className="job-actions">
-                        <div className="tooltip-wrap">
-                          <button type="button" className="job-btn-primary">Откликнуться</button>
-                          <div className="tooltip-pop">Откроет email HR-менеджера</div>
-                        </div>
+                        <Link href="/vacancies" className="job-btn-primary" style={{ textDecoration: "none" }}>Откликнуться</Link>
                         <Link href="/vacancies" className="job-btn-secondary" style={{ textDecoration: "none" }}>Подробнее</Link>
                       </div>
                       <span className="job-date">{job.date}</span>
@@ -492,32 +527,46 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
               </div>
               <div className="section-badge">Сохранено статей: {savedCounts.articles}</div>
 
-              <div className="articles-grid">
-                {ARTICLES.map((a) => (
-                  <Link key={a.href} href={a.href} className="article-card" style={{ textDecoration: "none", color: "inherit" }}>
-                    <div className={`card-visual ${a.visual}`}>
-                      <span className="card-visual-icon">{a.icon}</span>
-                      <div className="card-visual-preview">
-                        <div className="cvp-line cvp-line-long" />
-                        <div className="cvp-line cvp-line-mid" />
-                        <div className="cvp-line cvp-line-short" />
-                      </div>
-                      <span className="card-visual-stat">{a.stat}</span>
-                    </div>
-                    <div className="card-body">
-                      <div className="card-tags">
-                        <span className={`ctag ${a.ctag}`}>{a.tag}</span>
-                        <span className="ctag ctag-time">{a.time}</span>
-                      </div>
-                      <h3 className="card-title">{a.title}</h3>
-                      <div className="card-footer">
-                        <span className="card-read-btn">Читать</span>
-                        <span className="card-save" aria-hidden>🔖</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+              {savedArticles.length === 0 ? (
+                <div className="panel" style={{ padding: 24, textAlign: "center" }}>
+                  <p style={{ margin: 0, color: "var(--muted)", fontSize: 14 }}>
+                    Пока нет сохранённых статей.{" "}
+                    <Link href="/knowledge-base" style={{ color: "var(--dark)", fontWeight: 600 }}>Перейти в базу знаний →</Link>
+                  </p>
+                </div>
+              ) : (
+                <div className="articles-grid">
+                  {savedArticles.map((a) => {
+                    const visual = CAT_SLUG_VISUAL[a.cat_slug] ?? "cv-resume";
+                    const ctag = CAT_SLUG_CTAG[a.cat_slug] ?? "ctag-resume";
+                    const icon = CAT_SLUG_ICON[a.cat_slug] ?? "📄";
+                    return (
+                      <Link key={a.slug} href={`/knowledge-base/${a.slug}`} className="article-card" style={{ textDecoration: "none", color: "inherit" }}>
+                        <div className={`card-visual ${visual}`}>
+                          <span className="card-visual-icon">{icon}</span>
+                          <div className="card-visual-preview">
+                            <div className="cvp-line cvp-line-long" />
+                            <div className="cvp-line cvp-line-mid" />
+                            <div className="cvp-line cvp-line-short" />
+                          </div>
+                          <span className="card-visual-stat">{a.read_time}</span>
+                        </div>
+                        <div className="card-body">
+                          <div className="card-tags">
+                            <span className={`ctag ${ctag}`}>{a.category}</span>
+                            <span className="ctag ctag-time">{a.read_time} мин</span>
+                          </div>
+                          <h3 className="card-title">{a.title}</h3>
+                          <div className="card-footer">
+                            <span className="card-read-btn">Читать</span>
+                            <span className="card-save" aria-hidden>🔖</span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </main>
         </div>

@@ -38,7 +38,7 @@ export function normalizeVacancyRow(
   const type =
     (row.type as string | undefined) ??
     (row.employment_type as string | undefined) ??
-    "internship";
+    "";
   const featured = Boolean(row.featured ?? row.is_featured);
   const desc =
     row.description != null ? String(row.description) : null;

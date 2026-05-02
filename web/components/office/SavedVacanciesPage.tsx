@@ -75,7 +75,9 @@ export function SavedVacanciesPage({ userScope }: { userScope: string }) {
     <main>
       <div className="page-header">
         <div className="page-header-inner">
-          <p className="ph-eyebrow">Личный кабинет</p>
+          <p className="ph-eyebrow">
+            <Link href="/office" style={{ color: "inherit", textDecoration: "none" }}>← Личный кабинет</Link>
+          </p>
           <h1 className="ph-title">Сохраненные вакансии</h1>
           <p className="ph-sub">Здесь вакансии, которые вы сохранили для отклика позже</p>
         </div>

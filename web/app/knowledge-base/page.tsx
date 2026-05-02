@@ -158,6 +158,15 @@ function ruMaterials(n: number): string {
   return "материалов";
 }
 
+function ruMinutes(n: number): string {
+  const m = n % 100;
+  if (m >= 11 && m <= 14) return "минут";
+  const d = n % 10;
+  if (d === 1) return "минута";
+  if (d >= 2 && d <= 4) return "минуты";
+  return "минут";
+}
+
 export default async function KnowledgeBasePage({ searchParams }: PageProps) {
   const session = await getSessionFromCookies();
   const sp = await searchParams;
@@ -226,11 +235,11 @@ export default async function KnowledgeBasePage({ searchParams }: PageProps) {
                 </div>
                 <div className="hero-stat">
                   <div className="hero-stat-num">~{totalRead}</div>
-                  <div className="hero-stat-label">минут чтения</div>
+                  <div className="hero-stat-label">{ruMinutes(totalRead)} чтения</div>
                 </div>
                 <div className="hero-stat">
                   <div className="hero-stat-num">6</div>
-                  <div className="hero-stat-label">темы</div>
+                  <div className="hero-stat-label">тем</div>
                 </div>
               </div>
             </div>

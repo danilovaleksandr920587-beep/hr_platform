@@ -273,6 +273,7 @@
 .kbref .art.dark .art-desc { color: rgba(255,255,255,.45); }
 .kbref .art.dark .art-foot-time { color: rgba(255,255,255,.25); }
 .kbref .art.dark .art-save { border-color: rgba(255,255,255,.15); color: rgba(255,255,255,.3); }
+.kbref .art.dark .art-save.on { background: rgba(255,255,255,.12); border-color: var(--coral); color: var(--coral); }
 .kbref .art.dark::before { display: none; }
 .kbref .art.dark:hover .art-title { text-decoration: underline; text-decoration-color: var(--lime); }
 
