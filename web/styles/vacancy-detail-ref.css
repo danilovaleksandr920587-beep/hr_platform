@@ -423,8 +423,9 @@
 }
 
 
+
 /* ══════════════════════════════════════════════════════════════
-   АРХИВНЫЕ ВАКАНСИИ
+   АРХИВНЫЕ ВАКАНСИИ — дизайн в стиле сайта (dark / lime)
    ══════════════════════════════════════════════════════════════ */
 
 /* Полосовой баннер под хлебными крошками */
@@ -433,13 +434,15 @@
   align-items: center;
   gap: 16px;
   padding: 14px clamp(1rem, 4vw, 60px);
-  background: #fffbeb;
-  border-bottom: 2px solid #f59e0b;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border2);
+  border-left: 4px solid var(--muted);
 }
 
 .kvref-archive-notice__icon {
-  font-size: 24px;
+  font-size: 20px;
   flex-shrink: 0;
+  opacity: 0.55;
 }
 
 .kvref-archive-notice__content {
@@ -449,37 +452,41 @@
 
 .kvref-archive-notice__title {
   font-weight: 700;
-  font-size: 14px;
-  color: #92400e;
+  font-size: 13px;
+  color: var(--dark);
   margin: 0 0 2px;
+  letter-spacing: 0.01em;
 }
 
 .kvref-archive-notice__sub {
-  font-size: 13px;
-  color: #78350f;
+  font-size: 12px;
+  color: var(--muted);
   display: block;
+  line-height: 1.4;
 }
 
 .kvref-archive-notice__cta {
   flex-shrink: 0;
-  padding: 8px 16px;
-  background: #f59e0b;
-  color: #fff;
-  border-radius: 8px;
+  padding: 9px 18px;
+  background: var(--dark);
+  color: var(--lime);
+  border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.15s;
+  transition: opacity 0.15s;
 }
 
 .kvref-archive-notice__cta:hover {
-  background: #d97706;
+  opacity: 0.85;
 }
 
 @media (max-width: 600px) {
   .kvref-archive-notice {
     flex-wrap: wrap;
+    border-left: none;
+    border-top: 3px solid var(--muted);
   }
   .kvref-archive-notice__cta {
     width: 100%;
@@ -491,88 +498,89 @@
 .kvref-archive-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #92400e;
+  color: var(--muted);
   margin-bottom: 8px;
+  letter-spacing: 0.02em;
 }
 
-/* Статус "Вакансия закрыта" в CTA-полосе */
+/* Статус "Набор завершён" в CTA-полосе */
 .kvref-archive-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--muted);
   padding: 0 4px;
 }
 
-/* Кнопка "Найти похожие" (замена лаймовой "Откликнуться") */
+/* Кнопка "Найти похожие" — основная CTA для архива */
 .kvref-btn-similar {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 12px 24px;
-  background: #f59e0b;
-  color: #fff;
-  border-radius: 10px;
-  font-size: 15px;
+  background: var(--dark);
+  color: var(--lime);
+  border-radius: var(--radius-md);
+  font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: opacity 0.15s;
   white-space: nowrap;
 }
 
 .kvref-btn-similar:hover {
-  background: #d97706;
+  opacity: 0.85;
 }
 
-/* Архивное состояние блока в сайдбаре */
+/* Архивный блок в сайдбаре */
 .kvref-sa-archive-notice {
-  background: #fffbeb;
-  border: 1.5px solid #f59e0b;
-  border-radius: 12px;
-  padding: 20px 16px;
+  padding: 22px 20px;
   text-align: center;
+  border-top: 3px solid var(--border2);
 }
 
 .kvref-sa-archive-icon {
-  font-size: 32px;
+  font-size: 28px;
   margin-bottom: 10px;
+  opacity: 0.45;
 }
 
 .kvref-sa-archive-title {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
   font-weight: 700;
-  font-size: 15px;
-  color: #92400e;
+  font-size: 14px;
+  color: var(--dark);
   margin: 0 0 6px;
+  letter-spacing: -0.02em;
 }
 
 .kvref-sa-archive-sub {
-  font-size: 13px;
-  color: #78350f;
-  margin: 0 0 14px;
-  line-height: 1.5;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 16px;
+  line-height: 1.55;
 }
 
 .kvref-sa-archive-btn {
   display: block;
-  padding: 10px 16px;
-  background: #f59e0b;
-  color: #fff;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 11px 16px;
+  background: var(--dark);
+  color: var(--lime);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: opacity 0.15s;
 }
 
 .kvref-sa-archive-btn:hover {
-  background: #d97706;
+  opacity: 0.85;
 }

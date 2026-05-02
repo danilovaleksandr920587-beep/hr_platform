@@ -105,15 +105,13 @@ export function VacancyDetailClient(props: Props) {
 
       {isArchived && (
         <div className="kvref-archive-notice">
-          <div className="kvref-archive-notice__icon">📦</div>
+          <div className="kvref-archive-notice__icon">🗄</div>
           <div className="kvref-archive-notice__content">
-            <p className="kvref-archive-notice__title">Вакансия закрыта</p>
-            <span className="kvref-archive-notice__sub">
-              Набор на эту позицию завершён. Ниже — полное описание, которое остаётся для истории.
-            </span>
+            <p className="kvref-archive-notice__title">Набор завершён</p>
+            <span className="kvref-archive-notice__sub">Вакансия закрыта, но описание сохранено — ищите похожие открытые позиции.</span>
           </div>
           <Link href={similarHref} className="kvref-archive-notice__cta">
-            Похожие вакансии →
+            Смотреть похожие →
           </Link>
         </div>
       )}
@@ -144,7 +142,7 @@ export function VacancyDetailClient(props: Props) {
               </div>
 
               {isArchived && (
-                <div className="kvref-archive-badge">🗄 Вакансия в архиве</div>
+                <div className="kvref-archive-badge">Архив</div>
               )}
 
               {!isArchived && props.featured ? (
@@ -168,9 +166,9 @@ export function VacancyDetailClient(props: Props) {
             <div className="kvref-vac-cta-strip">
               {isArchived ? (
                 <>
-                  <span className="kvref-archive-status">🔒 Вакансия закрыта</span>
+                  <span className="kvref-archive-status">Набор завершён</span>
                   <Link className="kvref-btn-similar" href={similarHref}>
-                    Найти похожие →
+                    Открытые вакансии →
                   </Link>
                 </>
               ) : (
@@ -248,19 +246,7 @@ export function VacancyDetailClient(props: Props) {
             ) : null}
 
             <div className="kvref-vac-section">
-              {isArchived ? (
-                <>
-                  <div className="kvref-vac-section-title">Позиция закрыта — смотри похожие</div>
-                  <p className="kvref-body-p">
-                    Набор на эту позицию уже завершён. Но в {props.sphereLabel} регулярно появляются новые вакансии — посмотри актуальные предложения.
-                  </p>
-                  <div style={{ marginTop: 20 }}>
-                    <Link className="kvref-btn-similar" href={similarHref}>
-                      Смотреть похожие вакансии →
-                    </Link>
-                  </div>
-                </>
-              ) : (
+              {!isArchived && (
                 <>
                   <div className="kvref-vac-section-title">Как откликнуться</div>
                   <p className="kvref-body-p">Нажмите «Откликнуться», заполните короткую форму и прикрепите резюме. Команда обычно отвечает в течение 3 рабочих дней.</p>
@@ -284,13 +270,13 @@ export function VacancyDetailClient(props: Props) {
           {isArchived ? (
             <div className="kvref-sidebar-apply">
               <div className="kvref-sa-archive-notice">
-                <div className="kvref-sa-archive-icon">📦</div>
-                <p className="kvref-sa-archive-title">Вакансия закрыта</p>
+                <div className="kvref-sa-archive-icon">🗄</div>
+                <p className="kvref-sa-archive-title">Набор завершён</p>
                 <p className="kvref-sa-archive-sub">
-                  Набор завершён. Но у {props.company} могут быть другие открытые позиции в {props.sphereLabel}.
+                  Эта вакансия закрыта. Найдите актуальные позиции в сфере {props.sphereLabel}.
                 </p>
                 <Link className="kvref-sa-archive-btn" href={similarHref}>
-                  Найти похожие вакансии
+                  Смотреть открытые вакансии
                 </Link>
               </div>
               <div className="kvref-sa-divider" />
