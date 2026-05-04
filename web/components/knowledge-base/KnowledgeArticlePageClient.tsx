@@ -87,13 +87,21 @@ function parseMarkdown(markdown: string) {
 }
 
 function renderInline(line: string) {
-  const parts = line.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(Boolean);
+  const parts = line.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g).filter(Boolean);
   return parts.map((p, i) => {
     if (p.startsWith("**") && p.endsWith("**")) {
       return <strong key={i}>{p.slice(2, -2)}</strong>;
     }
     if (p.startsWith("*") && p.endsWith("*")) {
       return <em key={i}>{p.slice(1, -1)}</em>;
+    }
+    const linkMatch = p.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (linkMatch) {
+      const [, text, href] = linkMatch;
+      const isExternal = href.startsWith("http") && !href.includes("lab-career.ru");
+      return isExternal
+        ? <a key={i} href={href} target="_blank" rel="noopener noreferrer">{text}</a>
+        : <a key={i} href={href}>{text}</a>;
     }
     return <span key={i}>{p}</span>;
   });
