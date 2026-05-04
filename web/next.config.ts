@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
       { source: "/knowledge-base/kb-i6", destination: "/knowledge-base/metod-star-na-sobesedovanii-kak-otvechat-na-povedencheskie-voprosy", permanent: true },
       { source: "/knowledge-base/kb-i7", destination: "/knowledge-base/10-glavnykh-voprosov-na-sobesedovanii-chto-sprashivayut-i-kak-otvechat", permanent: true },
       { source: "/knowledge-base/kb-t3", destination: "/knowledge-base/testovoe-zadanie-kak-vypolnit-oformit-i-ne-oblazhatsya", permanent: true },
+      // Typo fix: perehodit → perekhodit
+      { source: "/knowledge-base/junior-middle-kogda-perehodit-i-kak-uskorit-rost", destination: "/knowledge-base/junior-middle-kogda-perekhodit-i-kak-uskorit-rost", permanent: true },
       // Article slug renames (2026 SEO migrations)
       { source: "/knowledge-base/roadmap-backend", destination: "/knowledge-base/roadmap-backend-razrabotchika-2026-put-ot-novichka-do-junior", permanent: true },
       { source: "/knowledge-base/roadmap-frontend", destination: "/knowledge-base/roadmap-frontend-razrabotchika-2026-s-nulya-do-pervogo-offera", permanent: true },
