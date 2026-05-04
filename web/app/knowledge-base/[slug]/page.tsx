@@ -126,10 +126,27 @@ export default async function ArticlePage({ params }: PageProps) {
     url: articleUrl,
     articleSection: row.category,
     wordCount: row.body.split(/\s+/).filter(Boolean).length,
+    author: {
+      "@type": "Organization",
+      name: "CareerLab",
+      url: base,
+    },
+    image: {
+      "@type": "ImageObject",
+      url: `${base}/icon.png`,
+      width: 512,
+      height: 512,
+    },
     publisher: {
       "@type": "Organization",
       name: "CareerLab",
       url: base,
+      logo: {
+        "@type": "ImageObject",
+        url: `${base}/icon.png`,
+        width: 512,
+        height: 512,
+      },
     },
   };
   const breadcrumbJsonLd = {

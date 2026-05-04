@@ -97,6 +97,12 @@ export default function RootLayout({
                 "@type": "Organization",
                 name: "CareerLab",
                 url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://lab-career.ru",
+                logo: {
+                  "@type": "ImageObject",
+                  url: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://lab-career.ru"}/icon.png`,
+                  width: 512,
+                  height: 512,
+                },
                 sameAs: [],
               },
               {
@@ -104,6 +110,8 @@ export default function RootLayout({
                 "@type": "WebSite",
                 name: "CareerLab",
                 url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://lab-career.ru",
+                description: "Стажировки, junior-вакансии и практические гайды по резюме и собеседованиям для студентов и выпускников.",
+                inLanguage: "ru-RU",
                 potentialAction: {
                   "@type": "SearchAction",
                   target: {
