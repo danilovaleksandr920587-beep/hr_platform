@@ -212,7 +212,6 @@ export default async function HomePage() {
                   💻
                 </span>
                 <span className="cl-bento-name">IT и разработка</span>
-                <span className="cl-bento-count">4 200 вакансий</span>
                 <span className="cl-bento-num">01</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -220,7 +219,6 @@ export default async function HomePage() {
                   📊
                 </span>
                 <span className="cl-bento-name">Аналитика</span>
-                <span className="cl-bento-count">1 800 вакансий</span>
                 <span className="cl-bento-num">02</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -228,7 +226,6 @@ export default async function HomePage() {
                   🏦
                 </span>
                 <span className="cl-bento-name">Финансы</span>
-                <span className="cl-bento-count">1 400 вакансий</span>
                 <span className="cl-bento-num">03</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -236,7 +233,6 @@ export default async function HomePage() {
                   📣
                 </span>
                 <span className="cl-bento-name">Маркетинг</span>
-                <span className="cl-bento-count">980 вакансий</span>
                 <span className="cl-bento-num">04</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -244,7 +240,6 @@ export default async function HomePage() {
                   ⚙️
                 </span>
                 <span className="cl-bento-name">Инженерия</span>
-                <span className="cl-bento-count">890 вакансий</span>
                 <span className="cl-bento-num">05</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -252,7 +247,6 @@ export default async function HomePage() {
                   🧪
                 </span>
                 <span className="cl-bento-name">QA / тестирование</span>
-                <span className="cl-bento-count">760 вакансий</span>
                 <span className="cl-bento-num">06</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -260,7 +254,6 @@ export default async function HomePage() {
                   🎨
                 </span>
                 <span className="cl-bento-name">Дизайн</span>
-                <span className="cl-bento-count">520 вакансий</span>
                 <span className="cl-bento-num">07</span>
               </Link>
               <Link href="/vacancies" className="cl-bento-card">
@@ -268,7 +261,6 @@ export default async function HomePage() {
                   📋
                 </span>
                 <span className="cl-bento-name">Менеджмент</span>
-                <span className="cl-bento-count">640 вакансий</span>
                 <span className="cl-bento-num">08</span>
               </Link>
             </div>
