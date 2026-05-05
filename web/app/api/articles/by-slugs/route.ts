@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
-import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
+import { listArticlesBySlugs } from "@/lib/data/articles";
 
 export async function POST(req: Request) {
   let body: { slugs?: unknown };
@@ -14,22 +13,20 @@ export async function POST(req: Request) {
     ? body.slugs.filter((v): v is string => typeof v === "string")
     : [];
 
-  if (!slugs.length) return NextResponse.json({ rows: [] });
-  if (!isPublicSupabaseConfigured()) return NextResponse.json({ rows: [] });
-
-  const supabase = createPublicSupabaseClient();
-  if (!supabase) return NextResponse.json({ rows: [] });
-
-  const { data, error } = await supabase
-    .from("articles")
-    .select("slug,title,category,level,read_time,excerpt,is_new,cat_slug")
-    .eq("is_published", true)
-    .in("slug", slugs);
-
-  if (error) {
-    console.error("articles/by-slugs", error.message);
+  if (!slugs.length) {
     return NextResponse.json({ rows: [] });
   }
 
-  return NextResponse.json({ rows: data ?? [] });
+  const rows = await listArticlesBySlugs(slugs);
+  return NextResponse.json({
+    rows: rows.map((r) => ({
+      slug: r.slug,
+      title: r.title,
+      category: r.category,
+      cat_slug: r.cat_slug,
+      read_time: r.read_time,
+      excerpt: r.excerpt,
+      is_new: r.is_new,
+    })),
+  });
 }

@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SAVED_ITEMS_EVENT, readSavedSnapshot } from "@/lib/client/saved-items";
 import { InlineResumeAnalyzer } from "@/components/office/InlineResumeAnalyzer";
+import type { VacancyRow, ArticleRow } from "@/lib/types";
+import { EXP_LABELS, FORMAT_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
 
 type OfficeDashboardProps = {
   userScope: string;
   email: string;
   displayName?: string | null;
+  matchedVacancies: VacancyRow[];
 };
 
 function initialsFrom(name: string, surname: string, email: string) {
@@ -18,97 +21,35 @@ function initialsFrom(name: string, surname: string, email: string) {
   return email.slice(0, 2).toUpperCase();
 }
 
-const JOBS: {
-  co: string;
-  title: string;
-  salary: string;
-  tags: { text: string; cls: string }[];
-  date: string;
-}[] = [
-  {
-    co: "Яндекс",
-    title: "Junior Python Developer",
-    salary: "100–140 000 ₽",
-    tags: [
-      { text: "Junior", cls: "jtag jtag-type-junior" },
-      { text: "Гибрид", cls: "jtag jtag-format" },
-      { text: "Москва", cls: "jtag jtag-format" },
-      { text: "Python · Django · SQL", cls: "jtag jtag-exp" },
-    ],
-    date: "2 дня назад",
-  },
-  {
-    co: "Ozon",
-    title: "Junior Data Analyst",
-    salary: "90–120 000 ₽",
-    tags: [
-      { text: "Junior", cls: "jtag jtag-type-junior" },
-      { text: "Удалённо", cls: "jtag jtag-format" },
-      { text: "SQL · Python · Tableau", cls: "jtag jtag-exp" },
-    ],
-    date: "3 дня назад",
-  },
-  {
-    co: "Сбер",
-    title: "Frontend-разработчик (стажёр)",
-    salary: "80–100 000 ₽",
-    tags: [
-      { text: "Стажировка", cls: "jtag jtag-type-intern" },
-      { text: "Офис · Москва", cls: "jtag jtag-format" },
-      { text: "React · TypeScript", cls: "jtag jtag-exp" },
-    ],
-    date: "5 дней назад",
-  },
-  {
-    co: "Kaspersky",
-    title: "QA Engineer Junior",
-    salary: "85–115 000 ₽",
-    tags: [
-      { text: "Junior", cls: "jtag jtag-type-junior" },
-      { text: "Гибрид · Москва", cls: "jtag jtag-format" },
-      { text: "Selenium · Python", cls: "jtag jtag-exp" },
-    ],
-    date: "1 неделю назад",
-  },
-];
+function formatSalary(min: number | null, max: number | null) {
+  if (min == null && max == null) return "Зарплата не указана";
+  if (min != null && max != null)
+    return `${min.toLocaleString("ru-RU")} — ${max.toLocaleString("ru-RU")} ₽`;
+  if (min != null) return `от ${min.toLocaleString("ru-RU")} ₽`;
+  return `до ${max!.toLocaleString("ru-RU")} ₽`;
+}
 
-const CAT_SLUG_VISUAL: Record<string, string> = {
-  resume: "cv-resume",
-  interview: "cv-interview",
-  test: "cv-test",
-  salary: "cv-salary",
-  apply: "cv-resume",
-  career: "cv-resume",
-};
-const CAT_SLUG_CTAG: Record<string, string> = {
-  resume: "ctag-resume",
-  interview: "ctag-interview",
-  test: "ctag-test",
-  salary: "ctag-salary",
-  apply: "ctag-resume",
-  career: "ctag-resume",
-};
-const CAT_SLUG_ICON: Record<string, string> = {
-  resume: "📄",
-  interview: "🎯",
-  test: "🧪",
-  salary: "💬",
-  apply: "📨",
-  career: "🚀",
+const ARTICLE_VISUAL_MAP: Record<string, { cls: string; icon: string; stat: string; ctag: string; ctagLabel: string }> = {
+  resume: { cls: "cv-resume", icon: "📄", stat: "CV", ctag: "ctag-resume", ctagLabel: "Резюме" },
+  interview: { cls: "cv-interview", icon: "🎤", stat: "20", ctag: "ctag-interview", ctagLabel: "Интервью" },
+  salary: { cls: "cv-salary", icon: "💰", stat: "₽", ctag: "ctag-salary", ctagLabel: "Зарплаты" },
 };
 
-type SavedArticle = {
-  slug: string;
-  title: string;
-  category: string;
-  cat_slug: string;
-  read_time: number;
-  excerpt: string;
-};
+function articleVisual(row: { cat_slug: string; category: string }) {
+  return (
+    ARTICLE_VISUAL_MAP[row.cat_slug] ??
+    ARTICLE_VISUAL_MAP[row.category] ?? {
+      cls: "cv-resume",
+      icon: "📄",
+      stat: "·",
+      ctag: "ctag-resume",
+      ctagLabel: row.category,
+    }
+  );
+}
 
 type SectionId = "resume" | "salary" | "checklist" | "vacancies" | "articles";
 
-// Parse displayName into first + surname
 function parseName(displayName?: string | null, email?: string) {
   const n = displayName?.trim();
   if (n) {
@@ -118,26 +59,38 @@ function parseName(displayName?: string | null, email?: string) {
   return { firstName: email?.split("@")[0] ?? "", surname: "" };
 }
 
-export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboardProps) {
+const PROFILE_KEY = (scope: string) => `careerlab-profile:${scope}`;
+
+export function OfficeDashboard({ userScope, email, displayName, matchedVacancies }: OfficeDashboardProps) {
   const parsed = parseName(displayName, email);
 
-  // Profile state (controlled)
   const [profileFirstName, setProfileFirstName] = useState(parsed.firstName);
   const [profileSurname, setProfileSurname] = useState(parsed.surname);
   const [profileDirection, setProfileDirection] = useState("IT");
   const [profileLevel, setProfileLevel] = useState("Junior");
   const [profileFormat, setProfileFormat] = useState("Гибрид");
   const [profileCity, setProfileCity] = useState("Москва");
-  const [profileLoaded, setProfileLoaded] = useState(false);
 
-  // Derived display values
+  // Load persisted profile from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY(userScope));
+      if (raw) {
+        const p = JSON.parse(raw) as Record<string, string>;
+        if (p.direction) setProfileDirection(p.direction);
+        if (p.level) setProfileLevel(p.level);
+        if (p.format) setProfileFormat(p.format);
+        if (p.city) setProfileCity(p.city);
+      }
+    } catch {}
+  }, [userScope]);
+
   const displayFirstName = profileFirstName || email.split("@")[0] || "друг";
   const displayFullName = [profileFirstName, profileSurname].filter(Boolean).join(" ") || email;
   const initials = initialsFrom(profileFirstName, profileSurname, email);
   const profileBadge = `${profileDirection} · ${profileLevel}`;
 
   const [modalOpen, setModalOpen] = useState(false);
-  // Temp form state (in-modal, applied only on save)
   const [formFn, setFormFn] = useState(profileFirstName);
   const [formLn, setFormLn] = useState(profileSurname);
   const [formDir, setFormDir] = useState(profileDirection);
@@ -162,19 +115,20 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     setProfileLevel(formLvl);
     setProfileFormat(formFmt);
     setProfileCity(formCity);
+    try {
+      localStorage.setItem(
+        PROFILE_KEY(userScope),
+        JSON.stringify({ direction: formDir, level: formLvl, format: formFmt, city: formCity }),
+      );
+    } catch {}
     setModalOpen(false);
-    void fetch("/api/profile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstName: formFn, surname: formLn, direction: formDir, level: formLvl, format: formFmt, city: formCity }),
-    });
   }
 
-  const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
   const [loggingOut, setLoggingOut] = useState(false);
   const [resumeScore, setResumeScore] = useState<number | null>(null);
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
   const [savedCounts, setSavedCounts] = useState({ vacancies: 0, articles: 0 });
+  const [savedArticlesList, setSavedArticlesList] = useState<ArticleRow[]>([]);
 
   const [checkRows, setCheckRows] = useState([
     { id: "1", done: false, label: "Резюме загружено и оценено", href: null as string | null },
@@ -186,12 +140,11 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     { id: "7", done: false, label: "Изучи зарплатный рынок в своём направлении", href: "/tools/salary-calculator" },
   ]);
 
-  const handleScoreChange = useCallback((score: number | null) => {
-    setResumeScore(score);
-    if (score !== null) {
-      setCheckRows((rows) => rows.map((r) => (r.id === "1" ? { ...r, done: true } : r)));
+  useEffect(() => {
+    if (resumeScore !== null) {
+      setCheckRows((rows) => rows.map((r) => r.id === "1" ? { ...r, done: true } : r));
     }
-  }, []);
+  }, [resumeScore]);
 
   const progress = useMemo(() => {
     const done = checkRows.filter((r) => r.done).length;
@@ -200,28 +153,33 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
     return { pct, offset, done };
   }, [checkRows]);
 
+  // Sync saved counts and fetch saved articles
   useEffect(() => {
+    const syncArticles = async (slugs: string[]) => {
+      if (!slugs.length) {
+        setSavedArticlesList([]);
+        return;
+      }
+      try {
+        const res = await fetch("/api/articles/by-slugs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slugs }),
+        });
+        const data = (await res.json().catch(() => ({ rows: [] }))) as { rows?: ArticleRow[] };
+        setSavedArticlesList(Array.isArray(data.rows) ? data.rows : []);
+      } catch {
+        setSavedArticlesList([]);
+      }
+    };
+
     const sync = () => {
       const snapshot = readSavedSnapshot(userScope);
       setSavedCounts({
         vacancies: snapshot.vacancies.size,
         articles: snapshot.articles.size,
       });
-      const slugs = [...snapshot.articles];
-      if (slugs.length === 0) {
-        setSavedArticles([]);
-        return;
-      }
-      void fetch("/api/articles/by-slugs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slugs }),
-      })
-        .then((r) => r.json())
-        .then((data: { rows?: SavedArticle[] }) => {
-          setSavedArticles(Array.isArray(data.rows) ? data.rows : []);
-        })
-        .catch(() => {});
+      void syncArticles([...snapshot.articles]);
     };
     sync();
     window.addEventListener(SAVED_ITEMS_EVENT, sync);
@@ -240,25 +198,6 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
   const closeModalBg = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) setModalOpen(false);
   }, []);
-
-  useEffect(() => {
-    if (profileLoaded) return;
-    void fetch("/api/profile")
-      .then((r) => r.json())
-      .then((data: { profile?: { firstName: string; surname: string; direction: string; level: string; format: string; city: string } | null }) => {
-        const p = data.profile;
-        if (p) {
-          if (p.firstName) setProfileFirstName(p.firstName);
-          if (p.surname) setProfileSurname(p.surname);
-          if (p.direction) setProfileDirection(p.direction);
-          if (p.level) setProfileLevel(p.level);
-          if (p.format) setProfileFormat(p.format);
-          if (p.city) setProfileCity(p.city);
-        }
-        setProfileLoaded(true);
-      })
-      .catch(() => setProfileLoaded(true));
-  }, [profileLoaded]);
 
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
@@ -281,6 +220,14 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
   const rangeLineStyle = useMemo(() => ({ left: "55%" }), []);
   const unboundedTitleStyle = useMemo(() => ({ fontFamily: "'Unbounded',sans-serif", fontSize: 14, fontWeight: 700, color: "var(--dark)", marginBottom: 3 }), []);
   const muted13 = useMemo(() => ({ fontSize: 13, color: "var(--muted)" }), []);
+
+  const NAV_ITEMS: [SectionId, string, string, string | null][] = [
+    ["resume", "📄", "Резюме", null],
+    ["salary", "💰", "Зарплата", null],
+    ["checklist", "✅", "Готовность", `${progress.pct}%`],
+    ["vacancies", "🔖", "Подборка для тебя", null],
+    ["articles", "📚", "Статьи", savedCounts.articles > 0 ? String(savedCounts.articles) : null],
+  ];
 
   return (
     <div className="office-mockup">
@@ -313,15 +260,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                 </div>
 
                 <div className="filter-groups" style={{ padding: 0 }}>
-                  {(
-                    [
-                      ["resume", "📄", "Резюме", null],
-                      ["salary", "💰", "Зарплата", null],
-                      ["checklist", "✅", "Готовность", `${progress.pct}%`],
-                      ["vacancies", "🔖", "Подборка", String(savedCounts.vacancies)],
-                      ["articles", "📚", "Статьи", String(savedCounts.articles)],
-                    ] as const
-                  ).map(([id, icon, label, count]) => (
+                  {NAV_ITEMS.map(([id, icon, label, count]) => (
                     <button
                       key={id}
                       type="button"
@@ -332,6 +271,12 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                       {count ? <span className="nav-count">{count}</span> : null}
                     </button>
                   ))}
+
+                  <Link href="/office/saved-vacancies" className="office-nav-link">
+                    <span className="nav-icon">💾</span> Сохранённые вакансии
+                    {savedCounts.vacancies > 0 && <span className="nav-count">{savedCounts.vacancies}</span>}
+                  </Link>
+
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border2)" }}>
                     <button
                       type="button"
@@ -373,7 +318,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                   Оценить под вакансию →
                 </Link>
               </div>
-              <InlineResumeAnalyzer userScope={userScope} onScoreChange={handleScoreChange} />
+              <InlineResumeAnalyzer userScope={userScope} onScoreChange={setResumeScore} />
             </div>
 
             {/* ── Salary section ── */}
@@ -402,7 +347,7 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
                   <div className="sh-median">
                     <span style={shMedianHint}>Медиана рынка</span>
                     <span className="sh-median-val">115 000 ₽</span>
-                    <span className="sh-median-badge">Апрель 2026</span>
+                    <span className="sh-median-badge">Апрель 2025</span>
                   </div>
                 </div>
 
@@ -487,36 +432,57 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
             <div id="vacancies">
               <div className="section-hdr">
                 <span className="section-hdr-title">Подборка для тебя</span>
-                <div style={{ display: "flex", gap: 16 }}>
-                  <Link href="/office/saved-vacancies" className="section-hdr-link">Сохранённые ({savedCounts.vacancies}) →</Link>
-                  <Link href="/vacancies" className="section-hdr-link">Все вакансии →</Link>
-                </div>
+                <Link href="/vacancies" className="section-hdr-link">Все вакансии →</Link>
               </div>
               <div className="section-badge">На основе профиля: IT · Junior · Москва · Сохранено: {savedCounts.vacancies}</div>
 
-              <div className="jobs-list">
-                {JOBS.map((job) => (
-                  <div key={job.title} className="job-card">
-                    <div className="job-card-top">
-                      <div className="job-card-left">
-                        <div className="job-co">{job.co}</div>
-                        <h3 className="job-title">{job.title}</h3>
+              {matchedVacancies.length === 0 ? (
+                <div className="panel" style={{ padding: 20 }}>
+                  <p style={{ margin: 0 }}>Нет подходящих вакансий. <Link href="/vacancies">Смотреть все вакансии →</Link></p>
+                </div>
+              ) : (
+                <div className="jobs-list">
+                  {matchedVacancies.map((v) => (
+                    <div key={v.slug} className="job-card">
+                      <div className="job-card-top">
+                        <div className="job-card-left">
+                          <div className="job-co">{v.company}</div>
+                          <h3 className="job-title">
+                            <Link href={`/vacancies/${v.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                              {v.title}
+                            </Link>
+                          </h3>
+                        </div>
+                        <div className="job-salary-block">
+                          <span className="job-salary">{formatSalary(v.salary_min, v.salary_max)}</span>
+                        </div>
                       </div>
-                      <div className="job-salary-block"><span className="job-salary">{job.salary}</span></div>
-                    </div>
-                    <ul className="job-tags">
-                      {job.tags.map((t) => <li key={t.text}><span className={t.cls}>{t.text}</span></li>)}
-                    </ul>
-                    <div className="job-card-bottom">
-                      <div className="job-actions">
-                        <Link href="/vacancies" className="job-btn-primary" style={{ textDecoration: "none" }}>Откликнуться</Link>
-                        <Link href="/vacancies" className="job-btn-secondary" style={{ textDecoration: "none" }}>Подробнее</Link>
+                      <ul className="job-tags">
+                        {v.exp && <li><span className="jtag jtag-exp">{EXP_LABELS[v.exp] ?? v.exp}</span></li>}
+                        {v.format && <li><span className="jtag jtag-format">{FORMAT_LABELS[v.format] ?? v.format}</span></li>}
+                        {v.type && <li><span className="jtag jtag-format">{TYPE_LABELS[v.type] ?? v.type}</span></li>}
+                        {v.city && <li><span className="jtag jtag-format">{v.city}</span></li>}
+                      </ul>
+                      <div className="job-card-bottom">
+                        <div className="job-actions">
+                          {v.apply_url ? (
+                            <a href={v.apply_url} className="job-btn-primary" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                              Откликнуться
+                            </a>
+                          ) : (
+                            <Link href={`/vacancies/${v.slug}`} className="job-btn-primary" style={{ textDecoration: "none" }}>
+                              Откликнуться
+                            </Link>
+                          )}
+                          <Link href={`/vacancies/${v.slug}`} className="job-btn-secondary" style={{ textDecoration: "none" }}>
+                            Подробнее
+                          </Link>
+                        </div>
                       </div>
-                      <span className="job-date">{job.date}</span>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── Articles ── */}
@@ -527,33 +493,31 @@ export function OfficeDashboard({ userScope, email, displayName }: OfficeDashboa
               </div>
               <div className="section-badge">Сохранено статей: {savedCounts.articles}</div>
 
-              {savedArticles.length === 0 ? (
-                <div className="panel" style={{ padding: 24, textAlign: "center" }}>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: 14 }}>
-                    Пока нет сохранённых статей.{" "}
-                    <Link href="/knowledge-base" style={{ color: "var(--dark)", fontWeight: 600 }}>Перейти в базу знаний →</Link>
+              {savedArticlesList.length === 0 ? (
+                <div className="panel" style={{ padding: 20 }}>
+                  <p style={{ margin: 0 }}>
+                    Нет сохранённых статей.{" "}
+                    <Link href="/knowledge-base">Перейти в базу знаний →</Link>
                   </p>
                 </div>
               ) : (
                 <div className="articles-grid">
-                  {savedArticles.map((a) => {
-                    const visual = CAT_SLUG_VISUAL[a.cat_slug] ?? "cv-resume";
-                    const ctag = CAT_SLUG_CTAG[a.cat_slug] ?? "ctag-resume";
-                    const icon = CAT_SLUG_ICON[a.cat_slug] ?? "📄";
+                  {savedArticlesList.map((a) => {
+                    const v = articleVisual(a);
                     return (
                       <Link key={a.slug} href={`/knowledge-base/${a.slug}`} className="article-card" style={{ textDecoration: "none", color: "inherit" }}>
-                        <div className={`card-visual ${visual}`}>
-                          <span className="card-visual-icon">{icon}</span>
+                        <div className={`card-visual ${v.cls}`}>
+                          <span className="card-visual-icon">{v.icon}</span>
                           <div className="card-visual-preview">
                             <div className="cvp-line cvp-line-long" />
                             <div className="cvp-line cvp-line-mid" />
                             <div className="cvp-line cvp-line-short" />
                           </div>
-                          <span className="card-visual-stat">{a.read_time}</span>
+                          <span className="card-visual-stat">{v.stat}</span>
                         </div>
                         <div className="card-body">
                           <div className="card-tags">
-                            <span className={`ctag ${ctag}`}>{a.category}</span>
+                            <span className={`ctag ${v.ctag}`}>{v.ctagLabel}</span>
                             <span className="ctag ctag-time">{a.read_time} мин</span>
                           </div>
                           <h3 className="card-title">{a.title}</h3>

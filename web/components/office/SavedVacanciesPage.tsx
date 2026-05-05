@@ -75,11 +75,15 @@ export function SavedVacanciesPage({ userScope }: { userScope: string }) {
     <main>
       <div className="page-header">
         <div className="page-header-inner">
-          <p className="ph-eyebrow">
-            <Link href="/office" style={{ color: "inherit", textDecoration: "none" }}>← Личный кабинет</Link>
-          </p>
+          <Link
+            href="/office"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "rgba(255,255,255,0.7)", textDecoration: "none", marginBottom: 10 }}
+          >
+            ← Личный кабинет
+          </Link>
+          <p className="ph-eyebrow">Личный кабинет</p>
           <h1 className="ph-title">Сохраненные вакансии</h1>
-          <p className="ph-sub">Здесь вакансии, которые вы сохранили для отклика позже</p>
+          <p className="ph-sub" style={{ color: "rgba(255,255,255,0.75)" }}>Здесь вакансии, которые вы сохранили для отклика позже</p>
         </div>
       </div>
 
@@ -137,4 +141,3 @@ export function SavedVacanciesPage({ userScope }: { userScope: string }) {
     </main>
   );
 }
-

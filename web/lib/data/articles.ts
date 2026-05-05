@@ -79,3 +79,27 @@ export async function listArticleSlugs(): Promise<string[]> {
   if (!isPublicSupabaseConfigured()) return [];
   return listPublishedSlugsFromRest("articles");
 }
+
+export async function listArticlesBySlugs(slugs: string[]): Promise<ArticleRow[]> {
+  if (!isPublicSupabaseConfigured()) return [];
+  const clean = [...new Set(slugs.map((s) => s.trim()).filter(Boolean))];
+  if (!clean.length) return [];
+
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("articles")
+    .select(ARTICLE_SELECT_LIST)
+    .in("slug", clean)
+    .eq("is_published", true);
+
+  if (error) {
+    console.error("listArticlesBySlugs", error.message);
+    return [];
+  }
+
+  const rows = ((data ?? []) as unknown) as ArticleRow[];
+  const bySlug = new Map(rows.map((r) => [r.slug, r]));
+  return clean.map((slug) => bySlug.get(slug)).filter((r): r is ArticleRow => Boolean(r));
+}

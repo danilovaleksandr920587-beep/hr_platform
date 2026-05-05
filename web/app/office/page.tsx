@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { OfficeDashboard } from "@/components/office/OfficeDashboard";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSessionFromCookies } from "@/lib/auth/session";
+import { listVacancies } from "@/lib/data/vacancies";
 import "@/styles/office-mockup.css";
 import "@/styles/resume-analyzer.css";
 
@@ -45,12 +46,15 @@ export default async function OfficePage() {
     redirect("/login?next=/office");
   }
 
+  const matchedVacancies = await listVacancies({ limit: 4, fields: "card" });
+
   return (
     <>
       <OfficeDashboard
         userScope={session.id}
         email={session.email}
         displayName={session.displayName}
+        matchedVacancies={matchedVacancies}
       />
       <SiteFooter />
     </>
