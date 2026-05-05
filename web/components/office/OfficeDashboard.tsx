@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SAVED_ITEMS_EVENT, readSavedSnapshot } from "@/lib/client/saved-items";
+import { SAVED_ITEMS_EVENT, readSavedSnapshot, syncSavedFromDb } from "@/lib/client/saved-items";
 import { InlineResumeAnalyzer } from "@/components/office/InlineResumeAnalyzer";
 import type { VacancyRow, ArticleRow } from "@/lib/types";
 import { EXP_LABELS, FORMAT_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
@@ -71,18 +71,49 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   const [profileFormat, setProfileFormat] = useState("Гибрид");
   const [profileCity, setProfileCity] = useState("Москва");
 
-  // Load persisted profile from localStorage on mount
+  // Load profile from DB on mount (fallback to localStorage cache)
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(PROFILE_KEY(userScope));
-      if (raw) {
-        const p = JSON.parse(raw) as Record<string, string>;
-        if (p.direction) setProfileDirection(p.direction);
-        if (p.level) setProfileLevel(p.level);
-        if (p.format) setProfileFormat(p.format);
-        if (p.city) setProfileCity(p.city);
-      }
-    } catch {}
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data: { profile?: { firstName?: string; surname?: string; direction?: string; level?: string; format?: string; city?: string } | null }) => {
+        const p = data.profile;
+        if (p) {
+          if (p.firstName) setProfileFirstName(p.firstName);
+          if (p.surname) setProfileSurname(p.surname);
+          if (p.direction) setProfileDirection(p.direction);
+          if (p.level) setProfileLevel(p.level);
+          if (p.format) setProfileFormat(p.format);
+          if (p.city) setProfileCity(p.city);
+        } else {
+          // No DB record yet — try localStorage cache
+          try {
+            const raw = localStorage.getItem(PROFILE_KEY(userScope));
+            if (raw) {
+              const lp = JSON.parse(raw) as Record<string, string>;
+              if (lp.direction) setProfileDirection(lp.direction);
+              if (lp.level) setProfileLevel(lp.level);
+              if (lp.format) setProfileFormat(lp.format);
+              if (lp.city) setProfileCity(lp.city);
+            }
+          } catch {}
+        }
+      })
+      .catch(() => {
+        // Fallback to localStorage if API unavailable
+        try {
+          const raw = localStorage.getItem(PROFILE_KEY(userScope));
+          if (raw) {
+            const lp = JSON.parse(raw) as Record<string, string>;
+            if (lp.direction) setProfileDirection(lp.direction);
+            if (lp.level) setProfileLevel(lp.level);
+            if (lp.format) setProfileFormat(lp.format);
+            if (lp.city) setProfileCity(lp.city);
+          }
+        } catch {}
+      });
+
+    // Sync saved vacancies/articles from DB into localStorage
+    void syncSavedFromDb(userScope);
   }, [userScope]);
 
   const displayFirstName = profileFirstName || email.split("@")[0] || "друг";
@@ -115,12 +146,29 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     setProfileLevel(formLvl);
     setProfileFormat(formFmt);
     setProfileCity(formCity);
+
+    // Persist to DB (primary source of truth)
+    void fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: formFn,
+        surname: formLn,
+        direction: formDir,
+        level: formLvl,
+        format: formFmt,
+        city: formCity,
+      }),
+    }).catch(() => {});
+
+    // Also cache in localStorage as fallback
     try {
       localStorage.setItem(
         PROFILE_KEY(userScope),
         JSON.stringify({ direction: formDir, level: formLvl, format: formFmt, city: formCity }),
       );
     } catch {}
+
     setModalOpen(false);
   }
 
