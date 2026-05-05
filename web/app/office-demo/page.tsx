@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { OfficeDashboard } from "@/components/office/OfficeDashboard";
+import { listVacancies } from "@/lib/data/vacancies";
 import "@/styles/office-mockup.css";
 
 export const metadata: Metadata = {
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function OfficeDemoPage() {
+export default async function OfficeDemoPage() {
+  const matchedVacancies = await listVacancies({ limit: 4, fields: "card" });
   return (
     <>
       <div className="section" style={{ paddingBottom: 0 }}>
@@ -38,6 +40,7 @@ export default function OfficeDemoPage() {
         userScope="demo-user"
         email="demo@careerlab.local"
         displayName="Тестовый пользователь"
+        matchedVacancies={matchedVacancies}
       />
       <SiteFooter />
     </>
