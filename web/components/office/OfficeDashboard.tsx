@@ -35,6 +35,87 @@ const ARTICLE_VISUAL_MAP: Record<string, { cls: string; icon: string; stat: stri
   salary: { cls: "cv-salary", icon: "💰", stat: "₽", ctag: "ctag-salary", ctagLabel: "Зарплаты" },
 };
 
+// Maps profile direction → vacancy sphere DB key
+const DIRECTION_TO_SPHERE: Record<string, string> = {
+  IT: "it",
+  Аналитика: "analytics",
+  Финансы: "finance",
+  Маркетинг: "marketing",
+  Управление: "product",
+  Дизайн: "design",
+  QA: "it",
+};
+
+// Maps profile level → vacancy exp DB keys (allow similar levels)
+const LEVEL_TO_EXP: Record<string, string[]> = {
+  Стажёр: ["none", "lt1"],
+  Junior: ["none", "lt1"],
+  Middle: ["1-3"],
+  Senior: ["gte3"],
+};
+
+// Maps profile format → vacancy format DB key
+const FORMAT_TO_DB: Record<string, string | undefined> = {
+  Гибрид: "hybrid",
+  Удалённо: "remote",
+  Офис: "office",
+  "Не важно": undefined,
+};
+
+type SalaryRange = { min: number; max: number; median: number };
+const SALARY_DATA: Record<string, Record<string, SalaryRange>> = {
+  IT: {
+    Стажёр: { min: 40000, max: 80000, median: 60000 },
+    Junior: { min: 80000, max: 150000, median: 115000 },
+    Middle: { min: 150000, max: 250000, median: 200000 },
+    Senior: { min: 250000, max: 400000, median: 320000 },
+  },
+  Аналитика: {
+    Стажёр: { min: 35000, max: 70000, median: 52000 },
+    Junior: { min: 65000, max: 130000, median: 97000 },
+    Middle: { min: 130000, max: 220000, median: 175000 },
+    Senior: { min: 220000, max: 380000, median: 290000 },
+  },
+  Маркетинг: {
+    Стажёр: { min: 28000, max: 60000, median: 44000 },
+    Junior: { min: 55000, max: 100000, median: 75000 },
+    Middle: { min: 100000, max: 180000, median: 140000 },
+    Senior: { min: 180000, max: 300000, median: 240000 },
+  },
+  Дизайн: {
+    Стажёр: { min: 30000, max: 65000, median: 47000 },
+    Junior: { min: 65000, max: 120000, median: 90000 },
+    Middle: { min: 120000, max: 200000, median: 160000 },
+    Senior: { min: 200000, max: 350000, median: 270000 },
+  },
+  QA: {
+    Стажёр: { min: 38000, max: 75000, median: 55000 },
+    Junior: { min: 70000, max: 130000, median: 100000 },
+    Middle: { min: 130000, max: 210000, median: 170000 },
+    Senior: { min: 210000, max: 360000, median: 280000 },
+  },
+  Управление: {
+    Стажёр: { min: 35000, max: 70000, median: 52000 },
+    Junior: { min: 65000, max: 120000, median: 90000 },
+    Middle: { min: 120000, max: 210000, median: 165000 },
+    Senior: { min: 210000, max: 380000, median: 290000 },
+  },
+  Финансы: {
+    Стажёр: { min: 30000, max: 65000, median: 47000 },
+    Junior: { min: 60000, max: 110000, median: 82000 },
+    Middle: { min: 110000, max: 190000, median: 150000 },
+    Senior: { min: 190000, max: 330000, median: 260000 },
+  },
+};
+
+function getSalaryData(direction: string, level: string): SalaryRange {
+  return SALARY_DATA[direction]?.[level] ?? SALARY_DATA["IT"]["Junior"];
+}
+
+function fmtNum(n: number): string {
+  return n.toLocaleString("ru-RU");
+}
+
 function articleVisual(row: { cat_slug: string; category: string }) {
   return (
     ARTICLE_VISUAL_MAP[row.cat_slug] ??
@@ -177,6 +258,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   const [activeNav, setActiveNav] = useState<SectionId>("resume");
   const [savedCounts, setSavedCounts] = useState({ vacancies: 0, articles: 0 });
   const [savedArticlesList, setSavedArticlesList] = useState<ArticleRow[]>([]);
+  const [localVacancies, setLocalVacancies] = useState<VacancyRow[]>(matchedVacancies);
 
   const [checkRows, setCheckRows] = useState([
     { id: "1", done: false, label: "Резюме загружено и оценено", href: null as string | null },
@@ -234,6 +316,25 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
   }, [userScope]);
 
+  // Re-fetch vacancies when profile changes
+  useEffect(() => {
+    const sphere = DIRECTION_TO_SPHERE[profileDirection] ?? "it";
+    const expKeys = LEVEL_TO_EXP[profileLevel] ?? ["none", "lt1"];
+    const formatKey = FORMAT_TO_DB[profileFormat];
+
+    const params = new URLSearchParams({ sphere, exp: expKeys.join(","), limit: "4" });
+    if (formatKey) params.set("format", formatKey);
+
+    fetch(`/api/vacancies/featured?${params}`)
+      .then((r) => r.json())
+      .then((data: { rows?: VacancyRow[] }) => {
+        if (Array.isArray(data.rows) && data.rows.length > 0) {
+          setLocalVacancies(data.rows);
+        }
+      })
+      .catch(() => {});
+  }, [profileDirection, profileLevel, profileFormat]);
+
   const scrollTo = useCallback((id: SectionId) => {
     setActiveNav(id);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -264,8 +365,6 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   const progressHeaderStyle = useMemo(() => ({ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }), []);
   const checklistColStyle = useMemo(() => ({ display: "flex", flexDirection: "column" as const, gap: 6 }), []);
   const shMedianHint = useMemo(() => ({ fontSize: 12, color: "rgba(255,255,255,.3)" }), []);
-  const rangeFillStyle = useMemo(() => ({ left: 0, width: "70%" }), []);
-  const rangeLineStyle = useMemo(() => ({ left: "55%" }), []);
   const unboundedTitleStyle = useMemo(() => ({ fontFamily: "'Unbounded',sans-serif", fontSize: 14, fontWeight: 700, color: "var(--dark)", marginBottom: 3 }), []);
   const muted13 = useMemo(() => ({ fontSize: 13, color: "var(--muted)" }), []);
 
@@ -353,8 +452,10 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                 <div className="home-stat-label">Балл резюме</div>
               </div>
               <div className="home-stat">
-                <div className="home-stat-num" style={statGreen}>115k</div>
-                <div className="home-stat-label">Медиана зарплат · IT Junior</div>
+                <div className="home-stat-num" style={statGreen}>
+                  {Math.round(getSalaryData(profileDirection, profileLevel).median / 1000)}k
+                </div>
+                <div className="home-stat-label">Медиана зарплат · {profileDirection} {profileLevel}</div>
               </div>
             </div>
 
@@ -377,60 +478,72 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
               </div>
 
               <div className="chips" style={chipsMb}>
-                <span className="chip">IT</span>
-                <span className="chip">Junior</span>
-                <span className="chip">Москва</span>
-                <span className="chip">Гибрид</span>
+                <span className="chip">{profileDirection}</span>
+                <span className="chip">{profileLevel}</span>
+                {profileCity && <span className="chip">{profileCity}</span>}
+                {profileFormat !== "Не важно" && <span className="chip">{profileFormat}</span>}
               </div>
 
-              <div className="scalc">
-                <div className="salary-hero">
-                  <div className="sh-label">Диапазон зарплат</div>
-                  <div className="sh-role">IT · Junior · Москва · Гибрид</div>
-                  <div className="sh-range">
-                    <span className="sh-from">80 000</span>
-                    <span className="sh-dash">—</span>
-                    <span className="sh-to">150 000 ₽</span>
-                  </div>
-                  <div className="sh-median">
-                    <span style={shMedianHint}>Медиана рынка</span>
-                    <span className="sh-median-val">115 000 ₽</span>
-                    <span className="sh-median-badge">Апрель 2025</span>
-                  </div>
-                </div>
+              {(() => {
+                const sal = getSalaryData(profileDirection, profileLevel);
+                const roleLabel = [profileDirection, profileLevel, profileCity, profileFormat !== "Не важно" ? profileFormat : null]
+                  .filter(Boolean).join(" · ");
+                const rangePct = Math.round(((sal.median - sal.min) / (sal.max - sal.min)) * 100);
+                const medianPct = Math.round(((sal.median - sal.min) / (sal.max - sal.min)) * 100);
+                return (
+                  <div className="scalc">
+                    <div className="salary-hero">
+                      <div className="sh-label">Диапазон зарплат</div>
+                      <div className="sh-role">{roleLabel}</div>
+                      <div className="sh-range">
+                        <span className="sh-from">{fmtNum(sal.min)}</span>
+                        <span className="sh-dash">—</span>
+                        <span className="sh-to">{fmtNum(sal.max)} ₽</span>
+                      </div>
+                      <div className="sh-median">
+                        <span style={shMedianHint}>Медиана рынка</span>
+                        <span className="sh-median-val">{fmtNum(sal.median)} ₽</span>
+                        <span className="sh-median-badge">Май 2025</span>
+                      </div>
+                    </div>
 
-                <div className="range-bar-card">
-                  <div className="rbc-title">Распределение по рынку</div>
-                  <div className="range-track">
-                    <div className="range-fill" style={rangeFillStyle} />
-                    <div className="range-median-line" style={rangeLineStyle} />
-                  </div>
-                  <div className="range-markers">
-                    <span>80 000 ₽</span>
-                    <span>115 000 ₽</span>
-                    <span>150 000 ₽</span>
-                  </div>
-                </div>
+                    <div className="range-bar-card">
+                      <div className="rbc-title">Распределение по рынку</div>
+                      <div className="range-track">
+                        <div className="range-fill" style={{ left: 0, width: `${rangePct}%` }} />
+                        <div className="range-median-line" style={{ left: `${medianPct}%` }} />
+                      </div>
+                      <div className="range-markers">
+                        <span>{fmtNum(sal.min)} ₽</span>
+                        <span>{fmtNum(sal.median)} ₽</span>
+                        <span>{fmtNum(sal.max)} ₽</span>
+                      </div>
+                    </div>
 
-                <div className="ai-insight">
-                  <div className="ai-header">
-                    <div className="ai-dot" />
-                    <div className="ai-header-title">Инсайт по твоему профилю</div>
-                  </div>
-                  <div className="ai-text">
-                    При переходе на удалённый формат Junior IT-специалисты в Москве зарабатывают в среднем на{" "}
-                    <strong>10–15 000 ₽</strong> больше. Также добавление навыков BI-инструментов (Tableau, Power BI)
-                    смещает медиану вверх на ~<strong>8 000 ₽</strong>.
-                  </div>
-                </div>
+                    <div className="ai-insight">
+                      <div className="ai-header">
+                        <div className="ai-dot" />
+                        <div className="ai-header-title">Инсайт по твоему профилю</div>
+                      </div>
+                      <div className="ai-text">
+                        {profileFormat === "Офис"
+                          ? <>Переход на гибридный или удалённый формат для {profileDirection} {profileLevel} может увеличить медиану на <strong>10–20%</strong>. Рассмотри компании с распределёнными командами.</>
+                          : profileLevel === "Стажёр" || profileLevel === "Junior"
+                            ? <>Добавление 2–3 профильных проектов в портфолио сдвигает оффер {profileDirection} {profileLevel} вверх на <strong>15–25%</strong> относительно медианы рынка.</>
+                            : <>Специалисты уровня {profileLevel} в {profileDirection} с опытом в продуктовых компаниях зарабатывают на <strong>20–30%</strong> больше рынка. Укажи результаты в цифрах в резюме.</>
+                        }
+                      </div>
+                    </div>
 
-                <div className="tips-card">
-                  <div className="tips-title">Как <em>увеличить</em> зарплату</div>
-                  <div className="tip-row"><span className="tip-row-num">01</span><span className="tip-row-text">Добавь GitHub с реальными проектами — это сдвигает оффер на 10–20% выше рынка</span></div>
-                  <div className="tip-row"><span className="tip-row-num">02</span><span className="tip-row-text">Указывай результаты в цифрах в резюме — HR воспринимает это как опыт выше уровня</span></div>
-                  <div className="tip-row"><span className="tip-row-num">03</span><span className="tip-row-text">Рассмотри продуктовые компании — они платят Junior на 15–25% больше аутсорса</span></div>
-                </div>
-              </div>
+                    <div className="tips-card">
+                      <div className="tips-title">Как <em>увеличить</em> зарплату</div>
+                      <div className="tip-row"><span className="tip-row-num">01</span><span className="tip-row-text">Добавь портфолио или GitHub с реальными проектами — сдвигает оффер на 10–20% выше рынка</span></div>
+                      <div className="tip-row"><span className="tip-row-num">02</span><span className="tip-row-text">Указывай результаты в цифрах в резюме — HR воспринимает это как опыт выше уровня</span></div>
+                      <div className="tip-row"><span className="tip-row-num">03</span><span className="tip-row-text">Рассмотри продуктовые компании — они платят {profileLevel} на 15–25% больше, чем аутсорс</span></div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* ── Checklist ── */}
@@ -482,15 +595,20 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                 <span className="section-hdr-title">Подборка для тебя</span>
                 <Link href="/vacancies" className="section-hdr-link">Все вакансии →</Link>
               </div>
-              <div className="section-badge">На основе профиля: IT · Junior · Москва · Сохранено: {savedCounts.vacancies}</div>
+              <div className="section-badge">
+                На основе профиля: {profileDirection} · {profileLevel}
+                {profileCity ? ` · ${profileCity}` : ""}
+                {profileFormat !== "Не важно" ? ` · ${profileFormat}` : ""}
+                {" · "}Сохранено: {savedCounts.vacancies}
+              </div>
 
-              {matchedVacancies.length === 0 ? (
+              {localVacancies.length === 0 ? (
                 <div className="panel" style={{ padding: 20 }}>
                   <p style={{ margin: 0 }}>Нет подходящих вакансий. <Link href="/vacancies">Смотреть все вакансии →</Link></p>
                 </div>
               ) : (
                 <div className="jobs-list">
-                  {matchedVacancies.map((v) => (
+                  {localVacancies.map((v) => (
                     <div key={v.slug} className="job-card">
                       <div className="job-card-top">
                         <div className="job-card-left">
