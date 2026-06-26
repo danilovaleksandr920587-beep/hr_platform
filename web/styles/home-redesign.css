@@ -1155,13 +1155,13 @@ a.cl-cta-btn:hover {
 }
 
 /* Reveal */
+/* Hero content stays visible from the first frame (opacity:1) so it does not
+   delay LCP/FCP; only a subtle slide remains for motion. */
 @keyframes cl-fadeUp {
   from {
-    opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(16px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }

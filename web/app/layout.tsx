@@ -10,14 +10,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 const golos = Golos_Text({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
   variable: "--font-golos",
   display: "swap",
 });
 
 const unbounded = Unbounded({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "600", "700", "900"],
+  weight: ["700", "900"],
   variable: "--font-unbounded",
   display: "swap",
 });
