@@ -13,6 +13,10 @@ const golos = Golos_Text({
   weight: ["400", "600"],
   variable: "--font-golos",
   display: "swap",
+  // Body font: with display:swap the fallback paints instantly, so there is no
+  // need to occupy the critical path with a font preload — leave the preloaded
+  // bandwidth for CSS and the Unbounded heading font (the LCP element).
+  preload: false,
 });
 
 const unbounded = Unbounded({
