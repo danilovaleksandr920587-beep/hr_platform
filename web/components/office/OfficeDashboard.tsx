@@ -261,13 +261,13 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   const [localVacancies, setLocalVacancies] = useState<VacancyRow[]>(matchedVacancies);
 
   const [checkRows, setCheckRows] = useState([
-    { id: "1", done: false, label: "Резюме загружено и оценено", href: null as string | null },
-    { id: "2", done: false, label: "Заполнен профиль: направление и уровень", href: null },
-    { id: "3", done: false, label: "Прочитан гайд «Как написать резюме»", href: "/knowledge-base/resume" },
-    { id: "4", done: false, label: "Подготовься к интервью — пройди тест на знание стека", href: "/knowledge-base/interview" },
-    { id: "5", done: false, label: "Добавь GitHub или портфолио в резюме", href: "/knowledge-base/resume" },
-    { id: "6", done: false, label: "Сохрани 5 подходящих вакансий из подборки", href: "/vacancies" },
-    { id: "7", done: false, label: "Изучи зарплатный рынок в своём направлении", href: "/tools/salary-calculator" },
+    { id: "1", done: false, label: "Резюме загружено и оценено", href: null as string | null, cta: null as string | null },
+    { id: "2", done: false, label: "Заполнен профиль: направление и уровень", href: null, cta: null },
+    { id: "3", done: false, label: "Прочитан гайд «Как написать резюме»", href: "/knowledge-base/resume", cta: "Гайд →" },
+    { id: "4", done: false, label: "Подготовься к интервью — пройди тест на знание стека", href: "/knowledge-base/interview", cta: "Пройти →" },
+    { id: "5", done: false, label: "Добавь GitHub или портфолио в резюме", href: "/knowledge-base/resume", cta: "Гайд →" },
+    { id: "6", done: false, label: "Сохрани 5 подходящих вакансий из подборки", href: "/vacancies", cta: "Смотреть →" },
+    { id: "7", done: false, label: "Изучи зарплатный рынок в своём направлении", href: "/tools/salary-calculator", cta: "Калькулятор →" },
   ]);
 
   useEffect(() => {
@@ -337,7 +337,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
 
   const scrollTo = useCallback((id: SectionId) => {
     setActiveNav(id);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const el = document.getElementById(id); if (el) { const top = el.getBoundingClientRect().top + window.scrollY - 100; window.scrollTo({ top, behavior: "smooth" }); }
   }, []);
 
   const toggleCheck = useCallback((id: string) => {
@@ -580,7 +580,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                       <span className="check-label">{row.label}</span>
                       {row.href ? (
                         <Link href={row.href} className="check-cta" onClick={(e) => e.stopPropagation()}>
-                          {row.id === "4" ? "Пройти →" : row.id === "5" ? "Гайд →" : row.id === "6" ? "Смотреть →" : "Калькулятор →"}
+                          {row.cta}
                         </Link>
                       ) : null}
                     </div>
@@ -620,7 +620,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                           </h3>
                         </div>
                         <div className="job-salary-block">
-                          <span className="job-salary">{formatSalary(v.salary_min, v.salary_max)}</span>
+                          <span className={`job-salary${v.salary_min == null && v.salary_max == null ? " na" : ""}`}>{formatSalary(v.salary_min, v.salary_max)}</span>
                         </div>
                       </div>
                       <ul className="job-tags">
@@ -754,7 +754,10 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="office-city">Город</label>
-            <input className="form-input" id="office-city" type="text" value={formCity} onChange={(e) => setFormCity(e.target.value)} placeholder="Город" />
+            <input className="form-input" id="office-city" list="office-cities-list" value={formCity} onChange={(e) => setFormCity(e.target.value)} placeholder="Начни вводить город…" autoComplete="off" />
+            <datalist id="office-cities-list">
+              {["Москва","Санкт-Петербург","Екатеринбург","Новосибирск","Казань","Нижний Новгород","Красноярск","Челябинск","Самара","Уфа","Ростов-на-Дону","Омск","Пермь","Воронеж","Волгоград","Краснодар","Удалённо"].map(c => <option key={c} value={c} />)}
+            </datalist>
           </div>
           <div className="modal-actions">
             <button type="button" className="btn-save" onClick={saveProfile}>Сохранить</button>

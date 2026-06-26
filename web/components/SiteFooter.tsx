@@ -8,7 +8,6 @@ export function SiteFooter() {
         <div className="footer-links">
           <Link href="/">О платформе</Link>
           <Link href="/knowledge-base">Вопросы и ответы</Link>
-          <Link href="/office">Контакты</Link>
           <Link href="/research">Как мы считаем данные</Link>
           <Link href="/privacy-policy">Политика конфиденциальности</Link>
         </div>

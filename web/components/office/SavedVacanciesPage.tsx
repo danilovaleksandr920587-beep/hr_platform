@@ -82,7 +82,7 @@ export function SavedVacanciesPage({ userScope }: { userScope: string }) {
             ← Личный кабинет
           </Link>
           <p className="ph-eyebrow">Личный кабинет</p>
-          <h1 className="ph-title">Сохраненные вакансии</h1>
+          <h1 className="ph-title">Сохранённые вакансии</h1>
           <p className="ph-sub" style={{ color: "rgba(255,255,255,0.75)" }}>Здесь вакансии, которые вы сохранили для отклика позже</p>
         </div>
       </div>
@@ -112,7 +112,7 @@ export function SavedVacanciesPage({ userScope }: { userScope: string }) {
                       </h2>
                     </div>
                     <div className="job-salary-block">
-                      <div className="job-salary">{formatSalary(row.salary_min, row.salary_max)}</div>
+                      <div className={`job-salary${row.salary_min == null && row.salary_max == null ? " na" : ""}`}>{formatSalary(row.salary_min, row.salary_max)}</div>
                     </div>
                   </div>
                   <ul className="job-tags">

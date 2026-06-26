@@ -127,6 +127,11 @@ export function VacancyDetailClient(props: Props) {
                       src={props.companyLogoUrl}
                       alt={props.company}
                       style={{ width: 36, height: 36, objectFit: "contain" }}
+                      onError={e => {
+                        const img = e.target as HTMLImageElement;
+                        img.style.display = "none";
+                        img.parentElement!.textContent = props.company.slice(0, 2).toUpperCase();
+                      }}
                     />
                   ) : (
                     props.company.slice(0, 2).toUpperCase()

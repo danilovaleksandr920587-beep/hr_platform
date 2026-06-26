@@ -125,7 +125,7 @@ export function VacancyCard({
         </div>
         <div className="job-salary-block">
           {row.company_logo_url ? (
-            <img src={row.company_logo_url} alt={row.company} style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", marginBottom: 8 }} />
+            <img src={row.company_logo_url} alt={row.company} style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", marginBottom: 8 }} onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
           ) : null}
           {salaryMissing ? null : (
             <div className="job-salary">

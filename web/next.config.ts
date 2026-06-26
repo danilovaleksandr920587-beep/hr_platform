@@ -5,11 +5,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(process.cwd()),
   },
+  // Inline page CSS into HTML instead of render-blocking <link> tags (mobile perf).
+  experimental: {
+    inlineCss: true,
+  },
   async redirects() {
     return [
       // Legacy HTML pages
       { source: "/index.html", destination: "/", permanent: true },
       { source: "/vacancies.html", destination: "/vacancies", permanent: true },
+      { source: "/jobs", destination: "/vacancies", permanent: true },
       { source: "/knowledge-base.html", destination: "/knowledge-base", permanent: true },
       { source: "/office.html", destination: "/office", permanent: true },
       { source: "/research.html", destination: "/research", permanent: true },

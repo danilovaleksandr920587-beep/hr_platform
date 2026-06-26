@@ -6,7 +6,7 @@ import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSessionFromCookies } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  title: "Сохраненные вакансии",
+  title: "Сохранённые вакансии",
   robots: { index: false, follow: false },
 };
 

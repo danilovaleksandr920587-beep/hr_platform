@@ -42,8 +42,31 @@ function jobMeta(row: VacancyRow): string {
   return [row.company, row.format || row.type].filter(Boolean).join(" · ");
 }
 
+function pickDiverseVacancies(rows: VacancyRow[], count = 3): VacancyRow[] {
+  const seen = { companies: new Set<string>(), spheres: new Set<string>() };
+  const result: VacancyRow[] = [];
+  for (const row of rows) {
+    if (result.length >= count) break;
+    if (seen.companies.has(row.company) || seen.spheres.has(row.sphere)) continue;
+    result.push(row);
+    seen.companies.add(row.company);
+    seen.spheres.add(row.sphere);
+  }
+  // Fallback: relax sphere uniqueness if not enough
+  if (result.length < count) {
+    for (const row of rows) {
+      if (result.length >= count) break;
+      if (result.includes(row)) continue;
+      if (seen.companies.has(row.company)) continue;
+      result.push(row);
+      seen.companies.add(row.company);
+    }
+  }
+  return result;
+}
+
 export default async function HomePage() {
-  const previewVacancies = (await listVacancies({})).slice(0, 3);
+  const previewVacancies = pickDiverseVacancies(await listVacancies({ limit: 50 }));
 
   return (
     <div className="home-careerlab-scope">

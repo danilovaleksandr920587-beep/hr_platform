@@ -6,6 +6,7 @@ import { OfficeDashboard } from "@/components/office/OfficeDashboard";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { listVacancies } from "@/lib/data/vacancies";
+import { getSql } from "@/lib/db/postgres";
 import "@/styles/office-mockup.css";
 import "@/styles/resume-analyzer.css";
 
@@ -46,7 +47,17 @@ export default async function OfficePage() {
     redirect("/login?next=/office");
   }
 
-  const matchedVacancies = await listVacancies({ limit: 4, fields: "card" });
+  const DIRECTION_TO_SPHERE: Record<string, string> = {
+    IT: "it", Аналитика: "analytics", Финансы: "finance",
+    Маркетинг: "marketing", Управление: "product", Дизайн: "design", QA: "it",
+  };
+  let sphere: string | undefined;
+  try {
+    const sql = getSql();
+    const rows = await sql`SELECT direction FROM user_profiles WHERE account_id = ${session.id} LIMIT 1` as { direction: string }[];
+    if (rows[0]?.direction) sphere = DIRECTION_TO_SPHERE[rows[0].direction];
+  } catch {}
+  const matchedVacancies = await listVacancies({ limit: 4, fields: "card", ...(sphere ? { sphere: [sphere] } : {}) });
 
   return (
     <>

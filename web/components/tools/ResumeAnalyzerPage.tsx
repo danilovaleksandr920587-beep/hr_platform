@@ -55,9 +55,14 @@ export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null })
   return (
     <div className="section">
       <div className="container" style={{ maxWidth: 800 }}>
-        <div style={{ paddingTop: 16 }}>
-          <div className="section-hdr" style={{ marginBottom: 20 }}>
-            <span className="section-hdr-title">AI-разбор резюме</span>
+        <div style={{ paddingTop: 24, paddingBottom: 60 }}>
+          <div style={{ marginBottom: 28 }}>
+            <h1 style={{ fontFamily: "var(--font-unbounded), Unbounded, sans-serif", fontSize: "clamp(1.3rem, 2.5vw, 1.8rem)", fontWeight: 700, color: "var(--dark)", margin: "0 0 8px" }}>
+              AI-разбор резюме
+            </h1>
+            <p style={{ fontSize: 15, color: "var(--muted)", margin: 0 }}>
+              Загрузи PDF или вставь текст — получишь оценку и конкретные рекомендации.
+            </p>
           </div>
           <InlineResumeAnalyzer userScope={userScope} />
         </div>
