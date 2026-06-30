@@ -7,6 +7,7 @@ import "../styles/cl-topbar.css";
 import "./globals.css";
 import { CookieBanner } from "@/components/CookieBanner";
 import { SiteHeader } from "@/components/SiteHeader";
+import { TgStickyBar } from "@/components/TgStickyBar";
 
 const golos = Golos_Text({
   subsets: ["latin", "cyrillic"],
@@ -131,6 +132,7 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <CookieBanner />
+        <TgStickyBar />
         <SpeedInsights />
       </body>
     </html>
