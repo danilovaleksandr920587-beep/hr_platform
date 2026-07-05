@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyDetailClient } from "@/components/vacancies/VacancyDetailClient";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { getVacancyBySlug, listVacancies } from "@/lib/data/vacancies";
+import { getVacancyApplyMode, getVacancyBySlug, listVacancies } from "@/lib/data/vacancies";
 import { buildVacancyStaticParams } from "@/lib/data/vacancy-static-paths";
 import { EXP_LABELS, FORMAT_LABELS, SPHERE_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
 import "@/styles/vacancy-detail-ref.css";
@@ -100,6 +100,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const row = await getVacancyBySlug(slug);
   if (!row) notFound();
+  const applyMode = await getVacancyApplyMode(slug);
 
   const isArchived = row.is_archived ?? false;
 
@@ -226,6 +227,7 @@ export default async function VacancyDetailPage({ params }: PageProps) {
           publishedAt={row.published_at}
           sourcePublishedAt={row.source_published_at}
           applyUrl={row.apply_url}
+          applyMode={applyMode}
           similar={similarRows}
           isArchived={isArchived}
         />

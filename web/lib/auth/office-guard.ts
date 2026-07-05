@@ -5,6 +5,12 @@ import { tryParseAuthSession } from "./token";
 function isAuthOfficePath(pathname: string): boolean {
   if (pathname === "/office") return true;
   if (pathname.startsWith("/office/")) return true;
+  // Кабинет компании и модерация тоже требуют сессию
+  // (роль/членство проверяются на страницах и в API)
+  if (pathname === "/company") return true;
+  if (pathname.startsWith("/company/")) return true;
+  if (pathname === "/company-invite") return true;
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) return true;
   return false;
 }
 
@@ -21,7 +27,9 @@ export async function officeGuard(request: NextRequest): Promise<NextResponse> {
   }
 
   const redirectUrl = request.nextUrl.clone();
+  const next = path + request.nextUrl.search;
   redirectUrl.pathname = "/login";
-  redirectUrl.searchParams.set("next", path);
+  redirectUrl.search = "";
+  redirectUrl.searchParams.set("next", next);
   return NextResponse.redirect(redirectUrl);
 }

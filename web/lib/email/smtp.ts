@@ -36,6 +36,23 @@ export function isSmtpConfigured() {
   );
 }
 
+export async function sendMail(params: {
+  to: string | string[];
+  subject: string;
+  text: string;
+  html?: string;
+}) {
+  const from = getRequiredEnv("SMTP_FROM");
+  const t = getTransporter();
+  await t.sendMail({
+    from,
+    to: params.to,
+    subject: params.subject,
+    text: params.text,
+    html: params.html,
+  });
+}
+
 export async function sendPasswordResetEmail(params: {
   to: string;
   resetUrl: string;

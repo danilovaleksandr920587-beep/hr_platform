@@ -231,6 +231,26 @@ export async function getVacancyBySlug(
   return null;
 }
 
+/**
+ * Режим отклика вакансии. Толерантен к отсутствию колонки apply_mode
+ * (до применения миграции company_portal) - тогда всегда "external".
+ */
+export async function getVacancyApplyMode(slug: string): Promise<"internal" | "external"> {
+  if (!isPublicSupabaseConfigured() || !slug) return "external";
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return "external";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb: any = supabase;
+  const { data, error } = await sb
+    .from("vacancies")
+    .select("apply_mode")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+  if (error || !data) return "external";
+  return data.apply_mode === "internal" ? "internal" : "external";
+}
+
 export async function listVacancySlugs(): Promise<string[]> {
   if (!isPublicSupabaseConfigured()) return [];
   return listPublishedSlugsFromRest("vacancies");
