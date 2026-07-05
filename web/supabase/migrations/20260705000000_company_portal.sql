@@ -1,9 +1,14 @@
 -- ============================================
--- Кабинет компании (B2B), фаза 1:
+-- Кабинет компании (B2B), фаза 1 - ЧАСТЬ 1: новые таблицы
 -- компании, команда, приглашения, отклики
--- + расширение vacancies (source/company_id/status/apply_mode)
--- Доступ к новым таблицам - только прямой Postgres (getSql),
--- RLS включён без политик: через анонимный REST доступа нет.
+--
+-- ПРИМЕНЯТЬ РОЛЬЮ ПРИЛОЖЕНИЯ (DATABASE_URL, роль postgres) - тогда она
+-- владелец таблиц, как у user_profiles. Доступ к таблицам - только прямой
+-- Postgres (getSql); RLS включён без политик, через анонимный REST доступа нет.
+--
+-- Колонки vacancies (source/company_id/status/apply_mode) - в отдельном файле
+-- 20260705000100_vacancies_company_columns.sql (владелец vacancies -
+-- supabase_admin, применять суперпользователем).
 -- ============================================
 
 -- Компании ------------------------------------------------------------
@@ -90,37 +95,5 @@ create index if not exists applications_account_idx
 
 alter table public.applications enable row level security;
 
--- Расширение vacancies ------------------------------------------------------
-alter table public.vacancies
-  add column if not exists source        text not null default 'parser',
-  add column if not exists company_id    uuid,
-  add column if not exists status        text not null default 'published',
-  add column if not exists status_reason text,
-  add column if not exists apply_mode    text not null default 'external';
-
-alter table public.vacancies
-  drop constraint if exists vacancies_source_check;
-alter table public.vacancies
-  add constraint vacancies_source_check
-  check (source in ('parser', 'company'));
-
-alter table public.vacancies
-  drop constraint if exists vacancies_status_check;
-alter table public.vacancies
-  add constraint vacancies_status_check
-  check (status in ('draft', 'pending_review', 'published', 'rejected', 'archived'));
-
-alter table public.vacancies
-  drop constraint if exists vacancies_apply_mode_check;
-alter table public.vacancies
-  add constraint vacancies_apply_mode_check
-  check (apply_mode in ('external', 'internal'));
-
--- Существующие парсерные строки: статус из is_published
--- (инвариант: is_published = (status = 'published'))
-update public.vacancies
-set status = case when is_published then 'published' else 'draft' end
-where source = 'parser';
-
-create index if not exists vacancies_company_id_idx
-  on public.vacancies (company_id) where company_id is not null;
+-- Колонки vacancies - в 20260705000100_vacancies_company_columns.sql
+-- (владелец vacancies = supabase_admin, применять суперпользователем).

@@ -47,10 +47,18 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 ВАЖНО: при изменении этих таблиц менять схему нужно руками в БД - и лучше
 завести миграцию, чтобы уйти от ручного состояния.
 
-## B2B-таблицы (миграция `web/supabase/migrations/20260705000000_company_portal.sql`)
+## B2B-таблицы (миграции `20260705000000_*` и `20260705000100_*`)
 
-Доступ - только прямой Postgres (`lib/company/*`). RLS включён без политик:
-через анонимный PostgREST данные недоступны.
+Миграция разбита на две части по владельцу таблиц:
+- `20260705000000_company_portal.sql` - новые таблицы, применять **ролью
+  приложения** (DATABASE_URL, postgres): она станет их владельцем.
+- `20260705000100_vacancies_company_columns.sql` - колонки `vacancies`,
+  применять **суперпользователем** (владелец vacancies = supabase_admin):
+  `docker exec -i supabase-db psql -U supabase_admin -d postgres --single-transaction < файл`.
+
+Доступ к таблицам - только прямой Postgres (`lib/company/*`). RLS включён без
+политик; роль `postgres` имеет BYPASSRLS, поэтому приложение читает/пишет их,
+а анонимный PostgREST (anon/authenticated) - нет.
 
 | Таблица | Ключевые поля | Назначение |
 |---------|---------------|------------|
