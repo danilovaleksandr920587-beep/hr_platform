@@ -22,7 +22,7 @@ export default async function CompanyVacanciesPage() {
           <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <h1 className="page-title" style={{ margin: 0 }}>Вакансии</h1>
-            <Link className="btn-dark" href="/company/vacancies/new" style={{ textDecoration: "none" }}>
+            <Link className="btn-dark" href="/company/vacancies/new">
               + Новая вакансия
             </Link>
           </div>

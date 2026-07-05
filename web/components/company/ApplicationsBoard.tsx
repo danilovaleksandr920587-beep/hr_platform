@@ -19,12 +19,12 @@ export type BoardApplication = {
   created_at: string;
 };
 
-const STATUS_COLORS: Record<ApplicationStatus, string> = {
-  new: "#e5a500",
-  viewed: "#8a8a8a",
-  invited: "#2e8b57",
-  rejected: "#c0392b",
-  withdrawn: "#666",
+const STATUS_TONES: Record<ApplicationStatus, string> = {
+  new: "status-pill--pending",
+  viewed: "status-pill--neutral",
+  invited: "status-pill--positive",
+  rejected: "status-pill--negative",
+  withdrawn: "status-pill--neutral",
 };
 
 function formatDate(iso: string) {
@@ -85,29 +85,20 @@ export function ApplicationsBoard({
 
   return (
     <div style={{ marginTop: 12 }}>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+      <div className="applications-filters">
         {(["all", "new", "viewed", "invited", "rejected", "withdrawn"] as const).map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => setFilter(s)}
-            style={{
-              padding: "0.3rem 0.8rem",
-              borderRadius: 999,
-              border: "1px solid var(--border2, #ddd)",
-              background: filter === s ? "var(--ink, #1e2114)" : "transparent",
-              color: filter === s ? "#fff" : "inherit",
-              cursor: "pointer",
-              font: "inherit",
-              fontSize: 13,
-            }}
+            className={`company-tab${filter === s ? " is-active" : ""}`}
           >
             {s === "all" ? "Все" : APPLICATION_STATUS_LABELS[s]}
           </button>
         ))}
       </div>
 
-      {error && <p style={{ color: "#c0392b" }}>{error}</p>}
+      {error && <p className="company-error">{error}</p>}
 
       {!visible.length ? (
         <div className="panel">
@@ -116,32 +107,23 @@ export function ApplicationsBoard({
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
           {visible.map((a) => (
-            <div key={a.id} className="panel">
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div key={a.id} className="panel application-card">
+              <div className="application-card-head">
                 <div>
-                  <p style={{ margin: "0 0 4px", fontWeight: 600 }}>
+                  <p className="application-card-name">
                     {a.applicant_name || a.applicant_email}
-                    <span
-                      style={{
-                        marginLeft: 10,
-                        padding: "0.12rem 0.55rem",
-                        borderRadius: 999,
-                        fontSize: 12,
-                        color: "#fff",
-                        background: STATUS_COLORS[a.status],
-                      }}
-                    >
+                    <span className={`status-pill ${STATUS_TONES[a.status]}`}>
                       {APPLICATION_STATUS_LABELS[a.status]}
                     </span>
                   </p>
-                  <p style={{ margin: 0, fontSize: 13, color: "var(--muted, #666)" }}>
+                  <p className="application-card-meta">
                     {formatDate(a.created_at)}
                     {showVacancyColumn ? ` · ${a.vacancy_slug}` : ""}
                     {` · ${a.applicant_email}`}
                     {a.contact ? ` · ${a.contact}` : ""}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                <div className="application-card-actions">
                   {a.resume_file && (
                     <a className="text-link" href={`/api/applications/${a.id}/resume`}>
                       Резюме
@@ -153,7 +135,6 @@ export function ApplicationsBoard({
                       type="button"
                       disabled={busy === a.id}
                       onClick={() => setStatus(a.id, "viewed")}
-                      style={{ fontSize: 13 }}
                     >
                       Просмотрен
                     </button>
@@ -161,20 +142,18 @@ export function ApplicationsBoard({
                   {(a.status === "new" || a.status === "viewed") && (
                     <>
                       <button
-                        className="btn-dark"
+                        className="btn-dark btn-dark--success"
                         type="button"
                         disabled={busy === a.id}
                         onClick={() => openNote(a.id, "invited")}
-                        style={{ fontSize: 13, background: "#2e8b57" }}
                       >
                         Пригласить
                       </button>
                       <button
-                        className="btn-dark"
+                        className="btn-dark btn-dark--danger"
                         type="button"
                         disabled={busy === a.id}
                         onClick={() => openNote(a.id, "rejected")}
-                        style={{ fontSize: 13, background: "#c0392b" }}
                       >
                         Отказать
                       </button>
@@ -183,28 +162,16 @@ export function ApplicationsBoard({
                 </div>
               </div>
 
-              {a.cover_letter && (
-                <p style={{ margin: "10px 0 0", whiteSpace: "pre-wrap", fontSize: 14 }}>
-                  {a.cover_letter}
-                </p>
-              )}
+              {a.cover_letter && <p className="application-card-note">{a.cover_letter}</p>}
               {a.status_note && (
-                <p style={{ margin: "10px 0 0", fontSize: 13, color: "var(--muted, #666)" }}>
-                  Ваш ответ: {a.status_note}
-                </p>
+                <p className="application-card-meta">Ваш ответ: {a.status_note}</p>
               )}
 
               {noteFor === a.id && (
-                <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+                <div className="application-note-form">
                   <textarea
-                    style={{
-                      width: "100%",
-                      minHeight: 70,
-                      padding: "0.55rem 0.65rem",
-                      borderRadius: 10,
-                      border: "1px solid var(--border2, #ddd)",
-                      font: "inherit",
-                    }}
+                    className="company-textarea"
+                    style={{ minHeight: 70 }}
                     placeholder={
                       noteAction === "invited"
                         ? "Как связаться, когда и какой следующий шаг (кандидат получит это письмом)"
@@ -214,28 +181,16 @@ export function ApplicationsBoard({
                     onChange={(e) => setNote(e.target.value)}
                     maxLength={2000}
                   />
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div className="company-form-actions">
                     <button
                       className="btn-dark"
                       type="button"
                       disabled={busy === a.id || (noteAction === "invited" && !note.trim())}
                       onClick={() => setStatus(a.id, noteAction, note.trim() || undefined)}
-                      style={{ fontSize: 13 }}
                     >
                       {noteAction === "invited" ? "Отправить приглашение" : "Подтвердить отказ"}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setNoteFor(null)}
-                      style={{
-                        border: "none",
-                        background: "transparent",
-                        cursor: "pointer",
-                        font: "inherit",
-                        fontSize: 13,
-                        textDecoration: "underline",
-                      }}
-                    >
+                    <button type="button" className="btn-ghost" onClick={() => setNoteFor(null)}>
                       Отмена
                     </button>
                   </div>

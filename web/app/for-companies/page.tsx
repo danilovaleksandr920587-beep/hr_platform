@@ -50,37 +50,35 @@ export default function ForCompaniesPage() {
             в кабинете компании.
           </p>
           <p style={{ margin: "20px 0 36px" }}>
-            <Link className="btn-dark" href="/company/new" style={{ textDecoration: "none" }}>
+            <Link className="btn-dark" href="/company/new">
               Разместить вакансию
             </Link>
           </p>
 
           <h2>Как это работает</h2>
-          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", marginBottom: 36 }}>
+          <div className="company-tile-grid">
             {STEPS.map((s, i) => (
               <div key={s.title} className="panel">
-                <div style={{ fontSize: 26, fontWeight: 700, marginBottom: 6 }}>{i + 1}</div>
-                <p style={{ margin: "0 0 6px", fontWeight: 600 }}>{s.title}</p>
+                <div className="company-tile-num">{i + 1}</div>
+                <p style={{ margin: "0 0 6px", fontWeight: 700 }}>{s.title}</p>
                 <p style={{ margin: 0, fontSize: 14 }}>{s.text}</p>
               </div>
             ))}
           </div>
 
           <h2>Почему CareerLab</h2>
-          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", marginBottom: 36 }}>
+          <div className="company-tile-grid">
             {BENEFITS.map((b) => (
               <div key={b.title} className="panel">
-                <p style={{ margin: "0 0 6px", fontWeight: 600 }}>{b.title}</p>
+                <p style={{ margin: "0 0 6px", fontWeight: 700 }}>{b.title}</p>
                 <p style={{ margin: 0, fontSize: 14 }}>{b.text}</p>
               </div>
             ))}
           </div>
 
-          <div className="panel" style={{ textAlign: "center", padding: "2rem 1.5rem" }}>
-            <p style={{ margin: "0 0 14px", fontSize: 18, fontWeight: 600 }}>
-              Первая вакансия - за 10 минут
-            </p>
-            <Link className="btn-dark" href="/company/new" style={{ textDecoration: "none" }}>
+          <div className="panel company-cta-panel">
+            <p>Первая вакансия - за 10 минут</p>
+            <Link className="btn-dark" href="/company/new">
               Зарегистрировать компанию
             </Link>
           </div>

@@ -4,15 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { CompanyVacancyStatus } from "@/lib/company/constants";
 
-const inputStyle = {
-  width: "100%" as const,
-  marginTop: 6,
-  padding: "0.55rem 0.65rem",
-  borderRadius: 10,
-  border: "1px solid var(--border2, #ddd)",
-  font: "inherit" as const,
-};
-
 const SPHERE_OPTIONS = [
   ["it", "IT / разработка"],
   ["analytics", "Аналитика"],
@@ -177,11 +168,11 @@ export function VacancyForm({
   const canUnarchive = isEdit && status === "archived";
 
   return (
-    <div className="panel" style={{ display: "grid", gap: 14 }}>
-      <label>
+    <div className="panel" style={{ display: "grid", gap: 16 }}>
+      <label className="company-field">
         Название вакансии *
         <input
-          style={inputStyle}
+          className="company-input"
           value={values.title}
           onChange={(e) => set("title", e.target.value)}
           required
@@ -189,72 +180,73 @@ export function VacancyForm({
           placeholder="Стажёр-разработчик Python"
         />
       </label>
-      <label>
+      <label className="company-field">
         Описание * (задачи, требования, условия - минимум 100 символов)
         <textarea
-          style={{ ...inputStyle, minHeight: 220 }}
+          className="company-textarea"
+          style={{ minHeight: 220 }}
           value={values.description}
           onChange={(e) => set("description", e.target.value)}
           required
           maxLength={20000}
         />
       </label>
-      <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-        <label>
+      <div className="company-field-row">
+        <label className="company-field">
           Сфера
-          <select style={inputStyle} value={values.sphere} onChange={(e) => set("sphere", e.target.value)}>
+          <select className="company-select-field" value={values.sphere} onChange={(e) => set("sphere", e.target.value)}>
             {SPHERE_OPTIONS.map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
         </label>
-        <label>
+        <label className="company-field">
           Опыт
-          <select style={inputStyle} value={values.exp} onChange={(e) => set("exp", e.target.value)}>
+          <select className="company-select-field" value={values.exp} onChange={(e) => set("exp", e.target.value)}>
             {EXP_OPTIONS.map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
         </label>
-        <label>
+        <label className="company-field">
           Формат
-          <select style={inputStyle} value={values.format} onChange={(e) => set("format", e.target.value)}>
+          <select className="company-select-field" value={values.format} onChange={(e) => set("format", e.target.value)}>
             {FORMAT_OPTIONS.map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
         </label>
-        <label>
+        <label className="company-field">
           Тип занятости
-          <select style={inputStyle} value={values.type} onChange={(e) => set("type", e.target.value)}>
+          <select className="company-select-field" value={values.type} onChange={(e) => set("type", e.target.value)}>
             {TYPE_OPTIONS.map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
         </label>
       </div>
-      <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-        <label>
+      <div className="company-field-row">
+        <label className="company-field">
           Зарплата от, ₽
-          <input style={inputStyle} value={values.salaryMin} onChange={(e) => set("salaryMin", e.target.value)} inputMode="numeric" />
+          <input className="company-input" value={values.salaryMin} onChange={(e) => set("salaryMin", e.target.value)} inputMode="numeric" />
         </label>
-        <label>
+        <label className="company-field">
           Зарплата до, ₽
-          <input style={inputStyle} value={values.salaryMax} onChange={(e) => set("salaryMax", e.target.value)} inputMode="numeric" />
+          <input className="company-input" value={values.salaryMax} onChange={(e) => set("salaryMax", e.target.value)} inputMode="numeric" />
         </label>
-        <label>
+        <label className="company-field">
           Город
-          <input style={inputStyle} value={values.city} onChange={(e) => set("city", e.target.value)} placeholder="Москва" />
+          <input className="company-input" value={values.city} onChange={(e) => set("city", e.target.value)} placeholder="Москва" />
         </label>
       </div>
-      <label>
+      <label className="company-field">
         Навыки (через запятую)
-        <input style={inputStyle} value={values.skills} onChange={(e) => set("skills", e.target.value)} placeholder="Python, SQL, Git" />
+        <input className="company-input" value={values.skills} onChange={(e) => set("skills", e.target.value)} placeholder="Python, SQL, Git" />
       </label>
-      <label>
+      <label className="company-field">
         Приём откликов
         <select
-          style={inputStyle}
+          className="company-select-field"
           value={values.applyMode}
           onChange={(e) => set("applyMode", e.target.value as "internal" | "external")}
         >
@@ -263,10 +255,10 @@ export function VacancyForm({
         </select>
       </label>
       {values.applyMode === "external" && (
-        <label>
+        <label className="company-field">
           Ссылка для отклика *
           <input
-            style={inputStyle}
+            className="company-input"
             value={values.applyUrl}
             onChange={(e) => set("applyUrl", e.target.value)}
             type="url"
@@ -275,16 +267,16 @@ export function VacancyForm({
         </label>
       )}
 
-      {error && <p style={{ color: "#c0392b", margin: 0 }}>{error}</p>}
-      {notice && <p style={{ color: "#2e8b57", margin: 0 }}>{notice}</p>}
+      {error && <p className="company-error">{error}</p>}
+      {notice && <p className="company-notice">{notice}</p>}
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div className="company-form-actions">
         <button className="btn-dark" onClick={save} disabled={loading !== null} type="button">
           {loading === "save" ? "Сохраняем..." : isEdit ? "Сохранить" : "Создать черновик"}
         </button>
         {canSubmit && (
           <button
-            className="btn-dark"
+            className="btn-dark btn-dark--success"
             onClick={() => action("submit")}
             disabled={loading !== null || !companyVerified}
             type="button"
@@ -294,7 +286,7 @@ export function VacancyForm({
           </button>
         )}
         {canArchive && (
-          <button className="btn-dark" onClick={() => action("archive")} disabled={loading !== null} type="button">
+          <button className="btn-dark btn-dark--danger" onClick={() => action("archive")} disabled={loading !== null} type="button">
             {loading === "archive" ? "..." : "Снять с публикации"}
           </button>
         )}
@@ -305,9 +297,7 @@ export function VacancyForm({
         )}
       </div>
       {canSubmit && !companyVerified && (
-        <p style={{ margin: 0, fontSize: 13, color: "var(--muted, #666)" }}>
-          Публикация откроется после проверки компании.
-        </p>
+        <p className="company-hint">Публикация откроется после проверки компании.</p>
       )}
     </div>
   );

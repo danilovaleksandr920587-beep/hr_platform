@@ -1,0 +1,515 @@
+/* Кабинет компании (B2B), лендинг /for-companies и модерация /admin -
+   единый визуальный язык поверх careerlab-ui.css. */
+
+/* ── Кнопки ──
+   .btn-dark раньше был объявлен только внутри header.topbar - вне шапки
+   класс не подключал никаких стилей, поэтому все кнопки кабинета были
+   голыми браузерными <button>. Здесь - полноценная самостоятельная кнопка. */
+.btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.64rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.89rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--dark);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+}
+
+.btn-dark:hover {
+  background: #2b2f22;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(24, 30, 45, 0.14);
+}
+
+.btn-dark:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-dark--success {
+  background: var(--c-salary-accent);
+}
+
+.btn-dark--success:hover {
+  background: var(--c-salary-text);
+}
+
+.btn-dark--danger {
+  background: var(--coral);
+}
+
+.btn-dark--danger:hover {
+  background: #d9431f;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  color: var(--ink);
+}
+
+.btn-ghost--danger {
+  color: var(--coral);
+}
+
+/* ── Шапка кабинета: переключатель компании + вкладки ── */
+.company-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.company-select {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  background: var(--white);
+}
+
+.company-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 0 0 24px;
+}
+
+.company-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.company-tab:hover {
+  border-color: #999;
+}
+
+.company-tab.is-active {
+  background: var(--dark);
+  border-color: var(--dark);
+  color: #fff;
+}
+
+/* ── Дашборд: счётчики ── */
+.company-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.85rem;
+  margin: 20px 0 0;
+}
+
+.company-stat {
+  display: block;
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.company-stat:hover {
+  border-color: var(--lime-dim);
+  transform: translateY(-2px);
+}
+
+.company-stat-num {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.1;
+}
+
+.company-stat-label {
+  margin-top: 0.3rem;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+/* ── Баннеры статуса компании / вакансии ── */
+.company-banner {
+  margin-bottom: 20px;
+  border-left: 4px solid var(--border2);
+}
+
+.company-banner p {
+  margin: 0;
+}
+
+.company-banner--warn {
+  border-left-color: #e5a500;
+  background: #fff8ea;
+}
+
+.company-banner--error {
+  border-left-color: var(--coral);
+  background: #fff1ee;
+}
+
+/* ── Формы ── */
+.company-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.company-field-row {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.company-input,
+.company-textarea,
+.company-select-field {
+  width: 100%;
+  font: inherit;
+  font-weight: 400;
+  font-size: 0.92rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border2);
+  background: var(--white);
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.company-textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.company-input:focus,
+.company-textarea:focus,
+.company-select-field:focus {
+  outline: none;
+  border-color: var(--lime-dim);
+  box-shadow: 0 0 0 3px rgba(169, 201, 32, 0.25);
+}
+
+.company-form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.company-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.company-error {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--coral);
+}
+
+.company-notice {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--c-salary-text);
+}
+
+/* ── Бейджи статусов (вакансии и отклики) ── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pill--neutral {
+  background: #ececE4;
+  color: var(--muted);
+}
+
+.status-pill--pending {
+  background: #fff3e0;
+  color: #b35f00;
+}
+
+.status-pill--positive {
+  background: var(--c-salary-bg);
+  color: var(--c-salary-text);
+}
+
+.status-pill--negative {
+  background: #ffe8e3;
+  color: #b3261e;
+}
+
+/* ── Список откликов ── */
+.applications-filters {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.application-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.application-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.application-card-name {
+  margin: 0 0 4px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.application-card-meta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.application-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.application-card-note {
+  margin: 0;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+}
+
+.application-note-form {
+  display: grid;
+  gap: 8px;
+}
+
+/* ── Команда ── */
+.team-member-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.team-member-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.team-member-name {
+  font-weight: 700;
+}
+
+.team-member-detail {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
+.team-member-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.team-invite-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 0;
+  font-size: 0.88rem;
+}
+
+/* ── Уведомления (колокольчик) ── */
+.notification-bell {
+  position: relative;
+}
+
+.notification-bell-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.15s ease;
+}
+
+.notification-bell-trigger:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.notification-bell-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--coral);
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.notification-bell-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 340px;
+  max-height: 440px;
+  overflow-y: auto;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(13, 15, 8, 0.16);
+  z-index: 1000;
+}
+
+.notification-bell-title {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.notification-bell-empty {
+  padding: 18px 16px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.notification-bell-item {
+  display: block;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+}
+
+.notification-bell-item:last-child {
+  border-bottom: none;
+}
+
+.notification-bell-item.is-unread {
+  background: var(--lime-pale);
+}
+
+.notification-bell-item-text {
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.notification-bell-item-time {
+  margin-top: 3px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* ── Лендинг /for-companies ── */
+.company-tile-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  margin-bottom: 36px;
+}
+
+.company-tile-num {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--lime-dim);
+  margin-bottom: 6px;
+}
+
+.company-cta-panel {
+  text-align: center;
+  padding: 2.4rem 1.5rem;
+}
+
+.company-cta-panel p {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .company-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}

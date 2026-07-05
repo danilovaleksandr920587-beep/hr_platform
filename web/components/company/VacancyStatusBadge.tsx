@@ -3,26 +3,17 @@ import {
   type CompanyVacancyStatus,
 } from "@/lib/company/constants";
 
-const COLORS: Record<CompanyVacancyStatus, string> = {
-  draft: "#8a8a8a",
-  pending_review: "#e5a500",
-  published: "#2e8b57",
-  rejected: "#c0392b",
-  archived: "#666",
+const TONES: Record<CompanyVacancyStatus, string> = {
+  draft: "status-pill--neutral",
+  pending_review: "status-pill--pending",
+  published: "status-pill--positive",
+  rejected: "status-pill--negative",
+  archived: "status-pill--neutral",
 };
 
 export function VacancyStatusBadge({ status }: { status: CompanyVacancyStatus }) {
   return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "0.15rem 0.6rem",
-        borderRadius: 999,
-        fontSize: 12,
-        color: "#fff",
-        background: COLORS[status] ?? "#8a8a8a",
-      }}
-    >
+    <span className={`status-pill ${TONES[status] ?? "status-pill--neutral"}`}>
       {COMPANY_VACANCY_STATUS_LABELS[status] ?? status}
     </span>
   );

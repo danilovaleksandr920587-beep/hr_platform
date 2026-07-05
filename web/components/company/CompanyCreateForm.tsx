@@ -3,15 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const inputStyle = {
-  width: "100%" as const,
-  marginTop: 6,
-  padding: "0.55rem 0.65rem",
-  borderRadius: 10,
-  border: "1px solid var(--border2, #ddd)",
-  font: "inherit" as const,
-};
-
 export function CompanyCreateForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -46,11 +37,11 @@ export function CompanyCreateForm() {
   }
 
   return (
-    <form onSubmit={submit} className="panel" style={{ display: "grid", gap: 14 }}>
-      <label>
+    <form onSubmit={submit} className="panel" style={{ display: "grid", gap: 16 }}>
+      <label className="company-field">
         Название компании *
         <input
-          style={inputStyle}
+          className="company-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -59,41 +50,42 @@ export function CompanyCreateForm() {
           placeholder="ООО Пример или бренд"
         />
       </label>
-      <label>
+      <label className="company-field">
         ИНН (ускоряет проверку)
         <input
-          style={inputStyle}
+          className="company-input"
           value={inn}
           onChange={(e) => setInn(e.target.value)}
           placeholder="10 или 12 цифр"
           inputMode="numeric"
         />
       </label>
-      <label>
+      <label className="company-field">
         Сайт компании
         <input
-          style={inputStyle}
+          className="company-input"
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
           placeholder="https://example.ru"
           type="url"
         />
       </label>
-      <label>
+      <label className="company-field">
         О компании
         <textarea
-          style={{ ...inputStyle, minHeight: 100 }}
+          className="company-textarea"
+          style={{ minHeight: 100 }}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={5000}
           placeholder="Чем занимаетесь, сколько людей в команде, почему к вам стоит идти джуну"
         />
       </label>
-      {error && <p style={{ color: "#c0392b", margin: 0 }}>{error}</p>}
+      {error && <p className="company-error">{error}</p>}
       <button className="btn-dark" type="submit" disabled={loading}>
         {loading ? "Создаём..." : "Создать компанию"}
       </button>
-      <p style={{ margin: 0, fontSize: 13, color: "var(--muted, #666)" }}>
+      <p className="company-hint">
         После создания компания попадает на проверку. Публикация вакансий откроется после
         подтверждения - обычно в течение 1 рабочего дня.
       </p>

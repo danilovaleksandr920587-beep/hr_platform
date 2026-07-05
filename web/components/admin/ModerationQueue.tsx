@@ -88,18 +88,18 @@ export function ModerationQueue({
 
   return (
     <div style={{ display: "grid", gap: 24 }}>
-      {error && <p style={{ color: "#c0392b", margin: 0 }}>{error}</p>}
+      {error && <p className="company-error">{error}</p>}
 
       <section>
         <h2>Компании на проверку ({companies.length})</h2>
         {!companies.length ? (
-          <p style={{ color: "var(--muted, #666)" }}>Очередь пуста.</p>
+          <p className="company-hint">Очередь пуста.</p>
         ) : (
           <div style={{ display: "grid", gap: 12 }}>
             {companies.map((c) => (
               <div key={c.id} className="panel">
-                <p style={{ margin: "0 0 4px", fontWeight: 600 }}>{c.name}</p>
-                <p style={{ margin: "0 0 8px", fontSize: 13, color: "var(--muted, #666)" }}>
+                <p style={{ margin: "0 0 4px", fontWeight: 700 }}>{c.name}</p>
+                <p className="company-hint" style={{ marginBottom: 8 }}>
                   ИНН: {c.inn || "не указан"}
                   {c.website ? (
                     <>
@@ -117,22 +117,20 @@ export function ModerationQueue({
                     {c.description.slice(0, 500)}
                   </p>
                 )}
-                <div style={{ display: "flex", gap: 8 }}>
+                <div className="company-form-actions">
                   <button
-                    className="btn-dark"
+                    className="btn-dark btn-dark--success"
                     type="button"
                     disabled={busy === c.id}
                     onClick={() => decideCompany(c.id, true)}
-                    style={{ background: "#2e8b57", fontSize: 13 }}
                   >
                     Подтвердить
                   </button>
                   <button
-                    className="btn-dark"
+                    className="btn-dark btn-dark--danger"
                     type="button"
                     disabled={busy === c.id}
                     onClick={() => decideCompany(c.id, false)}
-                    style={{ background: "#c0392b", fontSize: 13 }}
                   >
                     Отклонить
                   </button>
@@ -146,15 +144,15 @@ export function ModerationQueue({
       <section>
         <h2>Вакансии на модерацию ({vacancies.length})</h2>
         {!vacancies.length ? (
-          <p style={{ color: "var(--muted, #666)" }}>Очередь пуста.</p>
+          <p className="company-hint">Очередь пуста.</p>
         ) : (
           <div style={{ display: "grid", gap: 12 }}>
             {vacancies.map((v) => (
               <div key={v.slug} className="panel">
-                <p style={{ margin: "0 0 4px", fontWeight: 600 }}>
+                <p style={{ margin: "0 0 4px", fontWeight: 700 }}>
                   {v.title} · {v.company}
                 </p>
-                <p style={{ margin: "0 0 8px", fontSize: 13, color: "var(--muted, #666)" }}>
+                <p className="company-hint" style={{ marginBottom: 8 }}>
                   {v.city || "город не указан"} · отклик:{" "}
                   {v.apply_mode === "internal" ? "на платформе" : `внешний (${v.apply_url ?? "?"})`}
                 </p>
@@ -164,22 +162,20 @@ export function ModerationQueue({
                     {v.description.length > 700 ? "..." : ""}
                   </p>
                 )}
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div className="company-form-actions">
                   <button
-                    className="btn-dark"
+                    className="btn-dark btn-dark--success"
                     type="button"
                     disabled={busy === v.slug}
                     onClick={() => decideVacancy(v.slug, true)}
-                    style={{ background: "#2e8b57", fontSize: 13 }}
                   >
                     Опубликовать
                   </button>
                   <button
-                    className="btn-dark"
+                    className="btn-dark btn-dark--danger"
                     type="button"
                     disabled={busy === v.slug}
                     onClick={() => decideVacancy(v.slug, false)}
-                    style={{ background: "#c0392b", fontSize: 13 }}
                   >
                     Отклонить
                   </button>

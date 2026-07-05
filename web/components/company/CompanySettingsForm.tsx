@@ -3,15 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const inputStyle = {
-  width: "100%" as const,
-  marginTop: 6,
-  padding: "0.55rem 0.65rem",
-  borderRadius: 10,
-  border: "1px solid var(--border2, #ddd)",
-  font: "inherit" as const,
-};
-
 export function CompanySettingsForm({
   companyId,
   isOwner,
@@ -61,11 +52,11 @@ export function CompanySettingsForm({
   }
 
   return (
-    <form className="panel" onSubmit={submit} style={{ display: "grid", gap: 14 }}>
-      <label>
+    <form className="panel" onSubmit={submit} style={{ display: "grid", gap: 16 }}>
+      <label className="company-field">
         Название компании
         <input
-          style={inputStyle}
+          className="company-input"
           value={values.name}
           onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
           required
@@ -73,35 +64,36 @@ export function CompanySettingsForm({
           maxLength={200}
         />
       </label>
-      <label>
+      <label className="company-field">
         ИНН
         <input
-          style={inputStyle}
+          className="company-input"
           value={values.inn}
           onChange={(e) => setValues((v) => ({ ...v, inn: e.target.value }))}
           inputMode="numeric"
         />
       </label>
-      <label>
+      <label className="company-field">
         Сайт
         <input
-          style={inputStyle}
+          className="company-input"
           value={values.website}
           onChange={(e) => setValues((v) => ({ ...v, website: e.target.value }))}
           type="url"
         />
       </label>
-      <label>
+      <label className="company-field">
         О компании (показывается на страницах вакансий)
         <textarea
-          style={{ ...inputStyle, minHeight: 100 }}
+          className="company-textarea"
+          style={{ minHeight: 100 }}
           value={values.description}
           onChange={(e) => setValues((v) => ({ ...v, description: e.target.value }))}
           maxLength={5000}
         />
       </label>
-      {error && <p style={{ color: "#c0392b", margin: 0 }}>{error}</p>}
-      {notice && <p style={{ color: "#2e8b57", margin: 0 }}>{notice}</p>}
+      {error && <p className="company-error">{error}</p>}
+      {notice && <p className="company-notice">{notice}</p>}
       <button className="btn-dark" type="submit" disabled={busy}>
         {busy ? "Сохраняем..." : "Сохранить"}
       </button>

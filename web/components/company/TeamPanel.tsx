@@ -18,15 +18,6 @@ export type TeamInvite = {
   expires_at: string;
 };
 
-const inputStyle = {
-  width: "100%" as const,
-  marginTop: 6,
-  padding: "0.55rem 0.65rem",
-  borderRadius: 10,
-  border: "1px solid var(--border2, #ddd)",
-  font: "inherit" as const,
-};
-
 export function TeamPanel({
   companyId,
   viewerAccountId,
@@ -121,30 +112,22 @@ export function TeamPanel({
     <div style={{ display: "grid", gap: 20 }}>
       <div className="panel">
         <h2 style={{ marginTop: 0 }}>Участники</h2>
-        <div style={{ display: "grid", gap: 10 }}>
+        <div>
           {members.map((m) => (
-            <div
-              key={m.account_id}
-              style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" }}
-            >
+            <div key={m.account_id} className="team-member-row">
               <div>
-                <strong>{m.display_name || m.email}</strong>{" "}
-                <span style={{ fontSize: 13, color: "var(--muted, #666)" }}>
+                <span className="team-member-name">{m.display_name || m.email}</span>
+                <span className="team-member-detail">
                   {m.email} · {COMPANY_ROLE_LABELS[m.role]}
                   {m.status === "disabled" ? " · отключён" : ""}
                   {m.account_id === viewerAccountId ? " · это вы" : ""}
                 </span>
               </div>
               {canManageMember(m) && (
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div className="team-member-controls">
                   <select
-                    style={{
-                      padding: "0.3rem 0.5rem",
-                      borderRadius: 8,
-                      border: "1px solid var(--border2, #ddd)",
-                      font: "inherit",
-                      fontSize: 13,
-                    }}
+                    className="company-select-field"
+                    style={{ padding: "0.35rem 0.5rem", fontSize: 13 }}
                     value={m.role}
                     disabled={busy}
                     onChange={(e) => patchMember(m.account_id, { role: e.target.value as CompanyRole })}
@@ -155,8 +138,7 @@ export function TeamPanel({
                   </select>
                   {m.status === "active" ? (
                     <button
-                      className="text-link"
-                      style={{ border: "none", background: "none", cursor: "pointer", font: "inherit", color: "#c0392b" }}
+                      className="btn-ghost btn-ghost--danger"
                       type="button"
                       disabled={busy}
                       onClick={() => patchMember(m.account_id, { status: "disabled" })}
@@ -165,8 +147,7 @@ export function TeamPanel({
                     </button>
                   ) : (
                     <button
-                      className="text-link"
-                      style={{ border: "none", background: "none", cursor: "pointer", font: "inherit" }}
+                      className="btn-ghost"
                       type="button"
                       disabled={busy}
                       onClick={() => patchMember(m.account_id, { status: "active" })}
@@ -184,10 +165,11 @@ export function TeamPanel({
       {invites.length > 0 && (
         <div className="panel">
           <h2 style={{ marginTop: 0 }}>Ожидают принятия</h2>
-          <div style={{ display: "grid", gap: 6 }}>
+          <div>
             {invites.map((i) => (
-              <p key={i.id} style={{ margin: 0, fontSize: 14 }}>
-                {i.email} · {COMPANY_ROLE_LABELS[i.role]}
+              <p key={i.id} className="team-invite-row">
+                <span>{i.email}</span>
+                <span>{COMPANY_ROLE_LABELS[i.role]}</span>
               </p>
             ))}
           </div>
@@ -195,12 +177,12 @@ export function TeamPanel({
       )}
 
       {canManage ? (
-        <form className="panel" onSubmit={invite} style={{ display: "grid", gap: 12 }}>
+        <form className="panel" onSubmit={invite} style={{ display: "grid", gap: 14 }}>
           <h2 style={{ marginTop: 0 }}>Пригласить в команду</h2>
-          <label>
+          <label className="company-field">
             Email коллеги
             <input
-              style={inputStyle}
+              className="company-input"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -208,22 +190,22 @@ export function TeamPanel({
               placeholder="hr@company.ru"
             />
           </label>
-          <label>
+          <label className="company-field">
             Роль
-            <select style={inputStyle} value={role} onChange={(e) => setRole(e.target.value as CompanyRole)}>
+            <select className="company-select-field" value={role} onChange={(e) => setRole(e.target.value as CompanyRole)}>
               <option value="recruiter">Рекрутер - вакансии и отклики</option>
               <option value="admin">Администратор - плюс команда и настройки</option>
               {isOwner && <option value="owner">Владелец - полный доступ</option>}
             </select>
           </label>
-          {error && <p style={{ color: "#c0392b", margin: 0 }}>{error}</p>}
-          {notice && <p style={{ color: "#2e8b57", margin: 0 }}>{notice}</p>}
+          {error && <p className="company-error">{error}</p>}
+          {notice && <p className="company-notice">{notice}</p>}
           <button className="btn-dark" type="submit" disabled={busy}>
             {busy ? "Отправляем..." : "Отправить приглашение"}
           </button>
         </form>
       ) : (
-        <p style={{ fontSize: 13, color: "var(--muted, #666)" }}>
+        <p className="company-hint">
           Приглашать и менять роли могут владелец и администраторы компании.
         </p>
       )}

@@ -26,13 +26,17 @@
 
 /* Hero */
 .home-careerlab-scope .cl-hero {
-  min-height: 100vh;
-  min-height: 100dvh;
+  /* Высота — по контенту (с запасом), НЕ жёсткие 100vh. Раньше было
+     min-height:100vh + justify-content:flex-end: на высоких десктопах контент
+     прижимался к низу, а сверху над eyebrow зияла пустая «дырка» лайма (~250px).
+     Центрируем и растём от контента — пустоты сверху нет ни при какой высоте окна.
+     НЕ возвращать 100vh + flex-end: именно эта пара и есть источник «дырки». */
+  min-height: 640px;
   background: var(--cl-lime);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: calc(60px + env(safe-area-inset-top, 0px) + 12px)
+  justify-content: center;
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 40px)
     clamp(1rem, 4vw, 60px) 64px;
   position: relative;
   overflow: hidden;
@@ -1219,8 +1223,9 @@ a.cl-cta-btn:hover {
 
 @media (max-width: 900px) {
   .home-careerlab-scope .cl-hero {
-    justify-content: flex-end;
-    min-height: 104dvh;
+    /* Наследуем justify-content:center и высоту-по-контенту из базового
+       правила. НЕ возвращать flex-end + 100/104dvh — на мобильных это давало
+       ту же «дырку» пустого лайма над eyebrow, что и на десктопе. */
     padding-top: calc(52px + env(safe-area-inset-top, 0px) + 24px);
     padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
   }

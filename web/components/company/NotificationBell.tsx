@@ -123,68 +123,22 @@ export function NotificationBell() {
   if (authed !== true) return null;
 
   return (
-    <div ref={boxRef} style={{ position: "relative" }}>
+    <div ref={boxRef} className="notification-bell">
       <button
         type="button"
         onClick={toggle}
         aria-label={`Уведомления${unread ? `, непрочитанных: ${unread}` : ""}`}
-        style={{
-          position: "relative",
-          border: "none",
-          background: "transparent",
-          cursor: "pointer",
-          fontSize: 20,
-          lineHeight: 1,
-          padding: 4,
-        }}
+        className="notification-bell-trigger"
       >
         <span aria-hidden>🔔</span>
-        {unread > 0 && (
-          <span
-            style={{
-              position: "absolute",
-              top: -2,
-              right: -2,
-              minWidth: 16,
-              height: 16,
-              padding: "0 4px",
-              borderRadius: 999,
-              background: "#c0392b",
-              color: "#fff",
-              fontSize: 10,
-              lineHeight: "16px",
-              textAlign: "center",
-              fontWeight: 700,
-            }}
-          >
-            {unread > 9 ? "9+" : unread}
-          </span>
-        )}
+        {unread > 0 && <span className="notification-bell-count">{unread > 9 ? "9+" : unread}</span>}
       </button>
 
       {open && (
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: "calc(100% + 8px)",
-            width: 320,
-            maxHeight: 420,
-            overflowY: "auto",
-            background: "#fff",
-            border: "1px solid var(--border2, #ddd)",
-            borderRadius: 12,
-            boxShadow: "0 8px 28px rgba(0,0,0,0.14)",
-            zIndex: 1000,
-          }}
-        >
-          <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border2, #eee)", fontWeight: 600 }}>
-            Уведомления
-          </div>
+        <div className="notification-bell-panel">
+          <div className="notification-bell-title">Уведомления</div>
           {!items.length ? (
-            <p style={{ padding: "16px 14px", margin: 0, color: "var(--muted, #666)", fontSize: 14 }}>
-              Пока пусто.
-            </p>
+            <p className="notification-bell-empty">Пока пусто.</p>
           ) : (
             items.map((n) => {
               const { text, href } = messageFor(n);
@@ -192,19 +146,10 @@ export function NotificationBell() {
                 <a
                   key={n.id}
                   href={href}
-                  style={{
-                    display: "block",
-                    padding: "10px 14px",
-                    borderBottom: "1px solid var(--border2, #f0f0f0)",
-                    textDecoration: "none",
-                    color: "inherit",
-                    background: n.read_at ? "transparent" : "rgba(197,163,0,0.08)",
-                  }}
+                  className={`notification-bell-item${n.read_at ? "" : " is-unread"}`}
                 >
-                  <div style={{ fontSize: 14 }}>{text}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted, #888)", marginTop: 2 }}>
-                    {timeAgo(n.created_at)}
-                  </div>
+                  <div className="notification-bell-item-text">{text}</div>
+                  <div className="notification-bell-item-time">{timeAgo(n.created_at)}</div>
                 </a>
               );
             })

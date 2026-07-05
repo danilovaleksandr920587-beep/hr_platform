@@ -4,6 +4,7 @@ import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../styles/careerlab-ui.css";
 import "../styles/cl-topbar.css";
+import "../styles/company-portal.css";
 import "./globals.css";
 import { CookieBanner } from "@/components/CookieBanner";
 import { SiteHeader } from "@/components/SiteHeader";

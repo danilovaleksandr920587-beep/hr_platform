@@ -45,49 +45,35 @@ export function CompanyNav({
   const hasSwitcher = companies && companies.length > 1;
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      {hasSwitcher ? (
-        <label style={{ display: "block", margin: "0 0 10px", color: "var(--muted, #666)", fontSize: 14 }}>
-          Кабинет компании:{" "}
-          <select
-            value={activeId}
-            onChange={(e) => switchCompany(e.target.value)}
-            style={{
-              font: "inherit",
-              fontSize: 14,
-              fontWeight: 600,
-              padding: "0.2rem 0.4rem",
-              borderRadius: 8,
-              border: "1px solid var(--border2, #ddd)",
-            }}
-          >
-            {companies!.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </label>
-      ) : (
-        <p style={{ margin: "0 0 10px", color: "var(--muted, #666)", fontSize: 14 }}>
-          Кабинет компании: <strong>{companyName}</strong>
-        </p>
-      )}
-      <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+    <div>
+      <div className="company-context">
+        {hasSwitcher ? (
+          <label>
+            Кабинет компании:{" "}
+            <select
+              className="company-select"
+              value={activeId}
+              onChange={(e) => switchCompany(e.target.value)}
+            >
+              {companies!.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <span>
+            Кабинет компании: <strong>{companyName}</strong>
+          </span>
+        )}
+      </div>
+      <nav className="company-tabs">
         {TABS.map((tab) => {
           const active = tab.match(pathname);
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              style={{
-                padding: "0.45rem 0.9rem",
-                borderRadius: 999,
-                textDecoration: "none",
-                font: "inherit",
-                fontSize: 14,
-                border: "1px solid var(--border2, #ddd)",
-                background: active ? "var(--ink, #1e2114)" : "transparent",
-                color: active ? "#fff" : "inherit",
-              }}
+              className={`company-tab${active ? " is-active" : ""}`}
             >
               {tab.label}
             </Link>

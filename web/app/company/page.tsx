@@ -27,15 +27,15 @@ export default async function CompanyDashboardPage() {
 
   const statusBanner =
     company.status === "pending" ? (
-      <div className="panel" style={{ marginBottom: 20, borderLeft: "4px solid #e5a500" }}>
-        <p style={{ margin: 0 }}>
+      <div className="panel company-banner company-banner--warn">
+        <p>
           <strong>Компания на проверке.</strong> Вы уже можете готовить вакансии в черновиках -
           отправка на публикацию откроется после подтверждения. Обычно проверка занимает 1 рабочий день.
         </p>
       </div>
     ) : company.status === "rejected" ? (
-      <div className="panel" style={{ marginBottom: 20, borderLeft: "4px solid #c0392b" }}>
-        <p style={{ margin: 0 }}>
+      <div className="panel company-banner company-banner--error">
+        <p>
           <strong>Компания не прошла проверку.</strong>
           {company.status_reason ? ` Причина: ${company.status_reason}.` : ""}{" "}
           Обновите данные в <Link className="text-link" href="/company/settings">настройках</Link> и
@@ -43,22 +43,12 @@ export default async function CompanyDashboardPage() {
         </p>
       </div>
     ) : company.status === "blocked" ? (
-      <div className="panel" style={{ marginBottom: 20, borderLeft: "4px solid #c0392b" }}>
-        <p style={{ margin: 0 }}>
+      <div className="panel company-banner company-banner--error">
+        <p>
           <strong>Компания заблокирована.</strong> Свяжитесь с поддержкой платформы.
         </p>
       </div>
     ) : null;
-
-  const cardStyle = {
-    flex: "1 1 180px",
-    padding: "1rem 1.2rem",
-    borderRadius: 14,
-    border: "1px solid var(--border2, #ddd)",
-    textDecoration: "none",
-    color: "inherit",
-    display: "block" as const,
-  };
 
   return (
     <>
@@ -70,26 +60,26 @@ export default async function CompanyDashboardPage() {
             Статус компании: <strong>{COMPANY_STATUS_LABELS[company.status]}</strong>
           </p>
           {statusBanner}
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <Link href="/company/applications?status=new" style={cardStyle}>
-              <div style={{ fontSize: 32, fontWeight: 700 }}>{newApplications}</div>
-              <div>Новых откликов</div>
+          <div className="company-stats">
+            <Link href="/company/applications?status=new" className="company-stat">
+              <div className="company-stat-num">{newApplications}</div>
+              <div className="company-stat-label">Новых откликов</div>
             </Link>
-            <Link href="/company/vacancies" style={cardStyle}>
-              <div style={{ fontSize: 32, fontWeight: 700 }}>{published}</div>
-              <div>Опубликовано вакансий</div>
+            <Link href="/company/vacancies" className="company-stat">
+              <div className="company-stat-num">{published}</div>
+              <div className="company-stat-label">Опубликовано вакансий</div>
             </Link>
-            <Link href="/company/vacancies" style={cardStyle}>
-              <div style={{ fontSize: 32, fontWeight: 700 }}>{pending}</div>
-              <div>На модерации</div>
+            <Link href="/company/vacancies" className="company-stat">
+              <div className="company-stat-num">{pending}</div>
+              <div className="company-stat-label">На модерации</div>
             </Link>
-            <Link href="/company/vacancies" style={cardStyle}>
-              <div style={{ fontSize: 32, fontWeight: 700 }}>{drafts}</div>
-              <div>Черновики и отклонённые</div>
+            <Link href="/company/vacancies" className="company-stat">
+              <div className="company-stat-num">{drafts}</div>
+              <div className="company-stat-label">Черновики и отклонённые</div>
             </Link>
           </div>
           <p style={{ marginTop: 24 }}>
-            <Link className="text-link" href="/company/vacancies/new">
+            <Link className="btn-dark" href="/company/vacancies/new">
               + Новая вакансия
             </Link>
           </p>
