@@ -1,12 +1,18 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { transliterate } from "@/lib/transliterate";
+import { vacancyShapes } from "@/lib/data/vacancy-schema";
 import type { CompanyRow } from "./store";
 import type { CompanyVacancyStatus } from "./constants";
 
 /**
- * Вакансии компаний живут в контентной таблице vacancies (Supabase, web-схема).
+ * Вакансии компаний живут в контентной таблице vacancies (Supabase).
  * Все записи - через service role; anon видит только is_published = true.
+ *
+ * Схема vacancies бывает двух форм (см. lib/data/vacancy-schema.ts):
+ *   root (прод): employment_type, is_featured, search_vector
+ *   web:         type, featured, search_document
+ * Колонки для записи/чтения выбираем по первой форме из vacancyShapes().
  *
  * Инварианты статусов:
  *   draft / pending_review / rejected -> is_published = false
@@ -14,6 +20,30 @@ import type { CompanyVacancyStatus } from "./constants";
  *   archived                          -> is_published = true,  is_archived = true
  *     (страница живёт для SEO как у парсерных архивных, из листинга скрыта)
  */
+
+function vacShape(): "root" | "web" {
+  return vacancyShapes()[0];
+}
+
+/** Имя колонки типа занятости в текущей схеме. */
+function typeColumn(): string {
+  return vacShape() === "web" ? "type" : "employment_type";
+}
+
+/**
+ * SELECT для карточки вакансии компании. На root-схеме тип отдаём под
+ * алиасом type:employment_type, чтобы наверху всегда было поле `type`.
+ */
+function companyVacancySelect(): string {
+  const typeSel = vacShape() === "web" ? "type" : "type:employment_type";
+  return `id,slug,title,company,description,sphere,exp,format,${typeSel},salary_min,salary_max,city,skills,apply_mode,apply_url,status,status_reason,is_published,is_archived,published_at,company_id`;
+}
+
+/** Поле поиска: web-схема хранит текст в search_document; на root оставляем null
+ *  (search_vector - tsvector без триггера; поиск на root идёт по description). */
+function searchPatch(text: string): Record<string, unknown> {
+  return vacShape() === "web" ? { search_document: text.slice(0, 8000) } : {};
+}
 
 const SPHERES = [
   "it", "design", "marketing", "analytics", "product", "sales", "support",
@@ -61,9 +91,6 @@ export type CompanyVacancyRow = {
   published_at: string;
   company_id: string;
 };
-
-const COMPANY_VACANCY_SELECT =
-  "id,slug,title,company,description,sphere,exp,format,type,salary_min,salary_max,city,skills,apply_mode,apply_url,status,status_reason,is_published,is_archived,published_at,company_id";
 
 /** Разбор тела запроса формы вакансии (общий для POST и PATCH). */
 export function parseVacancyBody(body: Record<string, unknown>): CompanyVacancyInput {
@@ -152,7 +179,7 @@ export async function createCompanyVacancy(
 ): Promise<CompanyVacancyRow> {
   const sb = createServiceRoleClient();
   const slug = await uniqueVacancySlug(input.title, company.name);
-  const search = `${input.title} ${company.name} ${input.description}`.slice(0, 8000);
+  const search = `${input.title} ${company.name} ${input.description}`;
 
   const { data, error } = await sb
     .from("vacancies")
@@ -164,13 +191,11 @@ export async function createCompanyVacancy(
       sphere: input.sphere,
       exp: input.exp,
       format: input.format,
-      type: input.type,
+      [typeColumn()]: input.type,
       salary_min: input.salaryMin,
       salary_max: input.salaryMax,
       city: input.city.trim() || null,
       skills: input.skills,
-      search_document: search,
-      featured: false,
       is_published: false,
       is_archived: false,
       source: "company",
@@ -180,24 +205,25 @@ export async function createCompanyVacancy(
       apply_url: input.applyMode === "external" ? input.applyUrl.trim() : null,
       company_about: company.description || null,
       company_logo_url: company.logo_url,
+      ...searchPatch(search),
     })
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .single();
 
   if (error) throw new Error(`createCompanyVacancy: ${error.message}`);
-  return data as CompanyVacancyRow;
+  return data as unknown as CompanyVacancyRow;
 }
 
 export async function listCompanyVacancies(companyId: string): Promise<CompanyVacancyRow[]> {
   const sb = createServiceRoleClient();
   const { data, error } = await sb
     .from("vacancies")
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .eq("company_id", companyId)
     .eq("source", "company")
     .order("published_at", { ascending: false });
   if (error) throw new Error(`listCompanyVacancies: ${error.message}`);
-  return (data ?? []) as CompanyVacancyRow[];
+  return (data ?? []) as unknown as CompanyVacancyRow[];
 }
 
 export async function getCompanyVacancyBySlug(
@@ -207,12 +233,12 @@ export async function getCompanyVacancyBySlug(
   const sb = createServiceRoleClient();
   const { data, error } = await sb
     .from("vacancies")
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .eq("company_id", companyId)
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(`getCompanyVacancyBySlug: ${error.message}`);
-  return (data as CompanyVacancyRow) ?? null;
+  return (data as unknown as CompanyVacancyRow) ?? null;
 }
 
 /** Данные вакансии для приёма отклика (любая компания, публичная страница). */
@@ -256,7 +282,7 @@ export async function updateCompanyVacancy(
   if (input.sphere !== undefined) patch.sphere = input.sphere;
   if (input.exp !== undefined) patch.exp = input.exp;
   if (input.format !== undefined) patch.format = input.format;
-  if (input.type !== undefined) patch.type = input.type;
+  if (input.type !== undefined) patch[typeColumn()] = input.type;
   if (input.salaryMin !== undefined) patch.salary_min = input.salaryMin;
   if (input.salaryMax !== undefined) patch.salary_max = input.salaryMax;
   if (input.city !== undefined) patch.city = input.city.trim() || null;
@@ -268,7 +294,7 @@ export async function updateCompanyVacancy(
 
   const title = (patch.title as string) ?? existing.title;
   const description = (patch.description as string) ?? existing.description ?? "";
-  patch.search_document = `${title} ${existing.company} ${description}`.slice(0, 8000);
+  Object.assign(patch, searchPatch(`${title} ${existing.company} ${description}`));
 
   // Правка опубликованной вакансии непроверенной компанией - обратно на модерацию
   if (existing.status === "published" && !options.trusted) {
@@ -288,10 +314,10 @@ export async function updateCompanyVacancy(
     .update(patch)
     .eq("company_id", companyId)
     .eq("slug", slug)
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .single();
   if (error) throw new Error(`updateCompanyVacancy: ${error.message}`);
-  return data as CompanyVacancyRow;
+  return data as unknown as CompanyVacancyRow;
 }
 
 export type VacancyStatusAction = "submit" | "archive" | "unarchive";
@@ -342,10 +368,10 @@ export async function changeCompanyVacancyStatus(
     .update(patch)
     .eq("company_id", companyId)
     .eq("slug", slug)
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .single();
   if (error) throw new Error(`changeCompanyVacancyStatus: ${error.message}`);
-  return data as CompanyVacancyRow;
+  return data as unknown as CompanyVacancyRow;
 }
 
 // Модерация (админ платформы) ---------------------------------------------
@@ -354,12 +380,12 @@ export async function listVacanciesPendingReview(): Promise<CompanyVacancyRow[]>
   const sb = createServiceRoleClient();
   const { data, error } = await sb
     .from("vacancies")
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .eq("source", "company")
     .eq("status", "pending_review")
     .order("published_at", { ascending: true });
   if (error) throw new Error(`listVacanciesPendingReview: ${error.message}`);
-  return (data ?? []) as CompanyVacancyRow[];
+  return (data ?? []) as unknown as CompanyVacancyRow[];
 }
 
 export async function reviewVacancy(
@@ -382,8 +408,8 @@ export async function reviewVacancy(
     .eq("slug", slug)
     .eq("source", "company")
     .eq("status", "pending_review")
-    .select(COMPANY_VACANCY_SELECT)
+    .select(companyVacancySelect())
     .single();
   if (error) throw new Error(`reviewVacancy: ${error.message}`);
-  return data as CompanyVacancyRow;
+  return data as unknown as CompanyVacancyRow;
 }
