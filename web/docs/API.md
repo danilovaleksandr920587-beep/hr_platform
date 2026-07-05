@@ -77,5 +77,19 @@
 | Endpoint | Методы | Что делает |
 |----------|--------|------------|
 | `/api/admin/moderation` | GET | Очередь: компании pending + вакансии pending_review |
-| `/api/admin/companies/[id]/verify` | POST | `{approve, reason?, trusted?}` + письмо владельцам |
-| `/api/admin/vacancies/[slug]/review` | POST | `{approve, reason?}` + письмо команде |
+| `/api/admin/companies/[id]/verify` | POST | `{approve, reason?, trusted?}` + письмо и in-app владельцам |
+| `/api/admin/vacancies/[slug]/review` | POST | `{approve, reason?}` + письмо и in-app команде |
+
+## B2B фаза 2: in-app уведомления (Auth)
+
+| Endpoint | Методы | Что делает |
+|----------|--------|------------|
+| `/api/notifications` | GET | Список уведомлений + счётчик непрочитанных (401 гостю - колокольчик прячется) |
+| `/api/notifications/read` | POST | Отметить прочитанными: `{ids?}` (без тела - все) |
+| `/api/notification-prefs` | GET, POST | Настройки email-уведомлений по типам (задел под email-дайджест, enforcement - позже) |
+
+Уведомления пишутся в тех же роутах, что и события (отклик, смена статуса,
+модерация), рядом с email. Типы: application_new, application_status,
+company_moderation, vacancy_moderation. Колокольчик - в шапке (`NotificationBell`,
+поллинг 60с). Роли компании теперь owner/admin/recruiter (admin - команда и
+профиль, кроме действий с владельцами).

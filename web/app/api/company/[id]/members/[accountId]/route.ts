@@ -8,7 +8,7 @@ type RouteProps = { params: Promise<{ id: string; accountId: string }> };
 
 export async function PATCH(req: Request, { params }: RouteProps) {
   const { id, accountId } = await params;
-  const access = await requireCompanyRole(id, "owner");
+  const access = await requireCompanyRole(id, "admin");
   if (!isCompanyAccess(access)) return access;
 
   let body: { role?: string; status?: string };
@@ -30,6 +30,15 @@ export async function PATCH(req: Request, { params }: RouteProps) {
   const target = await getMembership(id, accountId);
   if (!target) {
     return NextResponse.json({ error: "Участник не найден." }, { status: 404 });
+  }
+
+  // Действия с владельцами и назначение владельцем - только для owner.
+  // admin управляет только admin/recruiter и не может выдать роль owner.
+  if (access.role !== "owner" && (target.role === "owner" || role === "owner")) {
+    return NextResponse.json(
+      { error: "Только владелец может назначать и снимать владельцев." },
+      { status: 403 },
+    );
   }
 
   // Нельзя оставить компанию без активного владельца

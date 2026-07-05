@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { COMPANY_ROLE_LABELS, type CompanyRole } from "@/lib/company/constants";
+import { COMPANY_ROLE_LABELS, roleAtLeast, type CompanyRole } from "@/lib/company/constants";
 
 export type TeamMember = {
   account_id: string;
@@ -49,6 +49,20 @@ export function TeamPanel({
   const [notice, setNotice] = useState<string | null>(null);
 
   const isOwner = viewerRole === "owner";
+  const canManage = roleAtLeast(viewerRole, "admin");
+  // Роли, которые текущий пользователь может назначать: owner - все,
+  // admin - только admin/recruiter (не может выдать/тронуть owner)
+  const assignableRoles: CompanyRole[] = isOwner
+    ? ["owner", "admin", "recruiter"]
+    : ["admin", "recruiter"];
+
+  function canManageMember(m: TeamMember): boolean {
+    if (!canManage) return false;
+    if (m.account_id === viewerAccountId) return false;
+    // admin не может трогать владельцев
+    if (!isOwner && m.role === "owner") return false;
+    return true;
+  }
 
   async function invite(e: React.FormEvent) {
     e.preventDefault();
@@ -121,29 +135,24 @@ export function TeamPanel({
                   {m.account_id === viewerAccountId ? " · это вы" : ""}
                 </span>
               </div>
-              {isOwner && m.account_id !== viewerAccountId && (
-                <div style={{ display: "flex", gap: 8 }}>
-                  {m.role === "recruiter" ? (
-                    <button
-                      className="text-link"
-                      style={{ border: "none", background: "none", cursor: "pointer", font: "inherit" }}
-                      type="button"
-                      disabled={busy}
-                      onClick={() => patchMember(m.account_id, { role: "owner" })}
-                    >
-                      Сделать владельцем
-                    </button>
-                  ) : (
-                    <button
-                      className="text-link"
-                      style={{ border: "none", background: "none", cursor: "pointer", font: "inherit" }}
-                      type="button"
-                      disabled={busy}
-                      onClick={() => patchMember(m.account_id, { role: "recruiter" })}
-                    >
-                      Сделать рекрутером
-                    </button>
-                  )}
+              {canManageMember(m) && (
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <select
+                    style={{
+                      padding: "0.3rem 0.5rem",
+                      borderRadius: 8,
+                      border: "1px solid var(--border2, #ddd)",
+                      font: "inherit",
+                      fontSize: 13,
+                    }}
+                    value={m.role}
+                    disabled={busy}
+                    onChange={(e) => patchMember(m.account_id, { role: e.target.value as CompanyRole })}
+                  >
+                    {assignableRoles.map((r) => (
+                      <option key={r} value={r}>{COMPANY_ROLE_LABELS[r]}</option>
+                    ))}
+                  </select>
                   {m.status === "active" ? (
                     <button
                       className="text-link"
@@ -185,7 +194,7 @@ export function TeamPanel({
         </div>
       )}
 
-      {isOwner ? (
+      {canManage ? (
         <form className="panel" onSubmit={invite} style={{ display: "grid", gap: 12 }}>
           <h2 style={{ marginTop: 0 }}>Пригласить в команду</h2>
           <label>
@@ -203,7 +212,8 @@ export function TeamPanel({
             Роль
             <select style={inputStyle} value={role} onChange={(e) => setRole(e.target.value as CompanyRole)}>
               <option value="recruiter">Рекрутер - вакансии и отклики</option>
-              <option value="owner">Владелец - плюс команда и настройки</option>
+              <option value="admin">Администратор - плюс команда и настройки</option>
+              {isOwner && <option value="owner">Владелец - полный доступ</option>}
             </select>
           </label>
           {error && <p style={{ color: "#c0392b", margin: 0 }}>{error}</p>}
@@ -214,7 +224,7 @@ export function TeamPanel({
         </form>
       ) : (
         <p style={{ fontSize: 13, color: "var(--muted, #666)" }}>
-          Приглашать и менять роли может владелец компании.
+          Приглашать и менять роли могут владелец и администраторы компании.
         </p>
       )}
     </div>

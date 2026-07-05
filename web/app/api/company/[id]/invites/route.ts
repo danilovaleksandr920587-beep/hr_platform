@@ -12,7 +12,7 @@ type RouteProps = { params: Promise<{ id: string }> };
 
 export async function POST(req: Request, { params }: RouteProps) {
   const { id } = await params;
-  const access = await requireCompanyRole(id, "owner");
+  const access = await requireCompanyRole(id, "admin");
   if (!isCompanyAccess(access)) return access;
 
   if (!isSmtpConfigured()) {

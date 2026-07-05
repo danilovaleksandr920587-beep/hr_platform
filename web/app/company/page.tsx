@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CompanyDashboardPage() {
-  const { company } = await requireActiveCompany("/company");
+  const { company, companies } = await requireActiveCompany("/company");
 
   const [vacancies, applications] = await Promise.all([
     listCompanyVacancies(company.id).catch(() => []),
@@ -64,7 +64,7 @@ export default async function CompanyDashboardPage() {
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 960 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <h1 className="page-title">Обзор</h1>
           <p className="hero-text" style={{ marginBottom: 16 }}>
             Статус компании: <strong>{COMPANY_STATUS_LABELS[company.status]}</strong>

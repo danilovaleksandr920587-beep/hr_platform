@@ -2,8 +2,9 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { requirePlatformAdmin, isAdminSession } from "@/lib/auth/platform-admin";
 import { reviewVacancy } from "@/lib/company/vacancies";
-import { listActiveMemberEmails } from "@/lib/company/store";
+import { listActiveMemberEmails, listActiveMemberAccountIds } from "@/lib/company/store";
 import { notifyVacancyModeration } from "@/lib/email/company-notifications";
+import { pushNotificationMany } from "@/lib/company/notifications-store";
 
 type RouteProps = { params: Promise<{ slug: string }> };
 
@@ -25,13 +26,22 @@ export async function POST(req: Request, { params }: RouteProps) {
   try {
     const vacancy = await reviewVacancy(slug, approve, reason);
 
-    const emails = await listActiveMemberEmails(vacancy.company_id);
+    const [emails, memberIds] = await Promise.all([
+      listActiveMemberEmails(vacancy.company_id),
+      listActiveMemberAccountIds(vacancy.company_id),
+    ]);
     notifyVacancyModeration({
       to: emails,
       vacancyTitle: vacancy.title,
       vacancySlug: vacancy.slug,
       approved: approve,
       reason,
+    });
+    await pushNotificationMany(memberIds, "vacancy_moderation", {
+      vacancyTitle: vacancy.title,
+      vacancySlug: vacancy.slug,
+      approved: approve,
+      reason: reason ?? null,
     });
 
     return NextResponse.json({ vacancy });

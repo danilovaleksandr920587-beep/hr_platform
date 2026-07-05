@@ -1,5 +1,17 @@
-export const COMPANY_ROLES = ["owner", "recruiter"] as const;
+export const COMPANY_ROLES = ["owner", "admin", "recruiter"] as const;
 export type CompanyRole = (typeof COMPANY_ROLES)[number];
+
+/** Иерархия ролей: чем больше, тем шире права (owner > admin > recruiter). */
+export const COMPANY_ROLE_RANK: Record<CompanyRole, number> = {
+  owner: 3,
+  admin: 2,
+  recruiter: 1,
+};
+
+/** Роль value имеет права не ниже required. */
+export function roleAtLeast(value: CompanyRole, required: CompanyRole): boolean {
+  return COMPANY_ROLE_RANK[value] >= COMPANY_ROLE_RANK[required];
+}
 
 export const COMPANY_STATUSES = ["pending", "verified", "rejected", "blocked"] as const;
 export type CompanyStatus = (typeof COMPANY_STATUSES)[number];
@@ -24,6 +36,7 @@ export type CompanyVacancyStatus = (typeof COMPANY_VACANCY_STATUSES)[number];
 
 export const COMPANY_ROLE_LABELS: Record<CompanyRole, string> = {
   owner: "Владелец",
+  admin: "Администратор",
   recruiter: "Рекрутер",
 };
 

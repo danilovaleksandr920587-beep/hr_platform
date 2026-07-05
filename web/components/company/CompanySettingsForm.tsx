@@ -55,7 +55,7 @@ export function CompanySettingsForm({
   if (!isOwner) {
     return (
       <div className="panel">
-        <p style={{ margin: 0 }}>Настройки компании может менять только владелец.</p>
+        <p style={{ margin: 0 }}>Настройки компании могут менять владелец и администраторы.</p>
       </div>
     );
   }

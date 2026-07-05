@@ -4,9 +4,11 @@ import { requirePlatformAdmin, isAdminSession } from "@/lib/auth/platform-admin"
 import {
   getCompanyById,
   getCompanyOwnerEmails,
+  getCompanyOwnerAccountIds,
   setCompanyStatus,
 } from "@/lib/company/store";
 import { notifyCompanyModeration } from "@/lib/email/company-notifications";
+import { pushNotificationMany } from "@/lib/company/notifications-store";
 
 type RouteProps = { params: Promise<{ id: string }> };
 
@@ -36,12 +38,20 @@ export async function POST(req: Request, { params }: RouteProps) {
       body.trusted !== undefined ? Boolean(body.trusted) : undefined,
     );
 
-    const owners = await getCompanyOwnerEmails(id);
+    const [owners, ownerIds] = await Promise.all([
+      getCompanyOwnerEmails(id),
+      getCompanyOwnerAccountIds(id),
+    ]);
     notifyCompanyModeration({
       to: owners,
       companyName: company.name,
       approved: approve,
       reason,
+    });
+    await pushNotificationMany(ownerIds, "company_moderation", {
+      companyName: company.name,
+      approved: approve,
+      reason: reason ?? null,
     });
 
     return NextResponse.json({ ok: true });

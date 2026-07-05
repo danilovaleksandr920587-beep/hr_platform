@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 };
 
 export default async function CompanyVacanciesPage() {
-  const { company } = await requireActiveCompany("/company/vacancies");
+  const { company, companies } = await requireActiveCompany("/company/vacancies");
   const vacancies = await listCompanyVacancies(company.id).catch(() => []);
 
   return (
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 960 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <h1 className="page-title" style={{ margin: 0 }}>Вакансии</h1>
             <Link className="btn-dark" href="/company/vacancies/new" style={{ textDecoration: "none" }}>

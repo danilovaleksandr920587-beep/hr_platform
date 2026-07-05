@@ -155,6 +155,16 @@ export async function listActiveMemberEmails(companyId: string): Promise<string[
   return rows.map((r) => r.email);
 }
 
+/** account_id активных членов компании (для in-app уведомлений). */
+export async function listActiveMemberAccountIds(companyId: string): Promise<string[]> {
+  const sql = getSql();
+  const rows = (await sql`
+    select account_id from company_members
+    where company_id = ${companyId} and status = 'active'
+  `) as { account_id: string }[];
+  return rows.map((r) => r.account_id);
+}
+
 export async function updateMember(
   companyId: string,
   accountId: string,
@@ -280,4 +290,13 @@ export async function getCompanyOwnerEmails(companyId: string): Promise<string[]
     where m.company_id = ${companyId} and m.role = 'owner' and m.status = 'active'
   `) as { email: string }[];
   return rows.map((r) => r.email);
+}
+
+export async function getCompanyOwnerAccountIds(companyId: string): Promise<string[]> {
+  const sql = getSql();
+  const rows = (await sql`
+    select account_id from company_members
+    where company_id = ${companyId} and role = 'owner' and status = 'active'
+  `) as { account_id: string }[];
+  return rows.map((r) => r.account_id);
 }

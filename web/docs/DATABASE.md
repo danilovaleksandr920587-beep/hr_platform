@@ -66,6 +66,11 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 | `company_members` | company_id + account_id (PK), role (owner/recruiter), status (active/disabled) | Членство и роли |
 | `company_invites` | company_id + email (unique), role, token_hash (sha256), expires_at (7 дней), accepted_at | Приглашения в команду |
 | `applications` | vacancy_slug + account_id (unique), company_id, resume_file, cover_letter, contact, status (new/viewed/invited/rejected/withdrawn), status_note | Отклики; resume_file - имя файла в RESUME_STORAGE_DIR |
+| `notifications` | account_id, type, payload jsonb, read_at, created_at | In-app уведомления (колокольчик). Фаза 2 |
+| `notification_prefs` | account_id PK, email_prefs jsonb | Настройки email-уведомлений по типам. Фаза 2 |
+
+Роль в `company_members`/`company_invites` с фазы 2: owner/admin/recruiter.
+Миграция фазы 2: `20260706000000_company_phase2.sql` (роль postgres).
 
 Файлы резюме: `RESUME_STORAGE_DIR` (по умолчанию `web/storage/resumes/`,
 в git не попадает), отдача только через `/api/applications/[id]/resume`.

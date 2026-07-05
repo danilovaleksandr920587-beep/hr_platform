@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
+import { NotificationBell } from "@/components/company/NotificationBell";
 
 const NAV = [
   { href: "/", label: "Главная", match: (p: string) => p === "/" },
@@ -134,6 +135,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="cl-topbar-actions">
+          <NotificationBell />
           <button
             type="button"
             className="cl-topbar-menu-btn"

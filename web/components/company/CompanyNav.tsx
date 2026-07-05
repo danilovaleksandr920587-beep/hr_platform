@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { ACTIVE_COMPANY_COOKIE } from "@/lib/company/active-company-cookie";
 
 const TABS = [
   { href: "/company", label: "Обзор", match: (p: string) => p === "/company" },
@@ -23,13 +24,53 @@ const TABS = [
   },
 ] as const;
 
-export function CompanyNav({ companyName }: { companyName: string }) {
+export function CompanyNav({
+  companyName,
+  companies,
+  activeId,
+}: {
+  companyName: string;
+  companies?: { id: string; name: string }[];
+  activeId?: string;
+}) {
   const pathname = usePathname() ?? "";
+  const router = useRouter();
+
+  function switchCompany(id: string) {
+    // cookie читается на сервере (requireActiveCompany); не HttpOnly - ставим из клиента
+    document.cookie = `${ACTIVE_COMPANY_COOKIE}=${id}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    router.refresh();
+  }
+
+  const hasSwitcher = companies && companies.length > 1;
+
   return (
     <div style={{ marginBottom: 24 }}>
-      <p style={{ margin: "0 0 10px", color: "var(--muted, #666)", fontSize: 14 }}>
-        Кабинет компании: <strong>{companyName}</strong>
-      </p>
+      {hasSwitcher ? (
+        <label style={{ display: "block", margin: "0 0 10px", color: "var(--muted, #666)", fontSize: 14 }}>
+          Кабинет компании:{" "}
+          <select
+            value={activeId}
+            onChange={(e) => switchCompany(e.target.value)}
+            style={{
+              font: "inherit",
+              fontSize: 14,
+              fontWeight: 600,
+              padding: "0.2rem 0.4rem",
+              borderRadius: 8,
+              border: "1px solid var(--border2, #ddd)",
+            }}
+          >
+            {companies!.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <p style={{ margin: "0 0 10px", color: "var(--muted, #666)", fontSize: 14 }}>
+          Кабинет компании: <strong>{companyName}</strong>
+        </p>
+      )}
       <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {TABS.map((tab) => {
           const active = tab.match(pathname);

@@ -4,9 +4,10 @@ import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { createApplication, hasApplied } from "@/lib/company/applications";
 import { getVacancyForApply } from "@/lib/company/vacancies";
-import { listActiveMemberEmails } from "@/lib/company/store";
+import { listActiveMemberEmails, listActiveMemberAccountIds } from "@/lib/company/store";
 import { saveResumeFile, validateResumeFile, deleteResumeFile } from "@/lib/company/resume-storage";
 import { notifyNewApplication } from "@/lib/email/company-notifications";
+import { pushNotificationMany } from "@/lib/company/notifications-store";
 import { rateLimit } from "@/lib/rate-limit";
 
 type RouteProps = { params: Promise<{ slug: string }> };
@@ -76,11 +77,20 @@ export async function POST(req: Request, { params }: RouteProps) {
         contact,
       });
 
-      const emails = await listActiveMemberEmails(vacancy.company_id);
+      const [emails, memberIds] = await Promise.all([
+        listActiveMemberEmails(vacancy.company_id),
+        listActiveMemberAccountIds(vacancy.company_id),
+      ]);
+      const applicantName = session.displayName || session.email;
       notifyNewApplication({
         to: emails,
         vacancyTitle: vacancy.title,
-        applicantName: session.displayName || session.email,
+        applicantName,
+      });
+      await pushNotificationMany(memberIds, "application_new", {
+        vacancySlug: slug,
+        vacancyTitle: vacancy.title,
+        applicantName,
       });
 
       return NextResponse.json({ ok: true, applicationId: application.id });

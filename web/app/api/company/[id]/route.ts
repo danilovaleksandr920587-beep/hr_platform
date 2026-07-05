@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: RouteProps) {
 
 export async function PATCH(req: Request, { params }: RouteProps) {
   const { id } = await params;
-  const access = await requireCompanyRole(id, "owner");
+  const access = await requireCompanyRole(id, "admin");
   if (!isCompanyAccess(access)) return access;
 
   let body: {

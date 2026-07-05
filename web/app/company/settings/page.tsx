@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { CompanyNav } from "@/components/company/CompanyNav";
 import { CompanySettingsForm } from "@/components/company/CompanySettingsForm";
 import { requireActiveCompany } from "@/lib/company/active-company";
-import { COMPANY_STATUS_LABELS } from "@/lib/company/constants";
+import { COMPANY_STATUS_LABELS, roleAtLeast } from "@/lib/company/constants";
 
 export const metadata: Metadata = {
   title: "Настройки компании",
@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default async function CompanySettingsPage() {
-  const { company } = await requireActiveCompany("/company/settings");
+  const { company, companies } = await requireActiveCompany("/company/settings");
 
   return (
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 640 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <h1 className="page-title">Настройки</h1>
           <p className="hero-text" style={{ marginBottom: 16 }}>
             Статус: <strong>{COMPANY_STATUS_LABELS[company.status]}</strong>
@@ -27,7 +27,7 @@ export default async function CompanySettingsPage() {
           </p>
           <CompanySettingsForm
             companyId={company.id}
-            isOwner={company.role === "owner"}
+            isOwner={roleAtLeast(company.role, "admin")}
             initial={{
               name: company.name,
               inn: company.inn ?? "",

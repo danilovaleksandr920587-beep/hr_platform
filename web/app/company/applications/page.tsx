@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 };
 
 export default async function CompanyApplicationsPage() {
-  const { company } = await requireActiveCompany("/company/applications");
+  const { company, companies } = await requireActiveCompany("/company/applications");
   const applications = await listApplicationsForCompany(company.id).catch(() => []);
 
   return (
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 960 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <h1 className="page-title">Отклики</h1>
           <ApplicationsBoard companyId={company.id} initialApplications={applications} />
         </div>

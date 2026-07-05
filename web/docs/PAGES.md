@@ -44,6 +44,9 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 редиректит `/office*`, `/company*`, `/company-invite`, `/admin*` на `/login?next=...`
 (next сохраняет query string). Роль/членство проверяются на страницах и в API.
 
+Колокольчик уведомлений - в шапке (`components/company/NotificationBell.tsx`),
+показывается только залогиненным (сам определяет по 401), поллинг 60с.
+
 ## Кабинет компании (B2B, все noindex, закрыты guard-ом)
 
 | URL | Файл | Что это |

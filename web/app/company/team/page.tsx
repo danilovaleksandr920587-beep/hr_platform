@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CompanyTeamPage() {
-  const { session, company } = await requireActiveCompany("/company/team");
+  const { session, company, companies } = await requireActiveCompany("/company/team");
   const [members, invites] = await Promise.all([
     listMembers(company.id).catch(() => []),
     listInvites(company.id).catch(() => []),
@@ -21,7 +21,7 @@ export default async function CompanyTeamPage() {
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 760 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <h1 className="page-title">Команда</h1>
           <TeamPanel
             companyId={company.id}

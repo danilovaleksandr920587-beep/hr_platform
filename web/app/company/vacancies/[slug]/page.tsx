@@ -18,7 +18,7 @@ type PageProps = { params: Promise<{ slug: string }> };
 
 export default async function CompanyVacancyEditPage({ params }: PageProps) {
   const { slug } = await params;
-  const { company } = await requireActiveCompany(`/company/vacancies/${slug}`);
+  const { company, companies } = await requireActiveCompany(`/company/vacancies/${slug}`);
 
   const vacancy = await getCompanyVacancyBySlug(company.id, slug).catch(() => null);
   if (!vacancy) notFound();
@@ -31,7 +31,7 @@ export default async function CompanyVacancyEditPage({ params }: PageProps) {
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 760 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <h1 className="page-title" style={{ margin: 0 }}>{vacancy.title}</h1>
             <VacancyStatusBadge status={vacancy.status} />

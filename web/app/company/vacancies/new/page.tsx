@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 };
 
 export default async function CompanyVacancyNewPage() {
-  const { company } = await requireActiveCompany("/company/vacancies/new");
+  const { company, companies } = await requireActiveCompany("/company/vacancies/new");
 
   return (
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 760 }}>
-          <CompanyNav companyName={company.name} />
+          <CompanyNav companyName={company.name} companies={companies.map((c) => ({ id: c.id, name: c.name }))} activeId={company.id} />
           <h1 className="page-title">Новая вакансия</h1>
           <p className="hero-text" style={{ marginBottom: 20 }}>
             Сначала сохраняется черновик - его можно доработать и отправить на публикацию.

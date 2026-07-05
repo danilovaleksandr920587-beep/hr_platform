@@ -9,6 +9,7 @@ import {
   type ApplicationStatus,
 } from "@/lib/company/constants";
 import { notifyApplicationStatus } from "@/lib/email/company-notifications";
+import { pushNotification } from "@/lib/company/notifications-store";
 
 type RouteProps = { params: Promise<{ id: string; applicationId: string }> };
 
@@ -52,6 +53,12 @@ export async function PATCH(req: Request, { params }: RouteProps) {
         companyName: company?.name ?? "",
         status,
         note,
+      });
+      await pushNotification(application.account_id, "application_status", {
+        vacancySlug: application.vacancy_slug,
+        vacancyTitle: vacancy?.title ?? application.vacancy_slug,
+        companyName: company?.name ?? "",
+        status,
       });
     }
 
