@@ -28,7 +28,7 @@
 | Endpoint | Метод | Что делает |
 |----------|-------|------------|
 | `/api/parse-resume` | POST | Извлекает текст из загруженного PDF/DOCX (pdf-parse, mammoth) |
-| `/api/analyze-resume` | POST | Отправляет текст резюме в YandexGPT, возвращает балл и рекомендации. Rate-limit: `lib/rate-limit.ts` |
+| `/api/analyze-resume` | POST | Отправляет текст резюме в YandexGPT, возвращает балл и рекомендации. Rate-limit НЕ подключён (баг B-6, см. docs/USECASE_REVIEW.md; `lib/rate-limit.ts` существует, но не используется) |
 
 ## Данные для клиентских компонентов
 
