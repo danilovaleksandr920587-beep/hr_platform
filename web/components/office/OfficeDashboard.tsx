@@ -502,7 +502,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
               </div>
               <div className="home-stat">
                 <div className="home-stat-num" style={statGreen}>
-                  {Math.round(getSalaryForProfile(profileDirection, profileLevel).median / 1000)}k
+                  {Math.round(getSalaryForProfile(profileDirection, profileLevel, profileCity).median / 1000)}k
                 </div>
                 <div className="home-stat-label">Медиана зарплат · {profileDirection} {profileLevel}</div>
               </div>
@@ -534,7 +534,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
               </div>
 
               {(() => {
-                const sal = getSalaryForProfile(profileDirection, profileLevel);
+                const sal = getSalaryForProfile(profileDirection, profileLevel, profileCity);
                 const roleLabel = [profileDirection, profileLevel, profileCity, profileFormat !== "Не важно" ? profileFormat : null]
                   .filter(Boolean).join(" · ");
                 const rangePct = Math.round(((sal.median - sal.min) / (sal.max - sal.min)) * 100);

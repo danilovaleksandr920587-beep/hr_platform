@@ -7,6 +7,10 @@ import { listVacancies } from "@/lib/data/vacancies";
 import type { VacancyRow } from "@/lib/types";
 import "@/styles/home-redesign.css";
 
+// Плашка "Свежие стажировки" в hero берёт вакансии из БД: без ревалидации
+// статическая главная замораживала их до следующего деплоя.
+export const revalidate = 1800;
+
 export const metadata: Metadata = {
   title: {
     absolute:

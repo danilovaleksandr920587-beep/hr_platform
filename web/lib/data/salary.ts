@@ -280,14 +280,32 @@ const PROFILE_LEVEL_TO_KEY: Record<string, SalaryLevel> = {
   Senior: "senior",
 };
 
+/** Города-миллионники из подсказок профиля (без Москвы и СПб). */
+const MILLION_CITIES = new Set([
+  "Екатеринбург", "Новосибирск", "Казань", "Нижний Новгород", "Красноярск",
+  "Челябинск", "Самара", "Уфа", "Ростов-на-Дону", "Омск", "Пермь",
+  "Воронеж", "Волгоград", "Краснодар",
+]);
+
+/** Свободный текст города из профиля ЛК -> зарплатная локация. */
+export function profileCityToSalaryCity(city: string): SalaryCity {
+  const c = city.trim();
+  if (!c || /^москва$/i.test(c)) return "moscow";
+  if (/^(санкт-петербург|спб|питер)$/i.test(c)) return "spb";
+  if (/^удал/i.test(c)) return "remote";
+  if (MILLION_CITIES.has(c)) return "million";
+  return "regions";
+}
+
 /** Вилка для профиля из ЛК, в РУБЛЯХ (карточка в /office работает в рублях). */
 export function getSalaryForProfile(
   direction: string,
   level: string,
+  city: string = "Москва",
   now: Date = new Date(),
 ): { min: number; max: number; median: number } {
   const dirKey = PROFILE_DIRECTION_TO_KEY[direction] ?? "backend";
   const levelKey = PROFILE_LEVEL_TO_KEY[level] ?? "junior";
-  const band = salaryBand(dirKey, levelKey, "moscow", now);
+  const band = salaryBand(dirKey, levelKey, profileCityToSalaryCity(city), now);
   return { min: band.low * 1000, max: band.high * 1000, median: band.median * 1000 };
 }
