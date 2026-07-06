@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeClRevealInit } from "@/components/home/HomeClRevealInit";
 import { HomeStatsTabs } from "@/components/home/HomeStatsTabs";
+import { SphereIcon } from "@/components/home/SphereIcon";
 import { SiteFooter } from "@/components/SiteFooter";
+import { listArticles } from "@/lib/data/articles";
 import { listVacancies } from "@/lib/data/vacancies";
+import { KNOWLEDGE_CLUSTERS } from "@/lib/knowledge-clusters";
 import type { VacancyRow } from "@/lib/types";
+import { SPHERE_LABELS } from "@/lib/vacancy-labels";
 import "@/styles/home-redesign.css";
 
 // Плашка "Свежие стажировки" в hero берёт вакансии из БД: без ревалидации
@@ -46,6 +50,14 @@ function jobMeta(row: VacancyRow): string {
   return [row.company, row.format || row.type].filter(Boolean).join(" · ");
 }
 
+function vacancyNoun(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "вакансия";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return "вакансии";
+  return "вакансий";
+}
+
 function pickDiverseVacancies(rows: VacancyRow[], count = 3): VacancyRow[] {
   const seen = { companies: new Set<string>(), spheres: new Set<string>() };
   const result: VacancyRow[] = [];
@@ -69,8 +81,52 @@ function pickDiverseVacancies(rows: VacancyRow[], count = 3): VacancyRow[] {
   return result;
 }
 
+// Витринные названия сфер: там, где ярлык из фильтров слишком сухой.
+const BENTO_NAMES: Record<string, string> = {
+  it: "IT и разработка",
+  devops: "DevOps / SRE",
+};
+
+// Фолбэк, когда БД недоступна (локальная сборка без env): показываем
+// основные сферы без счётчиков.
+const BENTO_FALLBACK = [
+  "it",
+  "analytics",
+  "finance",
+  "marketing",
+  "design",
+  "product",
+  "hr",
+];
+
 export default async function HomePage() {
-  const previewVacancies = pickDiverseVacancies(await listVacancies({ limit: 50 }));
+  const [allVacancies, allArticles] = await Promise.all([
+    listVacancies({ fields: "card", limit: 1000 }),
+    listArticles(),
+  ]);
+
+  const vacancyCount = allVacancies.length;
+  const articleCount = allArticles.length;
+  const freshArticles = allArticles.slice(0, 4);
+
+  // Hero-плашка и секция "Свежие вакансии" показывают РАЗНЫЕ вакансии:
+  // одна выборка из 6 разнообразных, первые 3 - наверх, остальные - в сетку.
+  const preview = pickDiverseVacancies(allVacancies, 6);
+  const heroVacancies = preview.slice(0, 3);
+  const gridVacancies = preview.slice(3, 6);
+
+  const sphereCounts = new Map<string, number>();
+  for (const row of allVacancies) {
+    const s = (row.sphere || "").trim();
+    if (!s) continue;
+    sphereCounts.set(s, (sphereCounts.get(s) ?? 0) + 1);
+  }
+  const bentoSpheres: Array<[string, number]> =
+    sphereCounts.size >= 4
+      ? Array.from(sphereCounts.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 7)
+      : BENTO_FALLBACK.map((s): [string, number] => [s, sphereCounts.get(s) ?? 0]);
 
   return (
     <div className="home-careerlab-scope">
@@ -83,8 +139,8 @@ export default async function HomePage() {
 
           <div className="cl-hero-float" aria-label="Свежие стажировки">
             <div className="cl-hf-label">Свежие стажировки</div>
-            {previewVacancies.length ? (
-              previewVacancies.map((vacancy, idx) => (
+            {heroVacancies.length ? (
+              heroVacancies.map((vacancy, idx) => (
                 <Link
                   key={vacancy.slug}
                   href={`/vacancies/${vacancy.slug}`}
@@ -143,18 +199,22 @@ export default async function HomePage() {
             </form>
           </div>
           <div className="cl-hero-stats">
-            <div className="cl-hero-stat">
-              <div className="cl-hero-stat-num">200+ вакансий</div>
-              <div className="cl-hero-stat-label">от топ-работодателей</div>
-            </div>
-            <div className="cl-hero-stat">
+            <Link href="/vacancies" className="cl-hero-stat">
+              <div className="cl-hero-stat-num">
+                {vacancyCount > 0 ? `${vacancyCount} ${vacancyNoun(vacancyCount)}` : "Вакансии"}
+              </div>
+              <div className="cl-hero-stat-label">стажировки и junior</div>
+            </Link>
+            <Link href="/tools/resume-analyzer" className="cl-hero-stat">
               <div className="cl-hero-stat-num">AI-разбор</div>
-              <div className="cl-hero-stat-label">резюме за секунды</div>
-            </div>
-            <div className="cl-hero-stat">
-              <div className="cl-hero-stat-num">Зарплаты</div>
-              <div className="cl-hero-stat-label">и карьерные треки по рынку</div>
-            </div>
+              <div className="cl-hero-stat-label">резюме за минуту</div>
+            </Link>
+            <Link href="/knowledge-base" className="cl-hero-stat">
+              <div className="cl-hero-stat-num">
+                {articleCount > 0 ? `${articleCount} статей` : "Гайды"}
+              </div>
+              <div className="cl-hero-stat-label">к резюме и интервью</div>
+            </Link>
           </div>
         </section>
 
@@ -180,12 +240,15 @@ export default async function HomePage() {
                 Найди своё
               </h2>
               <p className="cl-audience-desc">
-                Два пути к первому офферу — выбери сценарий и переходи к подборке вакансий и
-                материалам.
+                Два пути к первому офферу — выбери сценарий и переходи к своей подборке
+                вакансий.
               </p>
             </div>
             <div className="cl-audience-right">
-              <Link href="/vacancies" className="cl-aud-card cl-reveal cl-reveal-d1">
+              <Link
+                href="/vacancies?type=internship"
+                className="cl-aud-card cl-reveal cl-reveal-d1"
+              >
                 <div>
                   <div className="cl-aud-card-num">01</div>
                   <div className="cl-aud-card-title">Я студент</div>
@@ -203,7 +266,10 @@ export default async function HomePage() {
                   →
                 </div>
               </Link>
-              <Link href="/vacancies" className="cl-aud-card cl-reveal cl-reveal-d2">
+              <Link
+                href="/vacancies?exp=none&exp=lt1"
+                className="cl-aud-card cl-reveal cl-reveal-d2"
+              >
                 <div>
                   <div className="cl-aud-card-num">02</div>
                   <div className="cl-aud-card-title">Я выпускник / джун</div>
@@ -213,7 +279,7 @@ export default async function HomePage() {
                   <div className="cl-aud-pills">
                     <span className="cl-pill cl-pill--lime">Junior-позиции</span>
                     <span className="cl-pill cl-pill--outline">Полная занятость</span>
-                    <span className="cl-pill cl-pill--outline">От 80 тыс ₽</span>
+                    <span className="cl-pill cl-pill--outline">Без опыта и до года</span>
                   </div>
                 </div>
                 <div className="cl-aud-arrow" aria-hidden="true">
@@ -231,64 +297,88 @@ export default async function HomePage() {
               Выбери направление
             </h2>
             <div className="cl-bento cl-reveal">
-              <Link
-                href="/vacancies"
-                className="cl-bento-card cl-bento-card--large cl-bento-card--featured"
-              >
-                <span className="cl-bento-icon" aria-hidden="true">
-                  💻
+              {bentoSpheres.map(([sphere, count], idx) => (
+                <Link
+                  key={sphere}
+                  href={`/vacancies?sphere=${encodeURIComponent(sphere)}`}
+                  className={
+                    idx === 0
+                      ? "cl-bento-card cl-bento-card--large cl-bento-card--featured"
+                      : "cl-bento-card"
+                  }
+                >
+                  <span className="cl-bento-icon">
+                    <SphereIcon sphere={sphere} />
+                  </span>
+                  <span className="cl-bento-name">
+                    {BENTO_NAMES[sphere] ?? SPHERE_LABELS[sphere] ?? sphere}
+                  </span>
+                  {count > 0 ? (
+                    <span className="cl-bento-count">
+                      {count} {vacancyNoun(count)}
+                    </span>
+                  ) : null}
+                  <span className="cl-bento-num">{String(idx + 1).padStart(2, "0")}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="cl-tools-section" aria-labelledby="cl-tools-title">
+          <div className="cl-shell">
+            <p className="cl-sec-eyebrow">инструменты</p>
+            <h2 id="cl-tools-title" className="cl-sec-title" style={{ marginBottom: 36 }}>
+              Не просто список вакансий
+            </h2>
+            <div className="cl-tools-grid">
+              <Link href="/tools/resume-analyzer" className="cl-tool-card cl-reveal cl-reveal-d1">
+                <span className="cl-tool-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                    <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
+                    <line x1="9" y1="13" x2="15" y2="13" />
+                    <line x1="9" y1="17" x2="13" y2="17" />
+                  </svg>
                 </span>
-                <span className="cl-bento-name">IT и разработка</span>
-                <span className="cl-bento-num">01</span>
+                <span className="cl-tool-title">AI-разбор резюме</span>
+                <p className="cl-tool-desc">
+                  Загрузите резюме — AI найдёт слабые места и подскажет конкретные правки за
+                  минуту.
+                </p>
+                <span className="cl-tool-cta">Проверить резюме →</span>
               </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  📊
+              <Link href="/tools/salary-calculator" className="cl-tool-card cl-reveal cl-reveal-d2">
+                <span className="cl-tool-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="4" y="3" width="16" height="18" rx="2" />
+                    <rect x="8" y="7" width="8" height="3" rx="1" />
+                    <line x1="8" y1="14" x2="8" y2="14.01" />
+                    <line x1="12" y1="14" x2="12" y2="14.01" />
+                    <line x1="16" y1="14" x2="16" y2="14.01" />
+                    <line x1="8" y1="17" x2="8" y2="17.01" />
+                    <line x1="12" y1="17" x2="12" y2="17.01" />
+                    <line x1="16" y1="17" x2="16" y2="17.01" />
+                  </svg>
                 </span>
-                <span className="cl-bento-name">Аналитика</span>
-                <span className="cl-bento-num">02</span>
+                <span className="cl-tool-title">Калькулятор зарплат</span>
+                <p className="cl-tool-desc">
+                  Направление, уровень, город — реальная вилка, медиана и что влияет на цифру.
+                </p>
+                <span className="cl-tool-cta">Узнать свою вилку →</span>
               </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  🏦
+              <Link href="/research" className="cl-tool-card cl-reveal cl-reveal-d3">
+                <span className="cl-tool-icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 3v18h18" />
+                    <path d="M7 14l4-4 3 3 5-6" />
+                  </svg>
                 </span>
-                <span className="cl-bento-name">Финансы</span>
-                <span className="cl-bento-num">03</span>
-              </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  📣
-                </span>
-                <span className="cl-bento-name">Маркетинг</span>
-                <span className="cl-bento-num">04</span>
-              </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  ⚙️
-                </span>
-                <span className="cl-bento-name">Инженерия</span>
-                <span className="cl-bento-num">05</span>
-              </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  🧪
-                </span>
-                <span className="cl-bento-name">QA / тестирование</span>
-                <span className="cl-bento-num">06</span>
-              </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  🎨
-                </span>
-                <span className="cl-bento-name">Дизайн</span>
-                <span className="cl-bento-num">07</span>
-              </Link>
-              <Link href="/vacancies" className="cl-bento-card">
-                <span className="cl-bento-icon" aria-hidden="true">
-                  📋
-                </span>
-                <span className="cl-bento-name">Менеджмент</span>
-                <span className="cl-bento-num">08</span>
+                <span className="cl-tool-title">Исследование рынка</span>
+                <p className="cl-tool-desc">
+                  Интерактивный дашборд: зарплаты стажёров и динамика направлений в 2026.
+                </p>
+                <span className="cl-tool-cta">Смотреть данные →</span>
               </Link>
             </div>
           </div>
@@ -318,10 +408,10 @@ export default async function HomePage() {
                 <div className="cl-journey-tag">шаг второй</div>
                 <div className="cl-journey-title">Узнай свою цену</div>
                 <p className="cl-journey-desc">
-                  Медианы по направлениям — чтобы называть цифру уверенно и не продешевить.
+                  Калькулятор покажет вилку и медиану по твоему направлению, уровню и городу.
                 </p>
-                <Link className="cl-journey-cta" href="/research">
-                  Смотреть зарплаты →
+                <Link className="cl-journey-cta" href="/tools/salary-calculator">
+                  Рассчитать зарплату →
                 </Link>
               </div>
               <div className="cl-journey-step cl-reveal cl-reveal-d3">
@@ -350,52 +440,22 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="cl-jobs-section" aria-labelledby="cl-jobs-title">
-          <div className="cl-jobs-inner">
-            <div className="cl-jobs-header cl-reveal">
-              <div>
-                <p className="cl-sec-eyebrow">актуально</p>
-                <h2 id="cl-jobs-title" className="cl-sec-title">
-                  Свежие вакансии
-                </h2>
+        {gridVacancies.length > 0 ? (
+          <section className="cl-jobs-section" aria-labelledby="cl-jobs-title">
+            <div className="cl-jobs-inner">
+              <div className="cl-jobs-header cl-reveal">
+                <div>
+                  <p className="cl-sec-eyebrow">актуально</p>
+                  <h2 id="cl-jobs-title" className="cl-sec-title">
+                    Свежие вакансии
+                  </h2>
+                </div>
+                <Link className="cl-jobs-see-all" href="/vacancies">
+                  Все вакансии →
+                </Link>
               </div>
-              <Link className="cl-jobs-see-all" href="/vacancies">
-                Все вакансии →
-              </Link>
-            </div>
-            <div className="cl-jobs-grid">
-              {previewVacancies.length === 0 ? (
-                <>
-                  <Link href="/vacancies" className="cl-job-card cl-reveal cl-reveal-d1">
-                    <span className="cl-job-co">Nova Bank</span>
-                    <span className="cl-job-title">Младший продуктовый аналитик</span>
-                    <span className="cl-job-meta">Гибрид · Стажировка</span>
-                    <span className="cl-job-salary">80–100 000 ₽</span>
-                    <div className="cl-job-footer">
-                      <span className="cl-pill cl-pill--outline">Ментор внутри</span>
-                    </div>
-                  </Link>
-                  <Link href="/vacancies" className="cl-job-card cl-reveal cl-reveal-d2">
-                    <span className="cl-job-co">Orbit Tech</span>
-                    <span className="cl-job-title">Стажёр Frontend (React)</span>
-                    <span className="cl-job-meta">Удалённо · Оплачивается</span>
-                    <span className="cl-job-salary">45–55 000 ₽</span>
-                    <div className="cl-job-footer">
-                      <span className="cl-pill cl-pill--lime">Без опыта</span>
-                    </div>
-                  </Link>
-                  <Link href="/vacancies" className="cl-job-card cl-reveal cl-reveal-d3">
-                    <span className="cl-job-co">Stream Analytics</span>
-                    <span className="cl-job-title">Data Engineer (проект)</span>
-                    <span className="cl-job-meta">Офис · 3 мес.</span>
-                    <span className="cl-job-salary">120–150 000 ₽</span>
-                    <div className="cl-job-footer">
-                      <span className="cl-pill cl-pill--outline">От 3 лет</span>
-                    </div>
-                  </Link>
-                </>
-              ) : (
-                previewVacancies.map((row, i) => {
+              <div className="cl-jobs-grid">
+                {gridVacancies.map((row, i) => {
                   const d = (i % 3) + 1;
                   const delayClass =
                     d === 1 ? "cl-reveal-d1" : d === 2 ? "cl-reveal-d2" : "cl-reveal-d3";
@@ -420,11 +480,64 @@ export default async function HomePage() {
                       </div>
                     </Link>
                   );
-                })
-              )}
+                })}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
+
+        {freshArticles.length > 0 ? (
+          <section className="cl-kb-section" aria-labelledby="cl-kb-title">
+            <div className="cl-kb-inner">
+              <div className="cl-jobs-header cl-reveal">
+                <div>
+                  <p className="cl-sec-eyebrow">база знаний</p>
+                  <h2 id="cl-kb-title" className="cl-sec-title">
+                    Подготовься по гайдам
+                  </h2>
+                </div>
+                <Link className="cl-jobs-see-all" href="/knowledge-base">
+                  Все статьи →
+                </Link>
+              </div>
+              <div className="cl-kb-grid">
+                {freshArticles.map((article, i) => {
+                  const d = (i % 4) + 1;
+                  const delayClass = `cl-reveal-d${d}`;
+                  return (
+                    <Link
+                      key={article.id}
+                      href={`/knowledge-base/${article.slug}`}
+                      className={`cl-kb-card cl-reveal ${delayClass}`}
+                    >
+                      <div className="cl-kb-card-top">
+                        <span className="cl-pill cl-pill--outline">{article.category}</span>
+                        {article.is_new ? (
+                          <span className="cl-pill cl-pill--lime">Новое</span>
+                        ) : null}
+                      </div>
+                      <span className="cl-kb-card-title">{article.title}</span>
+                      <p className="cl-kb-card-excerpt">{article.excerpt}</p>
+                      <span className="cl-kb-card-meta">{article.read_time} мин чтения</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="cl-kb-hubs cl-reveal">
+                <span className="cl-kb-hubs-label">Хабы:</span>
+                {KNOWLEDGE_CLUSTERS.map((cluster) => (
+                  <Link
+                    key={cluster.slug}
+                    href={`/knowledge-base/${cluster.slug}`}
+                    className="cl-kb-hub"
+                  >
+                    {cluster.category}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="cl-stats-section" aria-labelledby="cl-stats-title">
           <div className="cl-stats-inner">
@@ -452,48 +565,9 @@ export default async function HomePage() {
               </div>
             </div>
             <HomeStatsTabs />
-          </div>
-        </section>
-
-        <section className="cl-trust-section" aria-labelledby="cl-trust-title">
-          <div className="cl-trust-inner">
-            <div className="cl-trust-left cl-reveal">
-              <p className="cl-sec-eyebrow">истории</p>
-              <h2 id="cl-trust-title" className="cl-sec-title">
-                Уже нашли
-              </h2>
-              <p>Реальные студенты, реальные результаты — без приукрашиваний.</p>
-            </div>
-            <div className="cl-trust-cards">
-              <blockquote className="cl-trust-card cl-reveal cl-reveal-d1">
-                <p className="cl-trust-quote">
-                  Нашла стажировку в Т‑Банке через 3 недели. Использовала зарплатный ориентир — и
-                  не продешевила.
-                </p>
-                <footer className="cl-trust-person">
-                  <span className="cl-trust-av cl-trust-av--lime">МС</span>
-                  <span>
-                    <span className="cl-trust-name">Маша Смирнова</span>
-                    <br />
-                    <span className="cl-trust-role">3 курс ВШЭ · Продакт-стажёр</span>
-                  </span>
-                </footer>
-              </blockquote>
-              <blockquote className="cl-trust-card cl-reveal cl-reveal-d2">
-                <p className="cl-trust-quote">
-                  Отправил резюме по гайду с чек-листом — позвали на интервью с первого отклика.
-                  Оффер получил через месяц.
-                </p>
-                <footer className="cl-trust-person">
-                  <span className="cl-trust-av cl-trust-av--blue">АК</span>
-                  <span>
-                    <span className="cl-trust-name">Артём Козлов</span>
-                    <br />
-                    <span className="cl-trust-role">Выпускник · Junior Backend</span>
-                  </span>
-                </footer>
-              </blockquote>
-            </div>
+            <p className="cl-stats-more cl-reveal">
+              <Link href="/research">Полное исследование рынка →</Link>
+            </p>
           </div>
         </section>
 
@@ -503,16 +577,25 @@ export default async function HomePage() {
           <div className="cl-cta-bg3" aria-hidden="true" />
           <div className="cl-cta-inner cl-reveal">
             <h2 id="cl-cta-title" className="cl-cta-title">
-              Начните с одной
+              Кабинет, который
               <br />
-              вакансии
+              доводит до оффера
             </h2>
             <p className="cl-cta-sub">
-              Студенты находят первый оффер в среднем за 6–8 недель активного поиска
+              Сохраняйте вакансии, следите за статусами откликов и проходите чек-лист подготовки
+              — бесплатно.
             </p>
-            <Link className="cl-cta-btn" href="/vacancies">
-              Смотреть вакансии →
-            </Link>
+            <div className="cl-cta-actions">
+              <Link className="cl-cta-btn" href="/login">
+                Создать аккаунт
+              </Link>
+              <Link className="cl-cta-btn cl-cta-btn--ghost" href="/vacancies">
+                Смотреть вакансии
+              </Link>
+            </div>
+            <p className="cl-cta-b2b">
+              Вы компания? <Link href="/for-companies">Разместите вакансию →</Link>
+            </p>
           </div>
         </section>
       </main>
