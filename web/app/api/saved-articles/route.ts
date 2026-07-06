@@ -5,7 +5,9 @@ import { getSql } from "@/lib/db/postgres";
 
 export async function GET() {
   const session = await getSessionFromCookies();
-  if (!session) return NextResponse.json({ slugs: [] });
+  // 401/503 (не 200 с пустым списком): иначе клиентский syncSavedFromDb
+  // примет пустоту за истину и затрёт localStorage-копию сохранёнок (B-7)
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const sql = getSql();
     const rows = (await sql`
@@ -14,7 +16,7 @@ export async function GET() {
     `) as { article_slug: string }[];
     return NextResponse.json({ slugs: rows.map((r) => r.article_slug) });
   } catch {
-    return NextResponse.json({ slugs: [] });
+    return NextResponse.json({ error: "DB error" }, { status: 503 });
   }
 }
 

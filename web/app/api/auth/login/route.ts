@@ -4,12 +4,22 @@ import { SESSION_COOKIE_NAME, sessionCookieOptions } from "@/lib/auth/cookies";
 import { verifyPassword } from "@/lib/auth/password";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSql } from "@/lib/db/postgres";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/http/client-ip";
 
 type Row = { id: string; email: string; display_name: string; password_hash: string };
 
 export async function POST(req: Request) {
   if (!isPasswordAuthConfigured()) {
     return NextResponse.json({ error: "Сервер не настроен для входа." }, { status: 503 });
+  }
+
+  // Против перебора паролей
+  if (!rateLimit(`login:${getClientIp(req)}`, 10, 15 * 60)) {
+    return NextResponse.json(
+      { error: "Слишком много попыток входа. Подождите 15 минут." },
+      { status: 429 },
+    );
   }
 
   let body: { email?: string; password?: string };

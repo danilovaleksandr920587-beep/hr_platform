@@ -38,6 +38,8 @@ export function TeamPanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const isOwner = viewerRole === "owner";
   const canManage = roleAtLeast(viewerRole, "admin");
@@ -66,12 +68,22 @@ export function TeamPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, role }),
       });
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as {
+        error?: string;
+        inviteUrl?: string;
+        emailSent?: boolean;
+      };
       if (!res.ok) {
         setError(data.error ?? "Не удалось отправить приглашение.");
         return;
       }
-      setNotice(`Приглашение отправлено на ${email}.`);
+      setNotice(
+        data.emailSent
+          ? `Приглашение отправлено на ${email}.`
+          : `Приглашение для ${email} создано. Письма не будет - передайте ссылку сами:`,
+      );
+      setInviteLink(data.inviteUrl ?? null);
+      setLinkCopied(false);
       setInvites((list) => [
         { id: `tmp-${Date.now()}`, email, role, expires_at: "" },
         ...list.filter((i) => i.email !== email),
@@ -200,6 +212,29 @@ export function TeamPanel({
           </label>
           {error && <p className="company-error">{error}</p>}
           {notice && <p className="company-notice">{notice}</p>}
+          {inviteLink && (
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 4 }}>
+              <input
+                readOnly
+                value={inviteLink}
+                onFocus={(e) => e.target.select()}
+                style={{ flex: "1 1 260px", fontSize: 12, padding: "6px 8px" }}
+                aria-label="Ссылка приглашения"
+              />
+              <button
+                type="button"
+                className="btn-dark"
+                onClick={() => {
+                  void navigator.clipboard.writeText(inviteLink).then(
+                    () => setLinkCopied(true),
+                    () => setLinkCopied(false),
+                  );
+                }}
+              >
+                {linkCopied ? "Скопировано" : "Скопировать"}
+              </button>
+            </div>
+          )}
           <button className="btn-dark" type="submit" disabled={busy}>
             {busy ? "Отправляем..." : "Отправить приглашение"}
           </button>

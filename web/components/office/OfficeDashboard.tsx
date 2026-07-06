@@ -276,6 +276,27 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     }
   }, [resumeScore]);
 
+  // Загружаем сохранённый прогресс чек-листа из БД (B-1): без этого
+  // отметки жили только в стейте и сбрасывались при перезагрузке
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/checklist");
+        if (!res.ok) return;
+        const data = (await res.json()) as { items?: { item_id: string; done: boolean }[] };
+        if (cancelled || !Array.isArray(data.items) || data.items.length === 0) return;
+        const doneMap = new Map(data.items.map((i) => [i.item_id, i.done]));
+        setCheckRows((rows) =>
+          rows.map((r) => (doneMap.has(r.id) ? { ...r, done: Boolean(doneMap.get(r.id)) } : r)),
+        );
+      } catch {
+        // недоступность БД - оставляем дефолтные отметки, не затираем
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userScope]);
+
   const progress = useMemo(() => {
     const done = checkRows.filter((r) => r.done).length;
     const pct = Math.round((done / checkRows.length) * 100);
@@ -341,7 +362,20 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   }, []);
 
   const toggleCheck = useCallback((id: string) => {
-    setCheckRows((rows) => rows.map((r) => (r.id === id ? { ...r, done: !r.done } : r)));
+    let nextDone = false;
+    setCheckRows((rows) =>
+      rows.map((r) => {
+        if (r.id !== id) return r;
+        nextDone = !r.done;
+        return { ...r, done: nextDone };
+      }),
+    );
+    // Персистим отметку в БД (fire-and-forget; для демо без сессии - 401, игнорируем)
+    void fetch("/api/checklist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: id, done: nextDone }),
+    }).catch(() => {});
   }, []);
 
   const closeModalBg = useCallback((e: React.MouseEvent<HTMLDivElement>) => {

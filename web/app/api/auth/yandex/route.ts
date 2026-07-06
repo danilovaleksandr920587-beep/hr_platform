@@ -1,4 +1,6 @@
+import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
+import { OAUTH_STATE_COOKIE_NAME, oauthStateCookieOptions } from "@/lib/auth/cookies";
 
 function safeNext(raw: string | null, fallback = "/office") {
   if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return fallback;
@@ -15,7 +17,10 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL("/login?error=auth", req.url));
   }
 
-  const state = Buffer.from(JSON.stringify({ p: "yandex", next })).toString("base64url");
+  // Nonce против login CSRF: кладём в httpOnly cookie и в state,
+  // callback сверяет их (иначе жертве можно подсунуть чужой code)
+  const nonce = randomBytes(16).toString("base64url");
+  const state = Buffer.from(JSON.stringify({ p: "yandex", next, nonce })).toString("base64url");
 
   const params = new URLSearchParams({
     response_type: "code",
@@ -24,5 +29,7 @@ export async function GET(req: Request) {
     state,
   });
 
-  return NextResponse.redirect(`https://oauth.yandex.ru/authorize?${params}`);
+  const res = NextResponse.redirect(`https://oauth.yandex.ru/authorize?${params}`);
+  res.cookies.set(OAUTH_STATE_COOKIE_NAME, nonce, oauthStateCookieOptions());
+  return res;
 }

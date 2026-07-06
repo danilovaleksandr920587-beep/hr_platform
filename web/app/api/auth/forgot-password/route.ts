@@ -3,6 +3,7 @@ import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSql } from "@/lib/db/postgres";
 import { generatePasswordResetToken } from "@/lib/auth/password-reset";
 import { isSmtpConfigured, sendPasswordResetEmail } from "@/lib/email/smtp";
+import { getRealOrigin } from "@/lib/http/origin";
 
 type AccountRow = { id: string };
 type ResetRow = { created_at: string };
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
       values (${account.id}, ${generated.tokenHash}, ${generated.expiresAtIso}, ${ip})
     `;
 
-    const origin = new URL(req.url).origin;
+    const origin = await getRealOrigin();
     const resetUrl = `${origin}/reset-password?token=${generated.token}`;
     await sendPasswordResetEmail({ to: email, resetUrl });
 

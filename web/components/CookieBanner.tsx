@@ -2,22 +2,27 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "cookie_consent";
+import {
+  COOKIE_CONSENT_KEY,
+  COOKIE_CONSENT_EVENT,
+  type CookieConsent,
+} from "@/lib/client/cookie-consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const raf = window.requestAnimationFrame(() => {
-      const consent = window.localStorage.getItem(STORAGE_KEY);
+      const consent = window.localStorage.getItem(COOKIE_CONSENT_KEY);
       if (!consent) setVisible(true);
     });
     return () => window.cancelAnimationFrame(raf);
   }, []);
 
-  function handleConsent(value: "accepted" | "declined") {
-    window.localStorage.setItem(STORAGE_KEY, value);
+  function handleConsent(value: CookieConsent) {
+    window.localStorage.setItem(COOKIE_CONSENT_KEY, value);
+    // Сообщаем YandexMetrika, чтобы она включилась сразу при "Принять"
+    window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT));
     setVisible(false);
   }
 

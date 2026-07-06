@@ -3,7 +3,11 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { getSql } from "@/lib/db/postgres";
 import { signAuthToken } from "@/lib/auth/token";
-import { SESSION_COOKIE_NAME, sessionCookieOptions } from "@/lib/auth/cookies";
+import {
+  SESSION_COOKIE_NAME,
+  sessionCookieOptions,
+  OAUTH_STATE_COOKIE_NAME,
+} from "@/lib/auth/cookies";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
 
 function safeNext(raw: string | null, fallback = "/office") {
@@ -121,19 +125,34 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=auth`);
   }
 
-  // Yandex: state содержит {p:"yandex", next:...}
+  // Yandex: state содержит {p:"yandex", next, nonce}
+  let yandexState: { p?: string; next?: string; nonce?: string } | null = null;
   if (rawState) {
     try {
-      const state = JSON.parse(Buffer.from(rawState, "base64url").toString("utf8")) as {
+      const parsed = JSON.parse(Buffer.from(rawState, "base64url").toString("utf8")) as {
         p?: string;
         next?: string;
+        nonce?: string;
       };
-      if (state.p === "yandex") {
-        return handleYandex(code, safeNext(state.next ?? null));
-      }
+      if (parsed.p === "yandex") yandexState = parsed;
     } catch {
       // не Яндекс — идём дальше
     }
+  }
+
+  if (yandexState) {
+    // Anti-CSRF: nonce из state обязан совпасть с httpOnly cookie,
+    // выставленной на нашем шаге /api/auth/yandex. Без этого жертве
+    // можно подсунуть чужой code и залогинить её в аккаунт атакующего.
+    const cookieStore = await cookies();
+    const expectedNonce = cookieStore.get(OAUTH_STATE_COOKIE_NAME)?.value;
+    if (!yandexState.nonce || !expectedNonce || yandexState.nonce !== expectedNonce) {
+      console.error("[auth:yandex] state nonce mismatch (possible login CSRF)");
+      return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+    const res = await handleYandex(code, safeNext(yandexState.next ?? null));
+    res.cookies.delete(OAUTH_STATE_COOKIE_NAME);
+    return res;
   }
 
   const next = safeNext(searchParams.get("next"));
