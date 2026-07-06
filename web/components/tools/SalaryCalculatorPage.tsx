@@ -25,6 +25,15 @@ const LEVEL_HINTS: Record<SalaryLevel, string> = {
   senior: "4+ лет, экспертиза",
 };
 
+type QuickStart = { label: string; dir: string; level: SalaryLevel; city: SalaryCity };
+
+const QUICK_STARTS: QuickStart[] = [
+  { label: "Frontend · Junior · Москва", dir: "frontend", level: "junior", city: "moscow" },
+  { label: "QA · Junior · Удалённо", dir: "qa", level: "junior", city: "remote" },
+  { label: "Backend · Middle · СПб", dir: "backend", level: "middle", city: "spb" },
+  { label: "Аналитика · Стажёр · Москва", dir: "analyst", level: "intern", city: "moscow" },
+];
+
 export function SalaryCalculatorPage() {
   const [dirKey, setDirKey] = useState("analyst");
   const [level, setLevel] = useState<SalaryLevel>("intern");
@@ -40,6 +49,13 @@ export function SalaryCalculatorPage() {
     [median, low, high],
   );
   const rows = useMemo(() => compareRows(dirKey, level), [dirKey, level]);
+
+  function applyQuickStart(q: QuickStart) {
+    setDirKey(q.dir);
+    setLevel(q.level);
+    setCity(q.city);
+    setCalculated(true);
+  }
 
   return (
     <main className="scalc">
@@ -98,8 +114,21 @@ export function SalaryCalculatorPage() {
         <div className="results-area">
           {!calculated ? (
             <div className="empty-state">
-              <div className="empty-title">Настройте параметры</div>
-              <div className="empty-sub">Выберите направление, уровень и город — и нажмите «Рассчитать». Получите реальный диапазон зарплат с объяснением.</div>
+              <div className="empty-icon" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d0f08" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><rect x="7" y="12" width="3" height="6" /><rect x="12" y="8" width="3" height="10" /><rect x="17" y="5" width="3" height="13" /></svg>
+              </div>
+              <div className="empty-title">Выберите направление и уровень</div>
+              <div className="empty-sub">Три клика - и вы увидите вилку зарплат, медиану и что на неё влияет.</div>
+              <div className="quick-starts">
+                <div className="quick-starts-label">Популярные комбинации</div>
+                <div className="quick-starts-chips">
+                  {QUICK_STARTS.map((q) => (
+                    <button key={q.label} type="button" className="quick-chip" onClick={() => applyQuickStart(q)}>
+                      {q.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <>
