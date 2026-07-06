@@ -8,11 +8,23 @@ import type { VacancyRow, ArticleRow } from "@/lib/types";
 import { EXP_LABELS, FORMAT_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
 import { getSalaryForProfile, salaryAsOfLabel } from "@/lib/data/salary";
 
+type OfficeProfile = {
+  firstName: string;
+  surname: string;
+  direction: string;
+  level: string;
+  format: string;
+  city: string;
+};
+
 type OfficeDashboardProps = {
   userScope: string;
   email: string;
   displayName?: string | null;
   matchedVacancies: VacancyRow[];
+  /** Профиль, прочитанный на сервере (/office). undefined - источник
+      неизвестен, компонент сам сходит в /api/profile (так живёт /office-demo). */
+  initialProfile?: OfficeProfile | null;
 };
 
 function initialsFrom(name: string, surname: string, email: string) {
@@ -151,18 +163,26 @@ function parseName(displayName?: string | null, email?: string) {
 const PROFILE_KEY = (scope: string) => `careerlab-profile:${scope}`;
 const CHECKLIST_KEY = (scope: string) => `careerlab-checklist:${scope}`;
 
-export function OfficeDashboard({ userScope, email, displayName, matchedVacancies }: OfficeDashboardProps) {
+export function OfficeDashboard({ userScope, email, displayName, matchedVacancies, initialProfile }: OfficeDashboardProps) {
   const parsed = parseName(displayName, email);
 
-  const [profileFirstName, setProfileFirstName] = useState(parsed.firstName);
-  const [profileSurname, setProfileSurname] = useState(parsed.surname);
-  const [profileDirection, setProfileDirection] = useState("IT");
-  const [profileLevel, setProfileLevel] = useState("Junior");
-  const [profileFormat, setProfileFormat] = useState("Гибрид");
-  const [profileCity, setProfileCity] = useState("Москва");
+  const [profileFirstName, setProfileFirstName] = useState(initialProfile?.firstName || parsed.firstName);
+  const [profileSurname, setProfileSurname] = useState(initialProfile?.surname || parsed.surname);
+  const [profileDirection, setProfileDirection] = useState(initialProfile?.direction || "IT");
+  const [profileLevel, setProfileLevel] = useState(initialProfile?.level || "Junior");
+  const [profileFormat, setProfileFormat] = useState(initialProfile?.format || "Гибрид");
+  const [profileCity, setProfileCity] = useState(initialProfile?.city || "Москва");
 
-  // Load profile from DB on mount (fallback to localStorage cache)
+  // Load profile from DB on mount (fallback to localStorage cache).
+  // Если профиль пришёл с сервера пропом - клиентский fetch не нужен.
   useEffect(() => {
+    if (initialProfile !== undefined) {
+      if (initialProfile?.direction && initialProfile.level) {
+        setCheckRows((rows) => rows.map((r) => (r.id === "2" ? { ...r, done: true } : r)));
+      }
+      void syncSavedFromDb(userScope);
+      return;
+    }
     fetch("/api/profile")
       .then((r) => r.json())
       .then((data: { profile?: { firstName?: string; surname?: string; direction?: string; level?: string; format?: string; city?: string } | null }) => {
@@ -208,7 +228,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
 
     // Sync saved vacancies/articles from DB into localStorage
     void syncSavedFromDb(userScope);
-  }, [userScope]);
+  }, [userScope, initialProfile]);
 
   const displayFirstName = profileFirstName || email.split("@")[0] || "друг";
   const displayFullName = [profileFirstName, profileSurname].filter(Boolean).join(" ") || email;

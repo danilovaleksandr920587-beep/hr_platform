@@ -51,11 +51,27 @@ export default async function OfficePage() {
     IT: "it", Аналитика: "analytics", Финансы: "finance",
     Маркетинг: "marketing", Управление: "product", Дизайн: "design", QA: "it",
   };
+  // Профиль читаем на сервере целиком и отдаём пропом: убирает клиентский
+  // fetch /api/profile из каскада запросов после загрузки страницы.
   let sphere: string | undefined;
+  let initialProfile: {
+    firstName: string; surname: string; direction: string;
+    level: string; format: string; city: string;
+  } | null = null;
   try {
     const sql = getSql();
-    const rows = await sql`SELECT direction FROM user_profiles WHERE account_id = ${session.id} LIMIT 1` as { direction: string }[];
-    if (rows[0]?.direction) sphere = DIRECTION_TO_SPHERE[rows[0].direction];
+    const rows = (await sql`
+      SELECT first_name, surname, direction, level, format, city
+      FROM user_profiles WHERE account_id = ${session.id} LIMIT 1
+    `) as { first_name: string; surname: string; direction: string; level: string; format: string; city: string }[];
+    if (rows[0]) {
+      const r = rows[0];
+      initialProfile = {
+        firstName: r.first_name, surname: r.surname, direction: r.direction,
+        level: r.level, format: r.format, city: r.city,
+      };
+      if (r.direction) sphere = DIRECTION_TO_SPHERE[r.direction];
+    }
   } catch {}
   const matchedVacancies = await listVacancies({ limit: 4, fields: "card", ...(sphere ? { sphere: [sphere] } : {}) });
 
@@ -66,6 +82,7 @@ export default async function OfficePage() {
         email={session.email}
         displayName={session.displayName}
         matchedVacancies={matchedVacancies}
+        initialProfile={initialProfile}
       />
       <SiteFooter />
     </>

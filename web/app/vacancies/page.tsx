@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { listVacancies, listVacancyFilterOptions } from "@/lib/data/vacancies";
+import {
+  listVacancies,
+  listVacancyFilterOptions,
+  type VacancyFilters,
+} from "@/lib/data/vacancies";
 import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { multiParam, optionalInt, optionalString } from "@/lib/searchParams";
+import { vacancyDescriptionPreview } from "@/lib/vacancy-preview";
 
 export const metadata: Metadata = {
   title: "Вакансии и стажировки — CareerLab",
@@ -25,11 +31,37 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 120;
-
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+// Страница динамическая (читает cookies для сессии), поэтому segment-level
+// revalidate не работал и каждый запрос ходил в Supabase (~0.6с TTFB сверху).
+// Кешируем сами данные: ключ - фильтры, TTL 2 минуты. Заодно считаем превью
+// описаний на сервере и вычищаем тяжёлые поля (description, description_blocks,
+// search_document, company_about) до передачи в клиентский VacancyCard - иначе
+// полные тексты всех вакансий дублировались в HTML и RSC-payload (3.6 МБ).
+const getVacanciesPageData = unstable_cache(
+  async (filters: VacancyFilters) => {
+    const [rows, filterOptions] = await Promise.all([
+      listVacancies(filters),
+      listVacancyFilterOptions(),
+    ]);
+    const cards = rows.map((row) => ({
+      row: {
+        ...row,
+        description: null,
+        description_blocks: null,
+        search_document: null,
+        company_about: null,
+      },
+      preview: vacancyDescriptionPreview(row.description, row.description_blocks),
+    }));
+    return { cards, filterOptions };
+  },
+  ["vacancies-page-data"],
+  { revalidate: 120 },
+);
 
 export default async function VacanciesPage({ searchParams }: PageProps) {
   const session = await getSessionFromCookies();
@@ -47,11 +79,8 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
   };
 
   const supabaseEnvOk = isPublicSupabaseConfigured();
-  const [rows, filterOptions] = await Promise.all([
-    listVacancies(filters),
-    listVacancyFilterOptions(),
-  ]);
-  const count = rows.length;
+  const { cards, filterOptions } = await getVacanciesPageData(filters);
+  const count = cards.length;
   const noun =
     count % 10 === 1 && count % 100 !== 11
       ? "вакансия"
@@ -121,7 +150,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                 </select>
               </div>
 
-              {rows.length === 0 ? (
+              {cards.length === 0 ? (
                 <p className="vacancies-empty">
                   {!supabaseEnvOk ? (
                     <>
@@ -145,12 +174,13 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                 </p>
               ) : (
                 <div className="jobs-list">
-                  {rows.map((row, i) => (
+                  {cards.map(({ row, preview }, i) => (
                     <VacancyCard
                       key={row.id}
                       row={row}
                       index={i}
                       viewerScope={session?.id ?? null}
+                      descriptionPreview={preview}
                     />
                   ))}
                 </div>
