@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { SAVED_ITEMS_EVENT, readSavedSnapshot, syncSavedFromDb } from "@/lib/client/saved-items";
 import { InlineResumeAnalyzer } from "@/components/office/InlineResumeAnalyzer";
 import type { VacancyRow, ArticleRow } from "@/lib/types";
 import { EXP_LABELS, FORMAT_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
+import { getSalaryForProfile, salaryAsOfLabel } from "@/lib/data/salary";
 
 type OfficeDashboardProps = {
   userScope: string;
@@ -27,6 +28,60 @@ function formatSalary(min: number | null, max: number | null) {
     return `${min.toLocaleString("ru-RU")} — ${max.toLocaleString("ru-RU")} ₽`;
   if (min != null) return `от ${min.toLocaleString("ru-RU")} ₽`;
   return `до ${max!.toLocaleString("ru-RU")} ₽`;
+}
+
+const NAV_ICON_PATHS: Record<string, ReactNode> = {
+  resume: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6M9 13h6M9 17h6" />
+    </>
+  ),
+  salary: (
+    <>
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  checklist: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <path d="m8.5 12.5 2.5 2.5 4.5-5.5" />
+    </>
+  ),
+  vacancies: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="4" />
+    </>
+  ),
+  articles: (
+    <>
+      <path d="M2 4h7a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z" />
+      <path d="M22 4h-7a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z" />
+    </>
+  ),
+  saved: <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />,
+  applications: (
+    <>
+      <path d="M22 2 11 13" />
+      <path d="M22 2 15 22l-4-9-9-4z" />
+    </>
+  ),
+  logout: (
+    <>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="m16 17 5-5-5-5M21 12H9" />
+    </>
+  ),
+};
+
+function NavIcon({ name }: { name: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {NAV_ICON_PATHS[name]}
+    </svg>
+  );
 }
 
 const ARTICLE_VISUAL_MAP: Record<string, { cls: string; icon: string; stat: string; ctag: string; ctagLabel: string }> = {
@@ -62,55 +117,8 @@ const FORMAT_TO_DB: Record<string, string | undefined> = {
   "Не важно": undefined,
 };
 
-type SalaryRange = { min: number; max: number; median: number };
-const SALARY_DATA: Record<string, Record<string, SalaryRange>> = {
-  IT: {
-    Стажёр: { min: 40000, max: 80000, median: 60000 },
-    Junior: { min: 80000, max: 150000, median: 115000 },
-    Middle: { min: 150000, max: 250000, median: 200000 },
-    Senior: { min: 250000, max: 400000, median: 320000 },
-  },
-  Аналитика: {
-    Стажёр: { min: 35000, max: 70000, median: 52000 },
-    Junior: { min: 65000, max: 130000, median: 97000 },
-    Middle: { min: 130000, max: 220000, median: 175000 },
-    Senior: { min: 220000, max: 380000, median: 290000 },
-  },
-  Маркетинг: {
-    Стажёр: { min: 28000, max: 60000, median: 44000 },
-    Junior: { min: 55000, max: 100000, median: 75000 },
-    Middle: { min: 100000, max: 180000, median: 140000 },
-    Senior: { min: 180000, max: 300000, median: 240000 },
-  },
-  Дизайн: {
-    Стажёр: { min: 30000, max: 65000, median: 47000 },
-    Junior: { min: 65000, max: 120000, median: 90000 },
-    Middle: { min: 120000, max: 200000, median: 160000 },
-    Senior: { min: 200000, max: 350000, median: 270000 },
-  },
-  QA: {
-    Стажёр: { min: 38000, max: 75000, median: 55000 },
-    Junior: { min: 70000, max: 130000, median: 100000 },
-    Middle: { min: 130000, max: 210000, median: 170000 },
-    Senior: { min: 210000, max: 360000, median: 280000 },
-  },
-  Управление: {
-    Стажёр: { min: 35000, max: 70000, median: 52000 },
-    Junior: { min: 65000, max: 120000, median: 90000 },
-    Middle: { min: 120000, max: 210000, median: 165000 },
-    Senior: { min: 210000, max: 380000, median: 290000 },
-  },
-  Финансы: {
-    Стажёр: { min: 30000, max: 65000, median: 47000 },
-    Junior: { min: 60000, max: 110000, median: 82000 },
-    Middle: { min: 110000, max: 190000, median: 150000 },
-    Senior: { min: 190000, max: 330000, median: 260000 },
-  },
-};
-
-function getSalaryData(direction: string, level: string): SalaryRange {
-  return SALARY_DATA[direction]?.[level] ?? SALARY_DATA["IT"]["Junior"];
-}
+// Зарплатные данные - из единого источника lib/data/salary.ts
+// (тот же, что у калькулятора ЗП): база x коэффициенты + индексация трендом.
 
 function fmtNum(n: number): string {
   return n.toLocaleString("ru-RU");
@@ -141,6 +149,7 @@ function parseName(displayName?: string | null, email?: string) {
 }
 
 const PROFILE_KEY = (scope: string) => `careerlab-profile:${scope}`;
+const CHECKLIST_KEY = (scope: string) => `careerlab-checklist:${scope}`;
 
 export function OfficeDashboard({ userScope, email, displayName, matchedVacancies }: OfficeDashboardProps) {
   const parsed = parseName(displayName, email);
@@ -165,6 +174,10 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
           if (p.level) setProfileLevel(p.level);
           if (p.format) setProfileFormat(p.format);
           if (p.city) setProfileCity(p.city);
+          // Профиль сохранён в БД - пункт чеклиста выполнен
+          if (p.direction && p.level) {
+            setCheckRows((rows) => rows.map((r) => (r.id === "2" ? { ...r, done: true } : r)));
+          }
         } else {
           // No DB record yet — try localStorage cache
           try {
@@ -227,6 +240,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     setProfileLevel(formLvl);
     setProfileFormat(formFmt);
     setProfileCity(formCity);
+    setCheckRows((rows) => rows.map((r) => (r.id === "2" ? { ...r, done: true } : r)));
 
     // Persist to DB (primary source of truth)
     void fetch("/api/profile", {
@@ -270,11 +284,42 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     { id: "7", done: false, label: "Изучи зарплатный рынок в своём направлении", href: "/tools/salary-calculator", cta: "Калькулятор →" },
   ]);
 
+  // Ручные отметки чеклиста живут в localStorage - иначе прогресс
+  // сбрасывался в 0% при каждом обновлении страницы.
+  const [checklistLoaded, setChecklistLoaded] = useState(false);
   useEffect(() => {
-    if (resumeScore !== null) {
-      setCheckRows((rows) => rows.map((r) => r.id === "1" ? { ...r, done: true } : r));
-    }
-  }, [resumeScore]);
+    try {
+      const raw = localStorage.getItem(CHECKLIST_KEY(userScope));
+      if (raw) {
+        const doneIds = new Set(JSON.parse(raw) as string[]);
+        setCheckRows((rows) => rows.map((r) => (doneIds.has(r.id) ? { ...r, done: true } : r)));
+      }
+    } catch {}
+    setChecklistLoaded(true);
+  }, [userScope]);
+
+  useEffect(() => {
+    if (!checklistLoaded) return;
+    try {
+      localStorage.setItem(
+        CHECKLIST_KEY(userScope),
+        JSON.stringify(checkRows.filter((r) => r.done).map((r) => r.id)),
+      );
+    } catch {}
+  }, [checkRows, checklistLoaded, userScope]);
+
+  const markCheckDone = useCallback((id: string) => {
+    setCheckRows((rows) => rows.map((r) => (r.id === id && !r.done ? { ...r, done: true } : r)));
+  }, []);
+
+  useEffect(() => {
+    if (resumeScore !== null) markCheckDone("1");
+  }, [resumeScore, markCheckDone]);
+
+  // "Сохрани 5 подходящих вакансий" отмечается сама по счётчику сохранённых
+  useEffect(() => {
+    if (savedCounts.vacancies >= 5) markCheckDone("6");
+  }, [savedCounts.vacancies, markCheckDone]);
 
   const progress = useMemo(() => {
     const done = checkRows.filter((r) => r.done).length;
@@ -368,12 +413,12 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   const unboundedTitleStyle = useMemo(() => ({ fontFamily: "'Unbounded',sans-serif", fontSize: 14, fontWeight: 700, color: "var(--dark)", marginBottom: 3 }), []);
   const muted13 = useMemo(() => ({ fontSize: 13, color: "var(--muted)" }), []);
 
-  const NAV_ITEMS: [SectionId, string, string, string | null][] = [
-    ["resume", "📄", "Резюме", null],
-    ["salary", "💰", "Зарплата", null],
-    ["checklist", "✅", "Готовность", `${progress.pct}%`],
-    ["vacancies", "🔖", "Подборка для тебя", null],
-    ["articles", "📚", "Статьи", savedCounts.articles > 0 ? String(savedCounts.articles) : null],
+  const NAV_ITEMS: [SectionId, string, string | null][] = [
+    ["resume", "Резюме", null],
+    ["salary", "Зарплата", null],
+    ["checklist", "Готовность", `${progress.pct}%`],
+    ["vacancies", "Подборка для тебя", null],
+    ["articles", "Статьи", savedCounts.articles > 0 ? String(savedCounts.articles) : null],
   ];
 
   return (
@@ -407,25 +452,25 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                 </div>
 
                 <div className="filter-groups" style={{ padding: 0 }}>
-                  {NAV_ITEMS.map(([id, icon, label, count]) => (
+                  {NAV_ITEMS.map(([id, label, count]) => (
                     <button
                       key={id}
                       type="button"
                       className={`office-nav-link${activeNav === id ? " active" : ""}`}
                       onClick={() => scrollTo(id)}
                     >
-                      <span className="nav-icon">{icon}</span> {label}
+                      <span className="nav-icon"><NavIcon name={id} /></span> {label}
                       {count ? <span className="nav-count">{count}</span> : null}
                     </button>
                   ))}
 
                   <Link href="/office/saved-vacancies" className="office-nav-link">
-                    <span className="nav-icon">💾</span> Сохранённые вакансии
+                    <span className="nav-icon"><NavIcon name="saved" /></span> Сохранённые вакансии
                     {savedCounts.vacancies > 0 && <span className="nav-count">{savedCounts.vacancies}</span>}
                   </Link>
 
                   <Link href="/office/applications" className="office-nav-link">
-                    <span className="nav-icon">📨</span> Мои отклики
+                    <span className="nav-icon"><NavIcon name="applications" /></span> Мои отклики
                   </Link>
 
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border2)" }}>
@@ -435,7 +480,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                       onClick={() => void handleLogout()}
                       disabled={loggingOut}
                     >
-                      <span className="nav-icon">⎋</span> {loggingOut ? "Выход…" : "Выйти"}
+                      <span className="nav-icon"><NavIcon name="logout" /></span> {loggingOut ? "Выход…" : "Выйти"}
                     </button>
                   </div>
                 </div>
@@ -457,7 +502,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
               </div>
               <div className="home-stat">
                 <div className="home-stat-num" style={statGreen}>
-                  {Math.round(getSalaryData(profileDirection, profileLevel).median / 1000)}k
+                  {Math.round(getSalaryForProfile(profileDirection, profileLevel).median / 1000)}k
                 </div>
                 <div className="home-stat-label">Медиана зарплат · {profileDirection} {profileLevel}</div>
               </div>
@@ -489,7 +534,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
               </div>
 
               {(() => {
-                const sal = getSalaryData(profileDirection, profileLevel);
+                const sal = getSalaryForProfile(profileDirection, profileLevel);
                 const roleLabel = [profileDirection, profileLevel, profileCity, profileFormat !== "Не важно" ? profileFormat : null]
                   .filter(Boolean).join(" · ");
                 const rangePct = Math.round(((sal.median - sal.min) / (sal.max - sal.min)) * 100);
@@ -507,7 +552,7 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                       <div className="sh-median">
                         <span style={shMedianHint}>Медиана рынка</span>
                         <span className="sh-median-val">{fmtNum(sal.median)} ₽</span>
-                        <span className="sh-median-badge">Май 2025</span>
+                        <span className="sh-median-badge">{salaryAsOfLabel()}</span>
                       </div>
                     </div>
 

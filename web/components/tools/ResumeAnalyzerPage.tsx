@@ -3,70 +3,54 @@
 import Link from "next/link";
 import { InlineResumeAnalyzer } from "@/components/office/InlineResumeAnalyzer";
 
+function DocIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M9 13h6M9 17h6" />
+    </svg>
+  );
+}
+
 export function ResumeAnalyzerPage({ userScope }: { userScope?: string | null }) {
   if (!userScope) {
     return (
-      <div className="section">
+      <main className="section">
         <div className="container" style={{ maxWidth: 560 }}>
-          <div style={{
-            background: "var(--lime)",
-            borderRadius: 24,
-            padding: "48px 40px",
-            textAlign: "center",
-            marginTop: 32,
-          }}>
-            <div style={{ fontSize: 52, marginBottom: 16 }}>📄</div>
-            <h1 className="page-title" style={{ marginBottom: 12, fontSize: "clamp(1.4rem,3vw,2rem)" }}>
-              AI-разбор резюме
-            </h1>
-            <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(13,15,8,0.65)", marginBottom: 32, maxWidth: 380, margin: "0 auto 32px" }}>
-              Загрузи резюме — получишь детальный разбор с конкретными рекомендациями.
+          <div className="ra-gate">
+            <div className="ra-gate-icon">
+              <DocIcon />
+            </div>
+            <h1 className="ra-gate-title">AI-разбор резюме</h1>
+            <p className="ra-gate-text">
+              Загрузи резюме - получишь детальный разбор с конкретными рекомендациями.
               Доступно бесплатно после регистрации.
             </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <a
-                href="/login?next=/tools/resume-analyzer"
-                style={{
-                  background: "var(--dark)",
-                  color: "#fff",
-                  padding: "14px 28px",
-                  borderRadius: 999,
-                  fontWeight: 600,
-                  fontSize: 14,
-                  textDecoration: "none",
-                  display: "inline-block",
-                }}
-              >
-                Войти или зарегистрироваться
-              </a>
-            </div>
-            <p style={{ marginTop: 16, fontSize: 12, color: "rgba(13,15,8,0.4)" }}>
+            <a className="btn-dark" href="/login?next=/tools/resume-analyzer">
+              Войти или зарегистрироваться
+            </a>
+            <p className="ra-gate-note">
               Уже есть аккаунт?{" "}
-              <Link href="/login?next=/tools/resume-analyzer" style={{ color: "rgba(13,15,8,0.6)", fontWeight: 600 }}>
-                Войти
-              </Link>
+              <Link href="/login?next=/tools/resume-analyzer">Войти</Link>
             </p>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="section">
+    <main className="section">
       <div className="container" style={{ maxWidth: 800 }}>
-        <div style={{ paddingTop: 24, paddingBottom: 60 }}>
-          <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontFamily: "var(--font-unbounded), Unbounded, sans-serif", fontSize: "clamp(1.3rem, 2.5vw, 1.8rem)", fontWeight: 700, color: "var(--dark)", margin: "0 0 8px" }}>
-              AI-разбор резюме
-            </h1>
-            <p style={{ fontSize: 15, color: "var(--muted)", margin: 0 }}>
-              Загрузи PDF или вставь текст — получишь оценку и конкретные рекомендации.
-            </p>
-          </div>
-          <InlineResumeAnalyzer userScope={userScope} />
+        <div className="ra-standalone-head">
+          <h1 className="ra-standalone-title">AI-разбор резюме</h1>
+          <p className="ra-standalone-sub">
+            Загрузи PDF или вставь текст - получишь оценку и конкретные рекомендации.
+          </p>
         </div>
+        <InlineResumeAnalyzer userScope={userScope} />
       </div>
-    </div>
+    </main>
   );
 }

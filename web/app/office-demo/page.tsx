@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { OfficeDashboard } from "@/components/office/OfficeDashboard";
 import { listVacancies } from "@/lib/data/vacancies";
 import "@/styles/office-mockup.css";
+import "@/styles/resume-analyzer.css";
 
 export const metadata: Metadata = {
   title: "Личный кабинет (демо)",
