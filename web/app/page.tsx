@@ -106,7 +106,6 @@ export default async function HomePage() {
   ]);
 
   const vacancyCount = allVacancies.length;
-  const articleCount = allArticles.length;
   const freshArticles = allArticles.slice(0, 4);
 
   // Hero-плашка и секция "Свежие вакансии" показывают РАЗНЫЕ вакансии:
@@ -209,11 +208,9 @@ export default async function HomePage() {
               <div className="cl-hero-stat-num">AI-разбор</div>
               <div className="cl-hero-stat-label">резюме за минуту</div>
             </Link>
-            <Link href="/knowledge-base" className="cl-hero-stat">
-              <div className="cl-hero-stat-num">
-                {articleCount > 0 ? `${articleCount} статей` : "Гайды"}
-              </div>
-              <div className="cl-hero-stat-label">к резюме и интервью</div>
+            <Link href="/tools/salary-calculator" className="cl-hero-stat">
+              <div className="cl-hero-stat-num">Зарплаты</div>
+              <div className="cl-hero-stat-label">и карьерные треки по рынку</div>
             </Link>
           </div>
         </section>

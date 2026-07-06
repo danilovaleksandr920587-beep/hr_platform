@@ -1219,6 +1219,12 @@ a.cl-bento-card--featured .cl-bento-icon {
   color: var(--cl-dark);
 }
 
+/* Название и счётчик - блочные, иначе счётчик прилипает к названию */
+.cl-bento-name,
+.cl-bento-count {
+  display: block;
+}
+
 /* Инструменты */
 .cl-tools-section {
   background: var(--cl-white);
