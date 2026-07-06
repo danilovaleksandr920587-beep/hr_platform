@@ -17,6 +17,12 @@
 `bonus_tags[]`, флаги `is_published/is_featured/is_new`, `search_vector`
 (tsvector russian, GIN-индекс).
 
+B2B-колонки (миграция `20260705000000_company_portal.sql`): `source`
+(parser/company), `company_id`, `status` (draft/pending_review/published/
+rejected/archived), `status_reason`, `apply_mode` (external/internal).
+Инварианты: published/archived -> is_published=true; archived -> is_archived=true
+(страница живёт для SEO); draft/pending_review/rejected -> is_published=false.
+
 ### `articles`
 Статьи базы знаний. Ключевые поля: `slug` (unique), `title`, `category`,
 `cat_slug`, `level` (Новичок/Продвинутый), `read_time`, `excerpt`, `body`
@@ -41,6 +47,34 @@
 ВАЖНО: при изменении этих таблиц менять схему нужно руками в БД - и лучше
 завести миграцию, чтобы уйти от ручного состояния.
 
+## B2B-таблицы (миграции `20260705000000_*` и `20260705000100_*`)
+
+Миграция разбита на две части по владельцу таблиц:
+- `20260705000000_company_portal.sql` - новые таблицы, применять **ролью
+  приложения** (DATABASE_URL, postgres): она станет их владельцем.
+- `20260705000100_vacancies_company_columns.sql` - колонки `vacancies`,
+  применять **суперпользователем** (владелец vacancies = supabase_admin):
+  `docker exec -i supabase-db psql -U supabase_admin -d postgres --single-transaction < файл`.
+
+Доступ к таблицам - только прямой Postgres (`lib/company/*`). RLS включён без
+политик; роль `postgres` имеет BYPASSRLS, поэтому приложение читает/пишет их,
+а анонимный PostgREST (anon/authenticated) - нет.
+
+| Таблица | Ключевые поля | Назначение |
+|---------|---------------|------------|
+| `companies` | slug, name, inn (unique), status (pending/verified/rejected/blocked), status_reason, trusted, created_by | Компании; trusted = автопубликация вакансий без премодерации |
+| `company_members` | company_id + account_id (PK), role (owner/recruiter), status (active/disabled) | Членство и роли |
+| `company_invites` | company_id + email (unique), role, token_hash (sha256), expires_at (7 дней), accepted_at | Приглашения в команду |
+| `applications` | vacancy_slug + account_id (unique), company_id, resume_file, cover_letter, contact, status (new/viewed/invited/rejected/withdrawn), status_note | Отклики; resume_file - имя файла в RESUME_STORAGE_DIR |
+| `notifications` | account_id, type, payload jsonb, read_at, created_at | In-app уведомления (колокольчик). Фаза 2 |
+| `notification_prefs` | account_id PK, email_prefs jsonb | Настройки email-уведомлений по типам. Фаза 2 |
+
+Роль в `company_members`/`company_invites` с фазы 2: owner/admin/recruiter.
+Миграция фазы 2: `20260706000000_company_phase2.sql` (роль postgres).
+
+Файлы резюме: `RESUME_STORAGE_DIR` (по умолчанию `web/storage/resumes/`,
+в git не попадает), отдача только через `/api/applications/[id]/resume`.
+
 ## Env-переменные (значения - в `web/.env.local` на сервере, НЕ в git)
 
 | Переменная | Для чего |
@@ -51,5 +85,7 @@
 | `AUTH_SECRET` | Подпись JWT session-cookie |
 | `YANDEX_CLIENT_ID`, `YANDEX_CLIENT_SECRET` | Яндекс OAuth |
 | `YANDEX_GPT_API_KEY`, `YANDEX_GPT_FOLDER_ID` | YandexGPT (анализ резюме) |
-| `SMTP_*` | Почта для восстановления пароля |
+| `SMTP_*` | Почта: восстановление пароля + B2B-уведомления (отклики, инвайты, модерация) |
 | `NEXT_PUBLIC_SITE_URL` | Канонический URL (https://lab-career.ru) |
+| `PLATFORM_ADMIN_EMAILS` | Email админов платформы через запятую: доступ к /admin/moderation и письма о новых компаниях/вакансиях |
+| `RESUME_STORAGE_DIR` | Каталог файлов резюме откликов (опционально, дефолт `web/storage/resumes`) |

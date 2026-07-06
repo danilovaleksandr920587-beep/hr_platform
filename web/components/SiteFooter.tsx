@@ -7,6 +7,7 @@ export function SiteFooter() {
         <p>© 2026 CareerLab</p>
         <div className="footer-links">
           <Link href="/">О платформе</Link>
+          <Link href="/for-companies">Для компаний</Link>
           <Link href="/knowledge-base">Вопросы и ответы</Link>
           <Link href="/research">Как мы считаем данные</Link>
           <Link href="/privacy-policy">Политика конфиденциальности</Link>

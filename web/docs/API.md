@@ -37,3 +37,59 @@
 | `/api/vacancies/featured` | GET | Избранные вакансии для главной |
 | `/api/vacancies/by-slugs` | POST | Карточки вакансий по списку slug (для сохранёнок) |
 | `/api/articles/by-slugs` | POST | Карточки статей по списку slug |
+
+## B2B: компании и команда (Auth; роль проверяет `lib/company/guard.ts`)
+
+| Endpoint | Методы | Роль | Что делает |
+|----------|--------|------|------------|
+| `/api/companies` | POST | auth | Создать компанию (status=pending), owner-членство, письмо админам |
+| `/api/companies/mine` | GET | auth | Мои компании и роли |
+| `/api/company/[id]` | GET, PATCH | member / owner | Профиль компании |
+| `/api/company/[id]/members` | GET | member | Участники + непринятые инвайты |
+| `/api/company/[id]/members/[accountId]` | PATCH | owner | Роль/деактивация (нельзя убрать последнего owner) |
+| `/api/company/[id]/invites` | POST | owner | Приглашение по email (токен 7 дней, письмо) |
+| `/api/company-invites/accept` | POST | auth | Принять инвайт по токену (email должен совпасть) |
+
+## B2B: вакансии компании (записи в Supabase через service role)
+
+| Endpoint | Методы | Роль | Что делает |
+|----------|--------|------|------------|
+| `/api/company/[id]/vacancies` | GET, POST | member | Список со статусами / создать draft |
+| `/api/company/[id]/vacancies/[slug]` | GET, PATCH | member | Редактирование; `{action: submit\|archive\|unarchive}` - смена статуса |
+
+Статусы: draft -> pending_review -> published/rejected; published -> archived.
+`submit` требует company.status=verified; для trusted-компаний - сразу published.
+Правка published-вакансии не-trusted компанией возвращает её на модерацию.
+
+## B2B: отклики
+
+| Endpoint | Методы | Кто | Что делает |
+|----------|--------|-----|------------|
+| `/api/vacancies/[slug]/apply` | POST | auth | Отклик: multipart (resume PDF/DOCX до 5МБ, coverLetter, contact). Rate-limit 10/сутки. Письмо команде компании |
+| `/api/office/applications` | GET | auth | Отклики кандидата |
+| `/api/office/applications/[id]` | DELETE | auth | Отозвать отклик (файл резюме удаляется) |
+| `/api/company/[id]/applications` | GET | member | Отклики компании, фильтры ?vacancy=&status= |
+| `/api/company/[id]/applications/[applicationId]` | PATCH | member | Статус viewed/invited/rejected (+note). Письмо кандидату |
+| `/api/applications/[id]/resume` | GET | кандидат/member/админ | Файл резюме (хранится вне public, см. RESUME_STORAGE_DIR) |
+
+## B2B: модерация (PLATFORM_ADMIN_EMAILS)
+
+| Endpoint | Методы | Что делает |
+|----------|--------|------------|
+| `/api/admin/moderation` | GET | Очередь: компании pending + вакансии pending_review |
+| `/api/admin/companies/[id]/verify` | POST | `{approve, reason?, trusted?}` + письмо и in-app владельцам |
+| `/api/admin/vacancies/[slug]/review` | POST | `{approve, reason?}` + письмо и in-app команде |
+
+## B2B фаза 2: in-app уведомления (Auth)
+
+| Endpoint | Методы | Что делает |
+|----------|--------|------------|
+| `/api/notifications` | GET | Список уведомлений + счётчик непрочитанных (401 гостю - колокольчик прячется) |
+| `/api/notifications/read` | POST | Отметить прочитанными: `{ids?}` (без тела - все) |
+| `/api/notification-prefs` | GET, POST | Настройки email-уведомлений по типам (задел под email-дайджест, enforcement - позже) |
+
+Уведомления пишутся в тех же роутах, что и события (отклик, смена статуса,
+модерация), рядом с email. Типы: application_new, application_status,
+company_moderation, vacancy_moderation. Колокольчик - в шапке (`NotificationBell`,
+поллинг 60с). Роли компании теперь owner/admin/recruiter (admin - команда и
+профиль, кроме действий с владельцами).

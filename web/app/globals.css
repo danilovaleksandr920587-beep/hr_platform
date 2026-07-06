@@ -1,6 +1,36 @@
 body.careerlab-site {
   font-family: var(--font-golos), "Golos Text", "Onest", sans-serif;
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Прижимаем футер к низу вьюпорта на коротких страницах вместо того,
+   чтобы он всплывал сразу под контентом.
+   margin-top:auto на самом футере работает независимо от того, чем обёрнут
+   контент выше (main, div.section или компонент) - раньше правило висело на
+   `> main`, и на страницах с корнем-<div> (например /tools/resume-analyzer)
+   футер не прижимался. Требуется лишь чтобы футер был прямым flex-ребёнком
+   body - так и есть на всех страницах с фрагментом <>…<SiteFooter/></>.
+   Селектор включает .section, чтобы перебить `.footer.section { margin-top:0 }`
+   из careerlab-ui.css (иначе стикинес не применялся из-за специфичности). */
+body.careerlab-site > footer.footer.section {
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+/* Главная оборачивает контент и футер в .home-careerlab-scope, поэтому футер
+   там не прямой ребёнок body - делаем обёртку растягивающейся колонкой,
+   чтобы её футер тоже прижимался к низу. */
+body.careerlab-site > .home-careerlab-scope {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+body.careerlab-site > .home-careerlab-scope > footer.footer.section {
+  margin-top: auto;
 }
 
 /* Шапка cl-topbar: внутренний ряд без переноса бренда и CTA */

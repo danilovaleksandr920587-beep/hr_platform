@@ -37,6 +37,7 @@ type Props = {
   publishedAt: string;
   sourcePublishedAt?: string | null;
   applyUrl?: string | null;
+  applyMode?: "internal" | "external";
   similar: SimilarVacancy[];
   isArchived?: boolean;
 };
@@ -82,8 +83,11 @@ export function VacancyDetailClient(props: Props) {
       : props.typeLabel.toLowerCase().includes("проект")
         ? "kvref-jtag-type-project"
         : "kvref-jtag-type-junior";
-  const applyHref = props.applyUrl || "/office";
-  const applyIsExternal = Boolean(props.applyUrl);
+  const applyIsInternal = props.applyMode === "internal";
+  const applyHref = applyIsInternal
+    ? `/vacancies/${props.slug}/apply`
+    : props.applyUrl || "/office";
+  const applyIsExternal = !applyIsInternal && Boolean(props.applyUrl);
 
   const roleBlocks = props.descriptionBlocks?.length
     ? props.descriptionBlocks

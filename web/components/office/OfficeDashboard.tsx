@@ -424,6 +424,10 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                     {savedCounts.vacancies > 0 && <span className="nav-count">{savedCounts.vacancies}</span>}
                   </Link>
 
+                  <Link href="/office/applications" className="office-nav-link">
+                    <span className="nav-icon">📨</span> Мои отклики
+                  </Link>
+
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border2)" }}>
                     <button
                       type="button"
