@@ -1520,6 +1520,45 @@ a.cl-cta-btn--ghost:hover {
     display: none;
   }
 
+  /* Первый экран — на всю высоту вьюпорта. svh (а не vh) = видимая область
+     с учётом адресной строки мобильного браузера, поэтому контент не прячется
+     под ней. justify-content:center наследуется — контент центрируется по
+     вертикали, логотипы уходят под фолд. min-height — «пол», при более высоком
+     контенте секция просто растёт, ничего не обрезается. */
+  .home-careerlab-scope .cl-hero {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  /* Цифры первого экрана: ровная сетка 3 колонок вместо flex-wrap, который
+     ломал ряд (третий блок сваливался на новую строку, а после второго висел
+     осиротевший разделитель). */
+  .cl-hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .cl-hero-stat {
+    padding: 0;
+    margin: 0;
+    border-right: none;
+    min-width: 0;
+  }
+
+  .cl-hero-stat + .cl-hero-stat {
+    padding-left: 14px;
+    border-left: 1px solid rgba(13, 15, 8, 0.2);
+  }
+
+  .cl-hero-stat-num {
+    font-size: 15px;
+  }
+
+  .cl-hero-stat-label {
+    font-size: 11px;
+  }
+
   .cl-kb-grid {
     grid-template-columns: 1fr;
   }
