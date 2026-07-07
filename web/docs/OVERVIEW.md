@@ -39,5 +39,7 @@ hr_platform/
 | FEATURES.md | фичи по модулям, юзкейсы |
 | USECASE_REVIEW.md | ревью юзкейсов: найденные баги, риски, идеи развития |
 | DEPLOY.md | сервер, деплой, nginx, pm2 |
+| company-portal-design.md | проект B2B-контура (кабинет компании), статусы фаз |
+| research-junior-market-design.md | проект спецпроекта: исследование рынка джунов |
 
 Проверка актуальности карты роутов: `npm run docs:check` (из web/).
