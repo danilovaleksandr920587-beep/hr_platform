@@ -1,145 +1,61 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  CITY_LABELS,
+  LEVEL_LABELS,
+  SALARY_DIRECTIONS,
+  cityImpactLabel,
+  compareRows,
+  getDirection,
+  salaryAsOfLabel,
+  salaryBand,
+  trendLabel,
+  type SalaryCity,
+  type SalaryLevel,
+} from "@/lib/data/salary";
 
-type Dir = "analyst" | "frontend" | "backend" | "marketing" | "design" | "pm";
-type Level = "intern" | "junior" | "middle" | "senior";
-type City = "moscow" | "spb" | "regions" | "remote";
+const LEVEL_KEYS = Object.keys(LEVEL_LABELS) as SalaryLevel[];
+const CITY_KEYS = Object.keys(CITY_LABELS) as SalaryCity[];
 
-type SalaryBand = {
-  moscow: [number, number];
-  spb: [number, number];
-  regions: [number, number];
-  remote: [number, number];
-  median: number;
+const LEVEL_HINTS: Record<SalaryLevel, string> = {
+  intern: "Стартовая позиция",
+  junior: "До 1-2 лет опыта",
+  middle: "2-4 года опыта",
+  senior: "4+ лет, экспертиза",
 };
 
-type DirData = {
-  name: string;
-  intern: SalaryBand;
-  junior: SalaryBand;
-  middle: SalaryBand;
-  senior: SalaryBand;
-  growthFactors: string[];
-  marketTrend: string;
-};
+type QuickStart = { label: string; dir: string; level: SalaryLevel; city: SalaryCity };
 
-const salaryData: Record<Dir, DirData> = {
-  analyst: {
-    name: "Аналитика / Data",
-    intern: { moscow: [45, 80], spb: [35, 65], regions: [25, 50], remote: [35, 65], median: 60 },
-    junior: { moscow: [90, 140], spb: [75, 120], regions: [55, 90], remote: [80, 130], median: 110 },
-    middle: { moscow: [160, 240], spb: [140, 200], regions: [100, 160], remote: [150, 220], median: 190 },
-    senior: { moscow: [280, 400], spb: [240, 340], regions: [170, 260], remote: [260, 370], median: 330 },
-    growthFactors: ["SQL (обязателен)", "Python / pandas", "BI-инструменты", "A/B тесты"],
-    marketTrend: "+18% за год",
-  },
-  frontend: {
-    name: "Разработка / Frontend",
-    intern: { moscow: [45, 90], spb: [35, 70], regions: [25, 55], remote: [40, 80], median: 65 },
-    junior: { moscow: [90, 150], spb: [80, 130], regions: [55, 100], remote: [85, 140], median: 115 },
-    middle: { moscow: [180, 280], spb: [160, 250], regions: [120, 190], remote: [170, 260], median: 215 },
-    senior: { moscow: [300, 450], spb: [260, 400], regions: [180, 300], remote: [280, 420], median: 360 },
-    growthFactors: ["React/Vue", "TypeScript", "тестирование", "архитектура"],
-    marketTrend: "+12% за год",
-  },
-  backend: {
-    name: "Разработка / Backend",
-    intern: { moscow: [50, 95], spb: [40, 75], regions: [28, 58], remote: [45, 85], median: 70 },
-    junior: { moscow: [95, 160], spb: [85, 140], regions: [60, 110], remote: [90, 150], median: 120 },
-    middle: { moscow: [190, 300], spb: [170, 260], regions: [130, 200], remote: [180, 270], median: 230 },
-    senior: { moscow: [320, 500], spb: [280, 430], regions: [200, 320], remote: [300, 460], median: 390 },
-    growthFactors: ["язык стека", "базы данных", "микросервисы", "DevOps"],
-    marketTrend: "+15% за год",
-  },
-  marketing: {
-    name: "Маркетинг / SMM / Growth",
-    intern: { moscow: [25, 50], spb: [20, 42], regions: [15, 35], remote: [20, 45], median: 38 },
-    junior: { moscow: [60, 100], spb: [50, 88], regions: [35, 65], remote: [55, 95], median: 78 },
-    middle: { moscow: [110, 180], spb: [95, 160], regions: [70, 120], remote: [100, 170], median: 140 },
-    senior: { moscow: [200, 320], spb: [170, 270], regions: [120, 200], remote: [180, 290], median: 250 },
-    growthFactors: ["таргет ВК/TG", "аналитика", "контент-стратегия", "CJM"],
-    marketTrend: "+8% за год",
-  },
-  design: {
-    name: "Дизайн / UX/UI",
-    intern: { moscow: [30, 60], spb: [25, 50], regions: [18, 40], remote: [28, 55], median: 45 },
-    junior: { moscow: [70, 120], spb: [60, 105], regions: [45, 80], remote: [65, 110], median: 90 },
-    middle: { moscow: [130, 210], spb: [115, 185], regions: [85, 140], remote: [120, 195], median: 165 },
-    senior: { moscow: [230, 370], spb: [200, 320], regions: [145, 240], remote: [210, 340], median: 290 },
-    growthFactors: ["Figma", "UX-исследования", "дизайн-система", "анимации"],
-    marketTrend: "+10% за год",
-  },
-  pm: {
-    name: "Продакт / Проджект",
-    intern: { moscow: [40, 75], spb: [33, 62], regions: [22, 48], remote: [35, 68], median: 56 },
-    junior: { moscow: [85, 140], spb: [72, 120], regions: [50, 88], remote: [78, 130], median: 108 },
-    middle: { moscow: [160, 260], spb: [140, 220], regions: [100, 170], remote: [150, 240], median: 200 },
-    senior: { moscow: [280, 440], spb: [240, 370], regions: [170, 280], remote: [260, 400], median: 350 },
-    growthFactors: ["метрики продукта", "SQL", "A/B тесты", "Jira/Notion"],
-    marketTrend: "+16% за год",
-  },
-};
-
-const levelNames: Record<Level, string> = {
-  intern: "Стажёр",
-  junior: "Junior",
-  middle: "Middle",
-  senior: "Senior",
-};
-
-const cityNames: Record<City, string> = {
-  moscow: "Москва",
-  spb: "Санкт-Петербург",
-  regions: "Регионы",
-  remote: "Удалённо",
-};
-
-const compareData: Record<Level, Array<[string, number, number]>> = {
-  intern: [
-    ["Без доп. навыков", 35, 55],
-    ["С SQL/Python", 55, 85],
-    ["С портфолио", 60, 90],
-    ["С релевантным проектом", 70, 100],
-  ],
-  junior: [
-    ["Нет коммерческого опыта", 70, 100],
-    ["3-6 мес стажировки", 90, 130],
-    ["6-12 мес опыта", 110, 160],
-    ["1+ год + пет-проекты", 130, 190],
-  ],
-  middle: [
-    ["2-3 года опыта", 130, 180],
-    ["3-4 года + лидерство", 160, 220],
-    ["4+ года + менторинг", 190, 260],
-    ["Тех. лидерство", 220, 300],
-  ],
-  senior: [
-    ["5-6 лет", 220, 320],
-    ["7+ лет + архитектура", 290, 400],
-    ["Тимлид", 350, 480],
-    ["Principal/Staff", 420, 600],
-  ],
-};
+const QUICK_STARTS: QuickStart[] = [
+  { label: "Frontend · Junior · Москва", dir: "frontend", level: "junior", city: "moscow" },
+  { label: "QA · Junior · Удалённо", dir: "qa", level: "junior", city: "remote" },
+  { label: "Backend · Middle · СПб", dir: "backend", level: "middle", city: "spb" },
+  { label: "Аналитика · Стажёр · Москва", dir: "analyst", level: "intern", city: "moscow" },
+];
 
 export function SalaryCalculatorPage() {
-  const [dir, setDir] = useState<Dir>("analyst");
-  const [level, setLevel] = useState<Level>("intern");
-  const [city, setCity] = useState<City>("moscow");
+  const [dirKey, setDirKey] = useState("analyst");
+  const [level, setLevel] = useState<SalaryLevel>("intern");
+  const [city, setCity] = useState<SalaryCity>("moscow");
   const [calculated, setCalculated] = useState(false);
 
-  const data = salaryData[dir];
-  const levelData = data[level];
-  const [low, high] = levelData[city];
-  const median = levelData.median;
-  const pct = useMemo(() => ((median - low) / Math.max(high - low, 1)) * 80 + 10, [median, low, high]);
-  const cityImpactText = useMemo(() => {
-    if (city === "moscow") return "+0% (базовый рынок)";
-    if (city === "spb") return "−13% к Москве";
-    if (city === "regions") return "−35% к Москве";
-    return "−8% к Москве";
-  }, [city]);
-  const compareRows = compareData[level];
+  const dir = getDirection(dirKey);
+  const asOf = useMemo(() => salaryAsOfLabel(), []);
+  const band = useMemo(() => salaryBand(dirKey, level, city), [dirKey, level, city]);
+  const { low, high, median } = band;
+  const pct = useMemo(
+    () => ((median - low) / Math.max(high - low, 1)) * 80 + 10,
+    [median, low, high],
+  );
+  const rows = useMemo(() => compareRows(dirKey, level), [dirKey, level]);
+
+  function applyQuickStart(q: QuickStart) {
+    setDirKey(q.dir);
+    setLevel(q.level);
+    setCity(q.city);
+    setCalculated(true);
+  }
 
   return (
     <main className="scalc">
@@ -149,7 +65,7 @@ export function SalaryCalculatorPage() {
           <h1 className="hero-title">Сколько стоит<br />твоя работа?</h1>
           <p className="hero-sub">Выбери направление, город и уровень — получи реальный диапазон зарплат с объяснением от чего зависит цифра.</p>
         </div>
-        <div className="hero-update"><div className="hero-update-dot" />Данные за Q1 2026</div>
+        <div className="hero-update"><div className="hero-update-dot" />Данные на {asOf}</div>
       </section>
 
       <section className="scalc-page">
@@ -162,27 +78,22 @@ export function SalaryCalculatorPage() {
             <div className="field">
               <span className="field-label">Направление</span>
               <div className="field-options">
-                {([
-                  ["analyst", "📊", "Аналитика", "Data"],
-                  ["frontend", "💻", "Разработка", "Frontend"],
-                  ["backend", "⚙️", "Разработка", "Backend"],
-                  ["marketing", "📣", "Маркетинг", "SMM / Growth"],
-                  ["design", "🎨", "Дизайн", "UX/UI"],
-                  ["pm", "🚀", "Продакт", "Project"],
-                ] as Array<[Dir, string, string, string]>).map(([v, icon, title, sub]) => (
-                  <button key={v} type="button" className={`field-option${dir === v ? " selected" : ""}`} onClick={() => setDir(v)}>
-                    <span className="fo-icon">{icon}</span>
-                    <span className="fo-text">{title} <span className="fo-sub">/ {sub}</span></span>
-                  </button>
-                ))}
+                {SALARY_DIRECTIONS.map((d) => {
+                  const [title, sub] = d.name.split(" / ");
+                  return (
+                    <button key={d.key} type="button" className={`field-option${dirKey === d.key ? " selected" : ""}`} onClick={() => setDirKey(d.key)}>
+                      <span className="fo-text">{title}{sub ? <span className="fo-sub"> / {sub}</span> : null}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             <div className="field">
               <span className="field-label">Уровень</span>
               <div className="field-grid">
-                {(["intern", "junior", "middle", "senior"] as Level[]).map((v) => (
-                  <button key={v} type="button" className={`grid-option${level === v ? " selected" : ""}`} onClick={() => setLevel(v)}>{levelNames[v]}</button>
+                {LEVEL_KEYS.map((v) => (
+                  <button key={v} type="button" className={`grid-option${level === v ? " selected" : ""}`} onClick={() => setLevel(v)}>{LEVEL_LABELS[v]}</button>
                 ))}
               </div>
             </div>
@@ -190,8 +101,8 @@ export function SalaryCalculatorPage() {
             <div className="field">
               <span className="field-label">Город</span>
               <div className="field-grid">
-                {(["moscow", "spb", "regions", "remote"] as City[]).map((v) => (
-                  <button key={v} type="button" className={`grid-option${city === v ? " selected" : ""}`} onClick={() => setCity(v)}>{cityNames[v]}</button>
+                {CITY_KEYS.map((v) => (
+                  <button key={v} type="button" className={`grid-option${city === v ? " selected" : ""}`} onClick={() => setCity(v)}>{CITY_LABELS[v]}</button>
                 ))}
               </div>
             </div>
@@ -203,18 +114,30 @@ export function SalaryCalculatorPage() {
         <div className="results-area">
           {!calculated ? (
             <div className="empty-state">
-              <div className="empty-icon">💰</div>
-              <div className="empty-title">Настройте параметры</div>
-              <div className="empty-sub">Выберите направление, уровень и город — и нажмите «Рассчитать». Получите реальный диапазон зарплат с объяснением.</div>
+              <div className="empty-icon" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d0f08" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><rect x="7" y="12" width="3" height="6" /><rect x="12" y="8" width="3" height="10" /><rect x="17" y="5" width="3" height="13" /></svg>
+              </div>
+              <div className="empty-title">Выберите направление и уровень</div>
+              <div className="empty-sub">Три клика - и вы увидите вилку зарплат, медиану и что на неё влияет.</div>
+              <div className="quick-starts">
+                <div className="quick-starts-label">Популярные комбинации</div>
+                <div className="quick-starts-chips">
+                  {QUICK_STARTS.map((q) => (
+                    <button key={q.label} type="button" className="quick-chip" onClick={() => applyQuickStart(q)}>
+                      {q.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <>
               <div className="salary-hero">
-                <div className="sh-label">Диапазон зарплат · {cityNames[city]} · {levelNames[level]}</div>
-                <div className="sh-role">{data.name}</div>
+                <div className="sh-label">Диапазон зарплат · {CITY_LABELS[city]} · {LEVEL_LABELS[level]}</div>
+                <div className="sh-role">{dir.name}</div>
                 <div className="sh-range"><span className="sh-from">{low} 000</span><span className="sh-dash">—</span><span className="sh-to">{high} 000 ₽</span></div>
-                <div className="sh-note">до вычета НДФЛ · данные за Q1 2026</div>
-                <div className="sh-median"><span className="sh-median-label">Медиана:</span><span className="sh-median-val">{median} 000 ₽</span><span className="sh-median-badge">Рынок растёт {data.marketTrend}</span></div>
+                <div className="sh-note">до вычета НДФЛ · данные на {asOf}</div>
+                <div className="sh-median"><span className="sh-median-label">Медиана:</span><span className="sh-median-val">{median} 000 ₽</span><span className="sh-median-badge">Рынок растёт {trendLabel(dirKey)}</span></div>
               </div>
 
               <div className="range-bar-card">
@@ -225,7 +148,7 @@ export function SalaryCalculatorPage() {
                 <div className="rbc-growth-wrap">
                   <strong className="rbc-growth-title">Что влияет на попадание в топ диапазона:</strong>
                   <div className="rbc-growth-tags">
-                    {data.growthFactors.map((factor) => (
+                    {dir.growthFactors.map((factor) => (
                       <span key={factor} className="rbc-growth-tag">{factor}</span>
                     ))}
                   </div>
@@ -234,25 +157,21 @@ export function SalaryCalculatorPage() {
 
               <div className="factors-grid">
                 <div className="factor-card">
-                  <span className="fc-icon">📍</span>
                   <div className="fc-label">Влияние города</div>
-                  <div className="fc-value">{cityNames[city]}</div>
-                  <div className={`fc-impact${city === "moscow" ? " impact-up" : " impact-down"}`}>{cityImpactText}</div>
+                  <div className="fc-value">{CITY_LABELS[city]}</div>
+                  <div className={`fc-impact${city === "moscow" ? " impact-up" : " impact-down"}`}>{cityImpactLabel(city)}</div>
                 </div>
                 <div className="factor-card">
-                  <span className="fc-icon">📈</span>
                   <div className="fc-label">Тренд рынка</div>
-                  <div className="fc-value">{data.marketTrend}</div>
+                  <div className="fc-value">{trendLabel(dirKey)}</div>
                   <div className="fc-impact impact-up">Рост выше инфляции</div>
                 </div>
                 <div className="factor-card">
-                  <span className="fc-icon">🎯</span>
                   <div className="fc-label">Уровень</div>
-                  <div className="fc-value">{levelNames[level]}</div>
-                  <div className="fc-impact">{level === "intern" ? "Стартовая позиция" : level === "junior" ? "До 1-2 лет опыта" : level === "middle" ? "2-4 года опыта" : "4+ лет, экспертиза"}</div>
+                  <div className="fc-value">{LEVEL_LABELS[level]}</div>
+                  <div className="fc-impact">{LEVEL_HINTS[level]}</div>
                 </div>
                 <div className="factor-card">
-                  <span className="fc-icon">🏢</span>
                   <div className="fc-label">Тип компании</div>
                   <div className="fc-value">Продукт {'>'} Аутсорс</div>
                   <div className="fc-impact">Разница до <span className="impact-up">+30%</span></div>
@@ -261,12 +180,12 @@ export function SalaryCalculatorPage() {
 
               <div className="ai-insight">
                 <div className="ai-header"><div className="ai-dot" /><span className="ai-header-title">Объяснение от AI</span><span className="ai-header-sub">CareerLab AI</span></div>
-                <div className="ai-body"><div className="ai-text">Для профиля <strong>{data.name}</strong> в локации <strong>{cityNames[city]}</strong> рынок сейчас даёт диапазон <strong>{low}–{high} тыс ₽</strong>. Чтобы попасть в верхнюю часть вилки, усиливайте навыки: {data.growthFactors.join(", ")}.</div></div>
+                <div className="ai-body"><div className="ai-text">Для профиля <strong>{dir.name}</strong> в локации <strong>{CITY_LABELS[city]}</strong> рынок сейчас даёт диапазон <strong>{low}–{high} тыс ₽</strong>. Чтобы попасть в верхнюю часть вилки, усиливайте навыки: {dir.growthFactors.join(", ")}.</div></div>
               </div>
 
               <div className="comp-table">
                 <div className="comp-table-header">
-                  <div className="comp-table-title">Как опыт влияет на зарплату</div>
+                  <div className="comp-table-title">Как опыт влияет на зарплату · {dir.name}</div>
                 </div>
                 <table className="comp">
                   <thead>
@@ -276,7 +195,7 @@ export function SalaryCalculatorPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {compareRows.map(([label, rowLow, rowHigh], index) => (
+                    {rows.map(([label, rowLow, rowHigh], index) => (
                       <tr key={label} className={index === 1 ? "highlight" : ""}>
                         <td>{label}</td>
                         <td className="td-salary">{rowLow} 000 – {rowHigh} 000 ₽</td>
@@ -288,7 +207,7 @@ export function SalaryCalculatorPage() {
 
               <div className="tips-card">
                 <div className="tips-title">Как попасть в <em>топ диапазона</em></div>
-                <div className="tip-row"><div className="tip-row-num">01</div><div className="tip-row-text">Усильте навык: {data.growthFactors[0]}</div></div>
+                <div className="tip-row"><div className="tip-row-num">01</div><div className="tip-row-text">Усильте навык: {dir.growthFactors[0]}</div></div>
                 <div className="tip-row"><div className="tip-row-num">02</div><div className="tip-row-text">Добавьте цифры и метрики в резюме и кейсы.</div></div>
                 <div className="tip-row"><div className="tip-row-num">03</div><div className="tip-row-text">В переговорах называйте диапазон от {Math.round(median * 0.9)} тыс ₽.</div></div>
               </div>

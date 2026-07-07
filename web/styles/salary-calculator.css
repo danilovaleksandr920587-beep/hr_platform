@@ -20,9 +20,15 @@
 .scalc .grid-option{padding:10px 14px;border:1.5px solid rgba(0,0,0,.13);border-radius:12px;cursor:pointer;font-size:13px;color:#7a7d70;background:#f0f0e8;text-align:center;font-weight:500}
 .scalc .grid-option.selected{border-color:#0d0f08;background:#0d0f08;color:#c9f135}
 .scalc .calc-btn{width:100%;background:#0d0f08;color:#fff;border:none;padding:14px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
-.scalc .empty-state{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;padding:60px 40px;text-align:center}
-.scalc .empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}.scalc .empty-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
-.scalc .empty-sub{font-size:14px;color:#7a7d70;line-height:1.6}
+.scalc .empty-state{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:24px;padding:52px 40px;text-align:center}
+.scalc .empty-icon{width:56px;height:56px;border-radius:16px;background:#c9f135;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.scalc .empty-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.scalc .empty-sub{font-size:14px;color:#7a7d70;line-height:1.6;max-width:340px;margin:0 auto}
+.scalc .quick-starts{margin-top:24px}
+.scalc .quick-starts-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a8ab9f;margin-bottom:12px}
+.scalc .quick-starts-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.scalc .quick-chip{border:1px solid rgba(0,0,0,.13);background:#fff;border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:600;color:#0d0f08;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,transform .12s}
+.scalc .quick-chip:hover{border-color:#0d0f08;background:#f0f0e8;transform:translateY(-1px)}
 .scalc .salary-hero{background:#0d0f08;border-radius:24px;padding:32px 36px;margin-bottom:14px;color:#fff}
 .scalc .sh-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px}
 .scalc .sh-role{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:16px}.scalc .sh-range{display:flex;align-items:baseline;gap:12px}

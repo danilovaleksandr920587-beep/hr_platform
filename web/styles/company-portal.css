@@ -409,6 +409,12 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
+.notification-bell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .notification-bell-count {
   position: absolute;
   top: 0;

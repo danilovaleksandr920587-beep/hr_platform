@@ -115,3 +115,27 @@
 .ia-expected-tag{display:inline-flex;align-items:center;font-size:12px;background:#fff;border:1px solid rgba(181,219,42,.5);color:#2d5000;padding:5px 10px;border-radius:20px;font-weight:500;line-height:1.2}
 /* No-resize on all textareas inside ranalyzer */
 .ranalyzer textarea,.ranalyzer .resume-textarea{resize:none}
+
+/* ── Standalone-страница /tools/resume-analyzer ───────────────────────────
+   Обёртка заголовка и гостевой гейт: классы вместо inline-стилей в
+   ResumeAnalyzerPage.tsx. Отступ под фиксированную шапку даёт глобальное
+   правило для main.section в globals.css. */
+.ra-standalone-head{margin-bottom:28px}
+.ra-standalone-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:clamp(1.3rem,2.5vw,1.8rem);font-weight:700;color:var(--dark);margin:0 0 8px}
+.ra-standalone-sub{font-size:15px;color:var(--muted);margin:0}
+.ra-gate{background:var(--lime);border-radius:24px;padding:48px 40px;text-align:center;margin-top:8px}
+.ra-gate-icon{width:52px;height:52px;margin:0 auto 16px;display:grid;place-items:center;background:rgba(13,15,8,.08);border-radius:16px;color:var(--dark)}
+.ra-gate-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:700;color:var(--dark);margin:0 0 12px}
+.ra-gate-text{font-size:15px;line-height:1.6;color:rgba(13,15,8,.65);max-width:380px;margin:0 auto 32px}
+.ra-gate-note{margin-top:16px;font-size:12px;color:rgba(13,15,8,.45)}
+.ra-gate-note a{color:rgba(13,15,8,.65);font-weight:600}
+
+/* Disabled-состояние кнопки анализа: явный приглушённый стиль из палитры
+   вместо полупрозрачного чёрного (читался как случайный серый). */
+.ia-analyze-btn:disabled{opacity:1;background:#e3e3da;color:#8b8e80;cursor:not-allowed}
+
+/* Иконки вместо emoji в зоне загрузки и тогглах */
+.ia-icon{display:inline-block;vertical-align:-2px;flex-shrink:0}
+.ranalyzer .upload-icon{margin-bottom:12px;display:flex;justify-content:center;color:#7a7d70}
+.ranalyzer .upload-zone.has-file .upload-icon{color:#4a7000}
+.ia-text-toggle .ia-icon{margin-right:6px;vertical-align:-3px}

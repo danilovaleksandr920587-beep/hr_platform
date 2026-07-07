@@ -82,8 +82,14 @@ body.careerlab-site .card-visual-stat {
   font-family: var(--font-unbounded), "Unbounded", sans-serif;
 }
 
+/* Отступ первого контент-блока под фиксированной 60px-шапкой. Покрываем все
+   варианты корня страницы: main.section, section.section внутри main и
+   div.section прямым ребёнком body (страницы, рендерящие <>…</> без main,
+   например /tools/resume-analyzer) - иначе заголовок уезжает под шапку. */
 body.careerlab-site main > section.section:first-child,
-body.careerlab-site main.section {
+body.careerlab-site main.section,
+body.careerlab-site > div.section,
+body.careerlab-site > main.section {
   padding-top: calc(76px + env(safe-area-inset-top, 0px));
 }
 

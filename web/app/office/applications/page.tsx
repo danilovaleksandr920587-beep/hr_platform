@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MyApplications, type MyApplication } from "@/components/office/MyApplications";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { listApplicationsForAccount } from "@/lib/company/applications";
-import { listVacanciesBySlugs } from "@/lib/data/vacancies";
+import { listVacancies, listVacanciesBySlugs } from "@/lib/data/vacancies";
 
 export const metadata: Metadata = {
   title: "Мои отклики",
@@ -21,6 +21,11 @@ export default async function OfficeApplicationsPage() {
     () => [],
   );
   const bySlug = new Map(vacancies.map((v) => [v.slug, v] as const));
+
+  // Для пустого состояния: свежие вакансии вместо голой заглушки
+  const suggestions = applications.length === 0
+    ? await listVacancies({ limit: 3, fields: "card" }).catch(() => [])
+    : [];
 
   const items: MyApplication[] = applications.map((a) => {
     const v = bySlug.get(a.vacancy_slug);
@@ -45,7 +50,15 @@ export default async function OfficeApplicationsPage() {
             </Link>
           </p>
           <h1 className="page-title">Мои отклики</h1>
-          <MyApplications initial={items} />
+          <MyApplications
+            initial={items}
+            suggestions={suggestions.map((v) => ({
+              slug: v.slug,
+              title: v.title,
+              company: v.company,
+              city: v.city ?? null,
+            }))}
+          />
         </div>
       </main>
       <SiteFooter />

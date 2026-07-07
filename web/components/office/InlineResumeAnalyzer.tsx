@@ -34,6 +34,32 @@ function scoreLocal(resume: string, level: string): ResumeAnalysisResult {
   };
 }
 
+function IconFile({ size = 28 }: { size?: number }) {
+  return (
+    <svg className="ia-icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+    </svg>
+  );
+}
+
+function IconCheckCircle({ size = 28 }: { size?: number }) {
+  return (
+    <svg className="ia-icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m8.5 12.5 2.5 2.5 4.5-5.5" />
+    </svg>
+  );
+}
+
+function IconPencil({ size = 14 }: { size?: number }) {
+  return (
+    <svg className="ia-icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z" />
+    </svg>
+  );
+}
+
 type Props = { userScope: string; onScoreChange?: (score: number | null) => void };
 
 export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
@@ -277,18 +303,18 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
                 />
                 {fileLoading ? (
                   <>
-                    <div className="upload-icon" style={{ fontSize: 28 }}>⏳</div>
+                    <div className="upload-icon"><IconFile /></div>
                     <div className="upload-title">Читаю файл...</div>
                   </>
                 ) : resumeFileName && resumeText && !fileError ? (
                   <>
-                    <div className="upload-icon" style={{ fontSize: 28 }}>✅</div>
+                    <div className="upload-icon"><IconCheckCircle /></div>
                     <div className="upload-title" style={{ color: "#3a7000" }}>{resumeFileName}</div>
                     <div className="upload-sub">{resumeText.length} символов извлечено · нажмите чтобы заменить</div>
                   </>
                 ) : (
                   <>
-                    <div className="upload-icon" style={{ fontSize: 28 }}>📄</div>
+                    <div className="upload-icon"><IconFile /></div>
                     <div className="upload-title">{dragOver ? "Отпустите файл" : "Перетащите или нажмите для загрузки"}</div>
                     <div className="upload-sub">PDF, DOCX, TXT · до 5 МБ</div>
                   </>
@@ -302,7 +328,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
                 className="ia-text-toggle"
                 onClick={() => setShowTextarea(true)}
               >
-                ✏️ Вставить текст резюме вручную
+                <IconPencil /> Вставить текст резюме вручную
               </button>
             </>
           ) : (
@@ -320,7 +346,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
                 </div>
               )}
               <button type="button" className="ia-text-toggle" onClick={() => { setShowTextarea(false); setResumeText(""); }}>
-                📄 Загрузить файл вместо текста
+                <IconFile size={14} /> Загрузить файл вместо текста
               </button>
             </>
           )}

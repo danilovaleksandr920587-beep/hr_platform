@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { LoginForm } from "@/components/LoginForm";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { optionalString } from "@/lib/searchParams";
+import "@/styles/auth.css";
 
 export const metadata: Metadata = {
   title: "Вход",
@@ -24,15 +24,10 @@ export default async function LoginPage({ searchParams }: PageProps) {
   const configured = isPasswordAuthConfigured();
 
   return (
-    <main className="section">
-      <div className="container" style={{ maxWidth: 520 }}>
-        <h1 className="page-title">Вход</h1>
-        <p className="hero-text">
-          Войдите или зарегистрируйтесь — после входа откроется{" "}
-          <Link href="/office">личный кабинет</Link>.
-        </p>
+    <main className="section auth-section">
+      <div className="auth-container">
         {err === "auth" ? (
-          <p className="hero-text" style={{ color: "var(--coral)" }}>
+          <p className="auth-alert">
             Сессия недействительна или истекла. Войдите снова.
           </p>
         ) : null}

@@ -38,7 +38,20 @@ function formatDate(iso: string) {
     : d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
 }
 
-export function MyApplications({ initial }: { initial: MyApplication[] }) {
+export type SuggestedVacancy = {
+  slug: string;
+  title: string;
+  company: string;
+  city: string | null;
+};
+
+export function MyApplications({
+  initial,
+  suggestions = [],
+}: {
+  initial: MyApplication[];
+  suggestions?: SuggestedVacancy[];
+}) {
   const [applications, setApplications] = useState(initial);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,14 +79,38 @@ export function MyApplications({ initial }: { initial: MyApplication[] }) {
 
   if (!applications.length) {
     return (
-      <div className="panel">
-        <p style={{ margin: "0 0 10px" }}>
-          Пока нет откликов через платформу. Часть вакансий принимает отклики прямо здесь - ищите
-          кнопку &laquo;Откликнуться&raquo; без перехода на внешний сайт.
-        </p>
-        <Link className="btn-dark" href="/vacancies" style={{ textDecoration: "none" }}>
-          Смотреть вакансии
-        </Link>
+      <div style={{ display: "grid", gap: 12 }}>
+        <div className="panel">
+          <p style={{ margin: "0 0 10px" }}>
+            Пока нет откликов через платформу. Часть вакансий принимает отклики прямо здесь - ищите
+            кнопку &laquo;Откликнуться&raquo; без перехода на внешний сайт.
+          </p>
+          <Link className="btn-dark" href="/vacancies" style={{ textDecoration: "none" }}>
+            Смотреть вакансии
+          </Link>
+        </div>
+        {suggestions.length > 0 && (
+          <>
+            <p style={{ margin: "10px 0 0", fontSize: 13, color: "var(--muted, #666)", textTransform: "uppercase", letterSpacing: ".06em", fontWeight: 600 }}>
+              Свежие вакансии
+            </p>
+            {suggestions.map((v) => (
+              <div key={v.slug} className="panel" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <p style={{ margin: "0 0 4px", fontWeight: 600 }}>
+                    <Link className="text-link" href={`/vacancies/${v.slug}`}>{v.title}</Link>
+                  </p>
+                  <p style={{ margin: 0, fontSize: 13, color: "var(--muted, #666)" }}>
+                    {[v.company, v.city].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+                <Link className="btn-ghost" href={`/vacancies/${v.slug}`} style={{ textDecoration: "none" }}>
+                  Подробнее
+                </Link>
+              </div>
+            ))}
+          </>
+        )}
       </div>
     );
   }
