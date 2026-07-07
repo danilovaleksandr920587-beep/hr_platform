@@ -6,12 +6,12 @@
 
 | Endpoint | Метод | Что делает |
 |----------|-------|------------|
-| `/api/auth/register` | POST | Регистрация email+пароль, пишет в `careerlab_accounts` |
-| `/api/auth/login` | POST | Вход, ставит session-cookie (30 дней) |
+| `/api/auth/register` | POST | Регистрация email+пароль, пишет в `careerlab_accounts`. Rate-limit 5/час по IP |
+| `/api/auth/login` | POST | Вход, ставит session-cookie (30 дней). Rate-limit 10/15мин по IP (антибрутфорс) |
 | `/api/auth/logout` | POST | Сброс cookie |
-| `/api/auth/forgot-password` | POST | Генерирует токен в `careerlab_password_resets`, шлёт письмо по SMTP |
+| `/api/auth/forgot-password` | POST | Генерирует токен в `careerlab_password_resets`, шлёт письмо по SMTP. Origin ссылки - через x-forwarded-* |
 | `/api/auth/reset-password` | POST | Смена пароля по токену |
-| `/api/auth/yandex` | GET | Редирект на Яндекс OAuth (callback: `/auth/callback`) |
+| `/api/auth/yandex` | GET | Редирект на Яндекс OAuth (callback: `/auth/callback`). Ставит nonce-cookie для anti-CSRF, сверяется в callback |
 
 ## Личный кабинет (все - Auth)
 
@@ -28,7 +28,7 @@
 | Endpoint | Метод | Что делает |
 |----------|-------|------------|
 | `/api/parse-resume` | POST | Извлекает текст из загруженного PDF/DOCX (pdf-parse, mammoth) |
-| `/api/analyze-resume` | POST | Отправляет текст резюме в YandexGPT, возвращает балл и рекомендации. Rate-limit: `lib/rate-limit.ts` |
+| `/api/analyze-resume` | POST | Отправляет текст резюме в YandexGPT, возвращает балл и рекомендации. Rate-limit: 10/час по IP (`lib/rate-limit.ts`) |
 
 ## Данные для клиентских компонентов
 
@@ -47,7 +47,7 @@
 | `/api/company/[id]` | GET, PATCH | member / owner | Профиль компании |
 | `/api/company/[id]/members` | GET | member | Участники + непринятые инвайты |
 | `/api/company/[id]/members/[accountId]` | PATCH | owner | Роль/деактивация (нельзя убрать последнего owner) |
-| `/api/company/[id]/invites` | POST | owner | Приглашение по email (токен 7 дней, письмо) |
+| `/api/company/[id]/invites` | POST | owner | Приглашение по email (токен 7 дней). Возвращает `inviteUrl` + `emailSent`; письмо только если SMTP настроен, иначе ссылку передают вручную |
 | `/api/company-invites/accept` | POST | auth | Принять инвайт по токену (email должен совпасть) |
 
 ## B2B: вакансии компании (записи в Supabase через service role)

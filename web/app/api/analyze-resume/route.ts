@@ -1,5 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/http/client-ip";
 
 const YGPT_API_KEY = process.env.YANDEX_GPT_API_KEY ?? "";
 const YGPT_FOLDER_ID = process.env.YANDEX_GPT_FOLDER_ID ?? "";
@@ -228,6 +230,14 @@ function normalizeResult(input: RawResult, mode: "general" | "vacancy", targetLe
 export async function POST(request: Request) {
   if (!isConfigured()) {
     return NextResponse.json({ error: "Сервис временно недоступен" }, { status: 503 });
+  }
+
+  // Каждый вызов - платный запрос в YandexGPT, без лимита бюджет сжигается циклом
+  if (!rateLimit(`analyze:${getClientIp(request)}`, 10, 60 * 60)) {
+    return NextResponse.json(
+      { error: "Слишком много анализов подряд. Попробуйте через час." },
+      { status: 429 },
+    );
   }
 
   let body: {

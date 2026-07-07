@@ -7,6 +7,7 @@ import { COMPANY_ROLES, type CompanyRole } from "@/lib/company/constants";
 import { notifyCompanyInvite } from "@/lib/email/company-notifications";
 import { isSmtpConfigured } from "@/lib/email/smtp";
 import { rateLimit } from "@/lib/rate-limit";
+import { getRealOrigin } from "@/lib/http/origin";
 
 type RouteProps = { params: Promise<{ id: string }> };
 
@@ -15,12 +16,6 @@ export async function POST(req: Request, { params }: RouteProps) {
   const access = await requireCompanyRole(id, "admin");
   if (!isCompanyAccess(access)) return access;
 
-  if (!isSmtpConfigured()) {
-    return NextResponse.json(
-      { error: "Отправка приглашений временно недоступна." },
-      { status: 503 },
-    );
-  }
   if (!rateLimit(`company-invite:${id}`, 20, 24 * 60 * 60)) {
     return NextResponse.json(
       { error: "Слишком много приглашений за сутки." },
@@ -60,14 +55,22 @@ export async function POST(req: Request, { params }: RouteProps) {
       expiresAtIso: generated.expiresAtIso,
     });
 
-    const origin = new URL(req.url).origin;
-    notifyCompanyInvite({
-      to: email,
-      companyName: company.name,
-      inviteUrl: `${origin}/company-invite?token=${generated.token}`,
-    });
+    const origin = await getRealOrigin();
+    const inviteUrl = `${origin}/company-invite?token=${generated.token}`;
 
-    return NextResponse.json({ ok: true });
+    // Письмо - если SMTP настроен; ссылку возвращаем всегда, чтобы
+    // приглашение можно было передать вручную (иначе без SMTP инвайт
+    // не существует нигде, кроме неотправленного письма).
+    const emailSent = isSmtpConfigured();
+    if (emailSent) {
+      notifyCompanyInvite({
+        to: email,
+        companyName: company.name,
+        inviteUrl,
+      });
+    }
+
+    return NextResponse.json({ ok: true, inviteUrl, emailSent });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Ошибка сервера." }, { status: 500 });

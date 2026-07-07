@@ -17,13 +17,6 @@ export async function POST(req: Request, { params }: RouteProps) {
   const session = await getSessionFromCookies();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!rateLimit(`apply:${session.id}`, 10, 24 * 60 * 60)) {
-    return NextResponse.json(
-      { error: "Не больше 10 откликов в сутки. Продолжите завтра." },
-      { status: 429 },
-    );
-  }
-
   let form: FormData;
   try {
     form = await req.formData();
@@ -61,6 +54,15 @@ export async function POST(req: Request, { params }: RouteProps) {
       return NextResponse.json(
         { error: "Вы уже откликались на эту вакансию." },
         { status: 409 },
+      );
+    }
+
+    // Лимит списывается после всех проверок: ошибочная попытка
+    // (битый файл, дубль, закрытая вакансия) не сжигает квоту
+    if (!rateLimit(`apply:${session.id}`, 10, 24 * 60 * 60)) {
+      return NextResponse.json(
+        { error: "Не больше 10 откликов в сутки. Продолжите завтра." },
+        { status: 429 },
       );
     }
 
