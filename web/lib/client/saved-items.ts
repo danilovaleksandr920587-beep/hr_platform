@@ -5,6 +5,16 @@ export const SAVED_STORAGE_KEYS = {
 } as const;
 
 export const SAVED_ITEMS_EVENT = "careerlab:saved-items-updated";
+/** Диспатчится, когда запись сохранёнки в БД у залогиненного пользователя не
+ *  прошла и UI-состояние откатано. `SavedItemsToast` показывает уведомление. */
+export const SAVED_ITEMS_ERROR = "careerlab:saved-items-error";
+
+export type SavedItemsErrorDetail = {
+  kind: "vacancy" | "article";
+  slug: string;
+  /** true - не удалось сохранить; false - не удалось убрать из сохранённого. */
+  shouldSave: boolean;
+};
 
 export type SavedSnapshot = {
   vacancies: Set<string>;
@@ -84,6 +94,44 @@ export function isArticleSaved(slug: string, scope?: string | null): boolean {
   return readSavedSnapshot(scope).articles.has(slug);
 }
 
+function dispatchSavedError(detail: SavedItemsErrorDetail) {
+  window.dispatchEvent(new CustomEvent(SAVED_ITEMS_ERROR, { detail }));
+}
+
+/**
+ * Пишет операцию сохранёнки в БД с учётом статуса сессии (B-3):
+ * - Гость (`scope === ""`) - сохранёнки живут только в localStorage; DB-запрос
+ *   всё равно уходит (вернёт 401), ошибку глушим, UI не трогаем.
+ * - Залогиненный - при неуспехе (5xx / истёкшая сессия / сеть) вызываем
+ *   `rollback`, чтобы UI-состояние не разошлось с БД (иначе последующий
+ *   `syncSavedFromDb` тихо затрёт «сохранёнку», которой в БД нет).
+ */
+function persistSaved(
+  url: string,
+  slug: string,
+  shouldSave: boolean,
+  scope: string,
+  rollback: () => void,
+) {
+  const req = fetch(url, {
+    method: shouldSave ? "POST" : "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ slug }),
+  });
+
+  if (scope === "") {
+    // Гость: localStorage - единственный источник, откат не нужен.
+    void req.catch(() => {});
+    return;
+  }
+
+  void req
+    .then((res) => {
+      if (!res.ok) rollback();
+    })
+    .catch(() => rollback());
+}
+
 export function setVacancySaved(
   slug: string,
   shouldSave: boolean,
@@ -97,12 +145,17 @@ export function setVacancySaved(
   writeArray(scopedKey(SAVED_STORAGE_KEYS.vacancies, s), vacancies);
   window.dispatchEvent(new CustomEvent(SAVED_ITEMS_EVENT));
 
-  // Persist to DB (fire-and-forget, fails silently for unauthenticated/demo users)
-  void fetch("/api/saved-vacancies", {
-    method: shouldSave ? "POST" : "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ slug }),
-  }).catch(() => {});
+  persistSaved("/api/saved-vacancies", slug, shouldSave, s, () => {
+    // Откатываем только если оптимистичное изменение всё ещё в силе -
+    // пользователь мог за это время переключить сердечко заново.
+    const current = readSavedSnapshot(s).vacancies;
+    if (current.has(slug) !== shouldSave) return;
+    if (shouldSave) current.delete(slug);
+    else current.add(slug);
+    writeArray(scopedKey(SAVED_STORAGE_KEYS.vacancies, s), current);
+    window.dispatchEvent(new CustomEvent(SAVED_ITEMS_EVENT));
+    dispatchSavedError({ kind: "vacancy", slug, shouldSave });
+  });
 }
 
 export function setArticleSaved(
@@ -119,12 +172,16 @@ export function setArticleSaved(
   writeArray(scopedKey(SAVED_STORAGE_KEYS.kbArticleLegacy, s), articles);
   window.dispatchEvent(new CustomEvent(SAVED_ITEMS_EVENT));
 
-  // Persist to DB (fire-and-forget, fails silently for unauthenticated/demo users)
-  void fetch("/api/saved-articles", {
-    method: shouldSave ? "POST" : "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ slug }),
-  }).catch(() => {});
+  persistSaved("/api/saved-articles", slug, shouldSave, s, () => {
+    const current = readSavedSnapshot(s).articles;
+    if (current.has(slug) !== shouldSave) return;
+    if (shouldSave) current.delete(slug);
+    else current.add(slug);
+    writeArray(scopedKey(SAVED_STORAGE_KEYS.kbSlugs, s), current);
+    writeArray(scopedKey(SAVED_STORAGE_KEYS.kbArticleLegacy, s), current);
+    window.dispatchEvent(new CustomEvent(SAVED_ITEMS_EVENT));
+    dispatchSavedError({ kind: "article", slug, shouldSave });
+  });
 }
 
 /**

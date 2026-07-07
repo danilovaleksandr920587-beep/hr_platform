@@ -2,8 +2,20 @@ import { listArticles } from "@/lib/data/articles";
 
 export const revalidate = 3600;
 
+/**
+ * Осознанная ротация llms.txt (R-3): фид отдаёт последние LLMS_ARTICLE_LIMIT
+ * статей, отсортированных по `published_at desc`. Свежие статьи всегда попадают
+ * в фид; после превышения лимита самые старые выпадают. Лимит поднят с 200 до
+ * 1000 - при темпе ~10 статей/день это ~100 дней истории вместо ~20, чего с
+ * запасом хватает и по объёму (только поля списка, без body). Тянуть все статьи
+ * без лимита нельзя надёжно: PostgREST всё равно режет ответ по db-max-rows,
+ * так что «безлимитный» вариант дал бы такой же молчаливый обрез, но неявный.
+ * Если каталог статей приблизится к 1000 - поднять лимит здесь и в FEATURES.md.
+ */
+const LLMS_ARTICLE_LIMIT = 1000;
+
 export async function GET() {
-  const articles = await listArticles({ limit: 200 });
+  const articles = await listArticles({ limit: LLMS_ARTICLE_LIMIT });
   const base =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
     "https://lab-career.ru";
