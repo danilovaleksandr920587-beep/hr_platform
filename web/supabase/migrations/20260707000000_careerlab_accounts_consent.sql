@@ -5,8 +5,11 @@
 -- выполнить ВРУЧНУЮ ролью приложения ДО деплоя кода регистрации, иначе INSERT
 -- в register/route.ts упадёт на несуществующих колонках.
 --
--- Применение на проде (роль postgres = владелец careerlab_accounts):
---   docker exec -i supabase-db psql -U postgres -d postgres \
+-- Владелец careerlab_accounts на проде - роль supabase_admin (НЕ postgres),
+-- поэтому ALTER выполняем именно ей, иначе psql вернёт
+-- "must be owner of table careerlab_accounts".
+-- Применение на проде:
+--   docker exec -i supabase-db psql -U supabase_admin -d postgres \
 --     < 20260707000000_careerlab_accounts_consent.sql
 --
 -- consent_at      - момент, когда пользователь дал согласие (NULL у старых
