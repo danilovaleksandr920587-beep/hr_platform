@@ -13,6 +13,7 @@ import {
   EDUCATION_BAR,
   EDUCATION_GROWTH,
   EDUCATION_LABELS,
+  RESEARCH_AS_OF,
 } from "./researchSalaryData";
 
 type IndustryLevel = "internship" | "junior" | "middle" | "senior";
@@ -372,7 +373,8 @@ export function ResearchSalaryDashboard() {
         <div className="wrap">
           <p className="eyebrow">CareerLab · Исследования · 2026</p>
           <h1 className="ph-title">Зарплаты студентов<br />и молодых специалистов</h1>
-          <p className="ph-sub">Аналитика по 11 отраслям, 10 городам и 3 типам образования. Данные hh.ru, SuperJob, Habr Career — 2025–2026</p>
+          <p className="ph-sub">Аналитика по 11 отраслям, 10 городам и 3 типам образования. Данные hh.ru, SuperJob, Habr Career за 2025–2026.</p>
+          <p className="ph-asof">Данные на {RESEARCH_AS_OF}. Обновляем раз в квартал.</p>
         </div>
       </header>
 

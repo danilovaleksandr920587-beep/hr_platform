@@ -8,6 +8,8 @@
 .rsd .ph-title,.rsd .t-title{font-family:var(--font-unbounded),"Unbounded",sans-serif;font-weight:900;letter-spacing:-.03em;line-height:1.08}
 .rsd .ph-title{font-size:clamp(30px,4.5vw,56px);color:var(--dark);margin-bottom:14px}
 .rsd .ph-sub{font-size:16px;color:rgba(0,0,0,.55);max-width:640px;line-height:1.65}
+.rsd .ph-asof{margin-top:10px;font-size:12px;font-weight:600;color:rgba(0,0,0,.4);display:inline-flex;align-items:center;gap:7px}
+.rsd .ph-asof::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent,#2f6f4f);flex:none}
 
 /* ── KPI bar ── */
 .rsd .kpi-bar{background:#fff;border-bottom:1px solid rgba(0,0,0,.12)}
