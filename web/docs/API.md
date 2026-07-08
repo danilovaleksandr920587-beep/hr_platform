@@ -6,12 +6,15 @@
 
 | Endpoint | Метод | Что делает |
 |----------|-------|------------|
-| `/api/auth/register` | POST | Регистрация email+пароль, пишет в `careerlab_accounts`. Rate-limit 5/час по IP |
+| `/api/auth/register` | POST | Регистрация email+пароль, пишет в `careerlab_accounts` (email_verified=false), шлёт письмо подтверждения. Rate-limit 5/час по IP |
 | `/api/auth/login` | POST | Вход, ставит session-cookie (30 дней). Rate-limit 10/15мин по IP (антибрутфорс) |
 | `/api/auth/logout` | POST | Сброс cookie |
 | `/api/auth/forgot-password` | POST | Генерирует токен в `careerlab_password_resets`, шлёт письмо по SMTP. Origin ссылки - через x-forwarded-* |
-| `/api/auth/reset-password` | POST | Смена пароля по токену |
-| `/api/auth/yandex` | GET | Редирект на Яндекс OAuth (callback: `/auth/callback`). Ставит nonce-cookie для anti-CSRF, сверяется в callback |
+| `/api/auth/reset-password` | POST | Смена пароля по токену. После успеха шлёт письмо «пароль изменён» |
+| `/api/auth/verify-email` | GET | Подтверждение email по токену из письма (`careerlab_email_verifications`). new_email != null - смена адреса. Редиректит на `/office?verify=...`. Шлёт welcome при первом подтверждении |
+| `/api/auth/resend-verification` | POST | Повторная отправка письма подтверждения (Auth). Троттлинг 60с |
+| `/api/auth/change-email` | POST | Смена email (Auth): проверяет пароль, шлёт подтверждение на новый адрес. Смена применяется после `/api/auth/verify-email`. Недоступно OAuth-аккаунтам |
+| `/api/auth/yandex` | GET | Редирект на Яндекс OAuth (callback: `/auth/callback`). Ставит nonce-cookie для anti-CSRF, сверяется в callback. OAuth-аккаунты сразу email_verified=true |
 
 ## Личный кабинет (все - Auth)
 
@@ -65,7 +68,7 @@
 
 | Endpoint | Методы | Кто | Что делает |
 |----------|--------|-----|------------|
-| `/api/vacancies/[slug]/apply` | POST | auth | Отклик: multipart (resume PDF/DOCX до 5МБ, coverLetter, contact). Rate-limit 10/сутки. Письмо команде компании |
+| `/api/vacancies/[slug]/apply` | POST | auth + verified | Отклик: multipart (resume PDF/DOCX до 5МБ, coverLetter, contact). Требует подтверждённого email (403 `email_unverified`). Rate-limit 10/сутки. Письмо команде компании |
 | `/api/office/applications` | GET | auth | Отклики кандидата |
 | `/api/office/applications/[id]` | DELETE | auth | Отозвать отклик (файл резюме удаляется) |
 | `/api/company/[id]/applications` | GET | member | Отклики компании, фильтры ?vacancy=&status= |

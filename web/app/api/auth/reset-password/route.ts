@@ -3,6 +3,8 @@ import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { hashPassword } from "@/lib/auth/password";
 import { hashPasswordResetToken } from "@/lib/auth/password-reset";
 import { getSql } from "@/lib/db/postgres";
+import { getRealOrigin } from "@/lib/http/origin";
+import { isSmtpConfigured, sendPasswordChangedEmail } from "@/lib/email/smtp";
 
 type ResetRow = { id: string; account_id: string; expires_at: string; used_at: string | null };
 
@@ -59,6 +61,24 @@ export async function POST(req: Request) {
         where id = ${reset.id}
       `;
     });
+
+    // Уведомление о смене пароля (best-effort, не роняет ответ).
+    if (isSmtpConfigured()) {
+      try {
+        const acc = (await sql`
+          select email from careerlab_accounts where id = ${reset.account_id} limit 1
+        `) as { email: string }[];
+        if (acc[0]?.email) {
+          const origin = await getRealOrigin();
+          await sendPasswordChangedEmail({
+            to: acc[0].email,
+            resetUrl: `${origin}/forgot-password`,
+          });
+        }
+      } catch (mailErr) {
+        console.error("[reset-password] changed-notice failed:", mailErr);
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

@@ -527,6 +527,10 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
                     <span className="nav-icon"><NavIcon name="applications" /></span> Мои отклики
                   </Link>
 
+                  <Link href="/office/account" className="office-nav-link">
+                    <span className="nav-icon"><NavIcon name="resume" /></span> Настройки аккаунта
+                  </Link>
+
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border2)" }}>
                     <button
                       type="button"

@@ -6,6 +6,8 @@ import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSql } from "@/lib/db/postgres";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/http/client-ip";
+import { getRealOrigin } from "@/lib/http/origin";
+import { issueEmailVerification } from "@/lib/auth/account-verification";
 import { CONSENT_VERSION } from "@/lib/legal/consent";
 
 type Row = { id: string; email: string; display_name: string };
@@ -61,6 +63,21 @@ export async function POST(req: Request) {
     if (!row) {
       return NextResponse.json({ error: "Не удалось создать аккаунт." }, { status: 500 });
     }
+    // Письмо-подтверждение email (double opt-in). Не роняем регистрацию,
+    // если SMTP недоступен или письмо не ушло - аккаунт уже создан,
+    // подтвердить можно позже кнопкой "отправить повторно".
+    try {
+      const origin = await getRealOrigin();
+      await issueEmailVerification({
+        accountId: row.id,
+        sendTo: row.email,
+        origin,
+        ip: getClientIp(req),
+      });
+    } catch (mailErr) {
+      console.error("[register] verification email failed:", mailErr);
+    }
+
     const token = await signAuthToken({
       id: row.id,
       email: row.email,

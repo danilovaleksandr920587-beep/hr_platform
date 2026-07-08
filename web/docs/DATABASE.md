@@ -36,8 +36,9 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 
 | Таблица | Поля (из кода) | Назначение |
 |---------|----------------|------------|
-| `careerlab_accounts` | id, email, display_name, password_hash, consent_at, consent_version | Аккаунты (email или Яндекс). `consent_at`/`consent_version` - факт и редакция согласия на обработку ПД (152-ФЗ), пишутся при регистрации; NULL у аккаунтов до внедрения фиксации |
-| `careerlab_password_resets` | account_id, token_hash, expires_at, requested_ip | Токены восстановления |
+| `careerlab_accounts` | id, email, display_name, password_hash, consent_at, consent_version, email_verified, email_verified_at | Аккаунты (email или Яндекс). `consent_at`/`consent_version` - согласие на обработку ПД (152-ФЗ). `email_verified` - подтверждён ли email (double opt-in); старые аккаунты грандфазернуты в true, OAuth - true сразу |
+| `careerlab_password_resets` | account_id, token_hash, expires_at, requested_ip | Токены восстановления пароля |
+| `careerlab_email_verifications` | account_id, new_email, token_hash, expires_at, used_at, requested_ip | Токены подтверждения email (48ч). `new_email` null - подтверждение текущего адреса; задан - смена email на него |
 | `user_profiles` | account_id, first_name, surname, direction, level, format, city | Анкета в кабинете |
 | `user_saved_vacancies` | account_id, slug | Сохранённые вакансии |
 | `user_saved_articles` | account_id, slug | Сохранённые статьи |

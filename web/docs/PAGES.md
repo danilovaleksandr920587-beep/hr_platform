@@ -37,6 +37,7 @@
 | `/office` | `app/office/page.tsx` | Личный кабинет: профиль, чек-лист, прогресс. Закрыт guard-ом |
 | `/office/saved-vacancies` | `app/office/saved-vacancies/page.tsx` | Сохранённые вакансии. Закрыт guard-ом |
 | `/office/applications` | `app/office/applications/page.tsx` | Отклики кандидата: статусы, отзыв. Закрыт guard-ом |
+| `/office/account` | `app/office/account/page.tsx` | Настройки аккаунта: статус email, смена email, ссылка на смену пароля. Закрыт guard-ом |
 | `/office-demo` | `app/office-demo/page.tsx` | Демо кабинета без входа, noindex |
 | `/vacancies/[slug]/apply` | `app/vacancies/[slug]/apply/page.tsx` | Форма отклика (только apply_mode=internal), сама редиректит на /login |
 

@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
+import { isEmailVerified } from "@/lib/auth/account-verification";
 import { createApplication, hasApplied } from "@/lib/company/applications";
 import { getVacancyForApply } from "@/lib/company/vacancies";
 import { listActiveMemberEmails, listActiveMemberAccountIds } from "@/lib/company/store";
@@ -16,6 +17,15 @@ export async function POST(req: Request, { params }: RouteProps) {
   const { slug } = await params;
   const session = await getSessionFromCookies();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Отклик доступен только с подтверждённым email: не шлём письма работодателю
+  // от неподтверждённых адресов и не палим репутацию домена.
+  if (!(await isEmailVerified(session.id))) {
+    return NextResponse.json(
+      { error: "Подтвердите email, чтобы откликаться на вакансии.", code: "email_unverified" },
+      { status: 403 },
+    );
+  }
 
   let form: FormData;
   try {

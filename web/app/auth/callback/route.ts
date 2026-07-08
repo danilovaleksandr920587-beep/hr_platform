@@ -90,11 +90,14 @@ async function handleYandex(code: string, next: string): Promise<NextResponse> {
     const sql = getSql();
     type Row = { id: string; email: string; display_name: string };
 
+    // Яндекс подтверждает владение email на своей стороне -> аккаунт сразу verified.
     const rows = (await sql`
-      insert into careerlab_accounts (email, display_name, password_hash)
-      values (${email}, ${displayName}, ${"oauth:yandex:" + yandexId})
+      insert into careerlab_accounts (email, display_name, password_hash, email_verified, email_verified_at)
+      values (${email}, ${displayName}, ${"oauth:yandex:" + yandexId}, true, now())
       on conflict (email) do update
-        set display_name = excluded.display_name
+        set display_name = excluded.display_name,
+            email_verified = true,
+            email_verified_at = coalesce(careerlab_accounts.email_verified_at, now())
       returning id, email, display_name
     `) as Row[];
 
