@@ -582,3 +582,36 @@ body.careerlab-site .job-title a:focus-visible {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Тост об ошибке сохранёнки (B-3): фикс. позиция снизу, поверх контента,
+   не мешает TgStickyBar. Появляется только при откате записи в БД. */
+.saved-toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(92vw, 420px);
+  pointer-events: none;
+}
+
+.saved-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #2a1a12;
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+.saved-toast-icon {
+  color: #ffb37a;
+  flex-shrink: 0;
+}

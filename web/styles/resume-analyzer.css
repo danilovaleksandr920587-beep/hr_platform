@@ -102,6 +102,9 @@
 .ia-upload{cursor:pointer;user-select:none}
 .ia-text-toggle{background:transparent;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:8px 0 0;display:block;text-align:center;width:100%;margin-top:4px}
 .ia-text-toggle:hover{color:#0d0f08;text-decoration:underline}
+.ia-consent{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted);line-height:1.5;margin-top:16px}
+.ia-consent input{margin-top:2px;flex-shrink:0}
+.ia-consent a{color:#4a7000;font-weight:600}
 .ia-analyze-btn{width:100%;padding:14px 24px;background:#0d0f08;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px;transition:opacity .15s}
 .ia-analyze-btn:disabled{opacity:.4;cursor:not-allowed}
 .ia-analyze-btn:not(:disabled):hover{opacity:.85}

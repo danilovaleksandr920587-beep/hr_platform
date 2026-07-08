@@ -6,6 +6,7 @@ import { isPasswordAuthConfigured } from "@/lib/auth/config";
 import { getSql } from "@/lib/db/postgres";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/http/client-ip";
+import { CONSENT_VERSION } from "@/lib/legal/consent";
 
 type Row = { id: string; email: string; display_name: string };
 
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { email?: string; displayName?: string; password?: string };
+  let body: { email?: string; displayName?: string; password?: string; consent?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -39,12 +40,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Укажите email, имя и пароль не короче 6 символов." }, { status: 400 });
   }
 
+  // 152-ФЗ: согласие на обработку ПД обязательно и проверяется на сервере -
+  // прямой вызов API мимо формы (curl/fetch) не должен создать аккаунт без него.
+  if (body.consent !== true) {
+    return NextResponse.json(
+      { error: "Требуется согласие на обработку персональных данных." },
+      { status: 400 },
+    );
+  }
+
   const hash = hashPassword(password);
   try {
     const sql = getSql();
     const rows = (await sql`
-      insert into careerlab_accounts (email, display_name, password_hash)
-      values (${email}, ${displayName}, ${hash})
+      insert into careerlab_accounts (email, display_name, password_hash, consent_at, consent_version)
+      values (${email}, ${displayName}, ${hash}, now(), ${CONSENT_VERSION})
       returning id, email, display_name
     `) as Row[];
     const row = rows[0];

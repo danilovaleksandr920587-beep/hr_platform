@@ -9,6 +9,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { YandexMetrika } from "@/components/YandexMetrika";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TgStickyBar } from "@/components/TgStickyBar";
+import { SavedItemsToast } from "@/components/SavedItemsToast";
 
 const golos = Golos_Text({
   subsets: ["latin", "cyrillic"],
@@ -101,6 +102,7 @@ export default function RootLayout({
         {children}
         <CookieBanner />
         <TgStickyBar />
+        <SavedItemsToast />
         <SpeedInsights />
       </body>
     </html>

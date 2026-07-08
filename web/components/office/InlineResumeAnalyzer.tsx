@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
 import {
   saveResumeAnalysis,
@@ -84,6 +85,9 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyDetail, setHistoryDetail] = useState<ResumeAnalysisResult | null>(null);
 
+  // 152-ФЗ: согласие на обработку ПД обязательно до отправки резюме в YandexGPT.
+  const [consent, setConsent] = useState(false);
+
   useEffect(() => {
     const latest = loadResumeAnalysis(userScope);
     const hist = loadResumeHistory(userScope);
@@ -139,6 +143,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
   const LOADING_STEPS = ["Читаю резюме...", "Определяю роль и анализирую...", "Формирую рекомендации..."];
 
   async function analyze() {
+    if (!consent) return;
     setAnalyzing(true);
     setAiError(null);
     setLoadingStep(0);
@@ -176,7 +181,7 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
     onScoreChange?.(finalResult.score);
   }
 
-  const canAnalyze = resumeText.trim().length >= 100;
+  const canAnalyze = resumeText.trim().length >= 100 && consent;
 
   // History detail view
   if (historyDetail) {
@@ -351,13 +356,34 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
             </>
           )}
 
+          <label className="ia-consent">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+            />
+            <span>
+              Даю{" "}
+              <Link href="/consent" target="_blank" rel="noopener noreferrer">
+                согласие на обработку персональных данных
+              </Link>{" "}
+              для анализа резюме
+            </span>
+          </label>
+
           <button
             type="button"
             className="ia-analyze-btn"
             disabled={!canAnalyze}
             onClick={() => void analyze()}
           >
-            {canAnalyze ? "Проанализировать резюме" : resumeText.length > 0 ? `Нужно ещё ${100 - resumeText.trim().length} символов` : "Загрузите или вставьте резюме"}
+            {canAnalyze
+              ? "Проанализировать резюме"
+              : resumeText.trim().length < 100
+                ? resumeText.length > 0
+                  ? `Нужно ещё ${100 - resumeText.trim().length} символов`
+                  : "Загрузите или вставьте резюме"
+                : "Подтвердите согласие на обработку данных"}
           </button>
 
           <div style={{ fontSize: 11, color: "var(--muted)", textAlign: "center", marginTop: 8 }}>

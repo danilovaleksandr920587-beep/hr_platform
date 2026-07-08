@@ -149,6 +149,7 @@ export function LoginForm({
         email: email.trim(),
         displayName: displayName.trim(),
         password,
+        consent,
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
