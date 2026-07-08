@@ -31,6 +31,8 @@ export type VacancyFilters = {
   salaryTo?: number | null;
   limit?: number;
   fields?: "full" | "card";
+  /** Включить архивные (для sitemap: архив индексируется и приводит трафик) */
+  includeArchived?: boolean;
 };
 
 function escapeIlikeTerm(value: string): string {
@@ -151,8 +153,9 @@ export async function listVacancies(
     let q: any = sb
       .from("vacancies")
       .select(select)
-      .eq("is_published", true)
-      .eq("is_archived", false);  // ← скрываем архивные из листинга
+      .eq("is_published", true);
+    // Архивные скрываем из листинга, но sitemap запрашивает их (includeArchived)
+    if (!filters.includeArchived) q = q.eq("is_archived", false);
 
     q =
       shape === "web"

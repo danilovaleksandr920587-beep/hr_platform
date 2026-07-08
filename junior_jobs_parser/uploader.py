@@ -332,6 +332,14 @@ def main() -> None:
                     row.get("source_published_at")
                 )
 
+    # Страховка: публикуемая вакансия обязана иметь published_at,
+    # иначе null роняет sitemap на фронте (RangeError в toISOString)
+    from datetime import datetime, timezone
+    now_iso = datetime.now(timezone.utc).isoformat()
+    for row in rows:
+        if row.get("is_published") and not row.get("published_at"):
+            row["published_at"] = row.get("source_published_at") or now_iso
+
     uploaded, failed = upload_rows(rows, dry_run=args.dry_run)
 
     if args.dry_run:

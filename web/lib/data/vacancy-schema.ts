@@ -93,7 +93,8 @@ export function normalizeVacancyRow(
     apply_url: (row.apply_url as string | null | undefined) ?? null,
     search_document,
     featured,
-    published_at: String(row.published_at),
+    // null -> "" (не "null"): пустая строка falsy, вызывающие корректно уходят в фолбэк
+    published_at: row.published_at != null ? String(row.published_at) : "",
     company_about: (row.company_about as string | null | undefined) ?? null,
     company_logo_url: (row.company_logo_url as string | null | undefined) ?? null,
     city: (row.city as string | null | undefined) ?? null,

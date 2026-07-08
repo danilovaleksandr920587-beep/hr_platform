@@ -43,8 +43,12 @@ function renderUrl({
   changeFrequency: string;
   priority: number;
 }) {
-  const lastmod =
-    lastModified instanceof Date ? lastModified.toISOString() : lastModified;
+  // Одна невалидная дата не должна ронять весь sitemap (RangeError в toISOString)
+  const parsed =
+    lastModified instanceof Date ? lastModified : new Date(lastModified);
+  const lastmod = Number.isNaN(parsed.getTime())
+    ? new Date().toISOString()
+    : parsed.toISOString();
 
   return `  <url>
     <loc>${escapeXml(url)}</loc>
@@ -98,15 +102,17 @@ export async function GET(
           }),
         )
       : id === "vacancies"
-        ? (await listVacancies({})).map((row) =>
-            renderUrl({
-              url: `${base}/vacancies/${row.slug}`,
-              lastModified: row.published_at
-                ? new Date(row.published_at)
-                : new Date(),
-              changeFrequency: "daily",
-              priority: 0.72,
-            }),
+        ? // Архивные тоже в карте: они индексируются и приводят SEO-трафик
+          (await listVacancies({ includeArchived: true, fields: "card" })).map(
+            (row) =>
+              renderUrl({
+                url: `${base}/vacancies/${row.slug}`,
+                lastModified: row.published_at
+                  ? new Date(row.published_at)
+                  : new Date(),
+                changeFrequency: row.is_archived ? "monthly" : "daily",
+                priority: row.is_archived ? 0.5 : 0.72,
+              }),
           )
         : (await listArticles({})).map((row) =>
             renderUrl({
