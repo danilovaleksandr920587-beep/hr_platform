@@ -1,34 +1,16 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
-import { COOKIE_CONSENT_KEY, COOKIE_CONSENT_EVENT } from "@/lib/client/cookie-consent";
 
 const METRIKA_ID = 108774421;
 
 /**
- * Грузит Яндекс.Метрику только после явного согласия на cookie (B-8).
- * До этого - и при выборе "Отклонить" - счётчик не подключается.
- * Слушает событие от CookieBanner, чтобы включиться сразу после клика.
+ * Яндекс.Метрика. Грузится сразу для всех посетителей: счётчик и
+ * поведенческие факторы не должны зависеть от клика по cookie-баннеру.
+ * Баннер информационный (см. CookieBanner) - согласие подразумевается
+ * продолжением использования сайта, как принято в рунете.
  */
 export function YandexMetrika() {
-  const [consented, setConsented] = useState(false);
-
-  useEffect(() => {
-    const check = () => {
-      try {
-        if (localStorage.getItem(COOKIE_CONSENT_KEY) === "accepted") setConsented(true);
-      } catch {
-        /* localStorage недоступен - метрику не грузим */
-      }
-    };
-    check();
-    window.addEventListener(COOKIE_CONSENT_EVENT, check);
-    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, check);
-  }, []);
-
-  if (!consented) return null;
-
   return (
     <Script id="yandex-metrika" strategy="afterInteractive">
       {`

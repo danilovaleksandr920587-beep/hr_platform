@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  COOKIE_CONSENT_KEY,
-  COOKIE_CONSENT_EVENT,
-  type CookieConsent,
-} from "@/lib/client/cookie-consent";
+import { COOKIE_CONSENT_KEY } from "@/lib/client/cookie-consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -19,10 +15,8 @@ export function CookieBanner() {
     return () => window.cancelAnimationFrame(raf);
   }, []);
 
-  function handleConsent(value: CookieConsent) {
-    window.localStorage.setItem(COOKIE_CONSENT_KEY, value);
-    // Сообщаем YandexMetrika, чтобы она включилась сразу при "Принять"
-    window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT));
+  function handleDismiss() {
+    window.localStorage.setItem(COOKIE_CONSENT_KEY, "acknowledged");
     setVisible(false);
   }
 
@@ -62,8 +56,8 @@ export function CookieBanner() {
           }}
         >
           <p className="hero-text" style={{ margin: 0, flex: "1 1 220px", maxWidth: "none" }}>
-            Мы используем файлы cookie для работы сайта и аналитики. Нажимая «Принять», вы
-            соглашаетесь с их использованием и{" "}
+            Мы используем файлы cookie для работы сайта и аналитики. Продолжая
+            пользоваться сайтом, вы соглашаетесь с их использованием и{" "}
             <Link href="/privacy-policy">Политикой конфиденциальности</Link>.
           </p>
           <div
@@ -74,11 +68,8 @@ export function CookieBanner() {
               marginLeft: "auto",
             }}
           >
-            <button type="button" className="btn btn-light" onClick={() => handleConsent("declined")}>
-              Отклонить
-            </button>
-            <button type="button" className="btn btn-coral" onClick={() => handleConsent("accepted")}>
-              Принять
+            <button type="button" className="btn btn-coral" onClick={handleDismiss}>
+              Понятно
             </button>
           </div>
         </div>
