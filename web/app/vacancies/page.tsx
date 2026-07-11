@@ -5,6 +5,7 @@ import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import {
+  diversifyVacanciesByCompany,
   listVacancies,
   listVacancyFilterOptions,
   type VacancyFilters,
@@ -47,7 +48,8 @@ const getVacanciesPageData = unstable_cache(
       listVacancies(filters),
       listVacancyFilterOptions(),
     ]);
-    const cards = rows.map((row) => ({
+    const ordered = diversifyVacanciesByCompany(rows);
+    const cards = ordered.map((row) => ({
       row: {
         ...row,
         description: null,
@@ -130,6 +132,8 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                 q,
               }}
               options={filterOptions}
+              resultCount={count}
+              resultNoun={noun}
             />
             <div className="vacancies-main jl-results">
               <div className="results-meta">

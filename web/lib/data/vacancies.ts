@@ -125,6 +125,44 @@ export async function listVacancyFilterOptions(): Promise<{
   };
 }
 
+/**
+ * Детерминированно «перемешивает» выдачу, чтобы одна компания не занимала
+ * длинный сплошной блок (парсер льёт по ~150 вакансий Т-Банка за раз с близким
+ * published_at, и раньше они шли подряд). Featured остаются сверху в исходном
+ * порядке. Остальные группируются по компании (внутри группы сохраняется
+ * исходный порядок по свежести) и каждой вакансии присваивается дробная позиция
+ * (i + 0.5) / размер_группы; итог сортируется по этой позиции. Так вакансии
+ * каждой компании равномерно распределяются по всему списку: крупный
+ * работодатель не образует блок ни в начале, ни в хвосте, а внутри своей группы
+ * свежие вакансии всё равно идут раньше. Порядок зависит только от данных,
+ * поэтому стабилен между заходами.
+ */
+export function diversifyVacanciesByCompany(rows: VacancyRow[]): VacancyRow[] {
+  const featured = rows.filter((r) => r.featured);
+  const rest = rows.filter((r) => !r.featured);
+
+  const groups = new Map<string, VacancyRow[]>();
+  for (const row of rest) {
+    const key = row.company?.trim().toLowerCase() || row.id;
+    const bucket = groups.get(key);
+    if (bucket) bucket.push(row);
+    else groups.set(key, [row]);
+  }
+
+  const positioned: { row: VacancyRow; pos: number }[] = [];
+  for (const bucket of groups.values()) {
+    const n = bucket.length;
+    bucket.forEach((row, i) => positioned.push({ row, pos: (i + 0.5) / n }));
+  }
+  positioned.sort(
+    (a, b) =>
+      a.pos - b.pos ||
+      (b.row.published_at ?? "").localeCompare(a.row.published_at ?? ""),
+  );
+
+  return [...featured, ...positioned.map((p) => p.row)];
+}
+
 export async function listVacancies(
   filters: VacancyFilters = {},
 ): Promise<VacancyRow[]> {

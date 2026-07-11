@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   EXP_LABELS,
   FORMAT_LABELS,
@@ -63,7 +63,23 @@ type Props = {
     format?: FilterOption[];
     type?: FilterOption[];
   };
+  /** Кол-во найденных вакансий - для мобильной кнопки «Показать N». */
+  resultCount?: number;
+  /** Просклонённое «вакансия/вакансии/вакансий» под resultCount. */
+  resultNoun?: string;
 };
+
+function countActive(f: VacancyFilterSelected): number {
+  return (
+    f.sphere.length +
+    f.city.length +
+    f.exp.length +
+    f.format.length +
+    f.type.length +
+    (f.salaryFrom.trim() ? 1 : 0) +
+    (f.salaryTo.trim() ? 1 : 0)
+  );
+}
 
 function toggleInList(list: string[], value: string): string[] {
   const set = new Set(list);
@@ -88,9 +104,37 @@ function filtersToSearchParams(f: VacancyFilterSelected): URLSearchParams {
   return p;
 }
 
-export function VacancyFilterForm({ selected, options }: Props) {
+export function VacancyFilterForm({
+  selected,
+  options,
+  resultCount,
+  resultNoun,
+}: Props) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
+
+  const activeCount = countActive(selected);
+
+  // Блокируем скролл фона, пока шторка открыта (только моб.).
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  // Закрытие по Esc.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const spheres = mergeOptions(DEFAULT_SPHERES, options?.sphere);
   const cities = options?.city?.length ? options.city : [];
@@ -121,17 +165,59 @@ export function VacancyFilterForm({ selected, options }: Props) {
   }, [pushFilters, selected]);
 
   return (
-    <aside className="filter-panel filter-panel-sticky">
-      <div className="filter-panel-inner">
-        <div className="filter-panel-header">
-          <h2 className="filter-panel-heading">Фильтры</h2>
-          <Link className="filter-reset-link" href="/vacancies">
-            <span className="filter-reset-icon" aria-hidden="true">
-              ✕
-            </span>
-            <span>Сбросить фильтры</span>
+    <>
+      <div className="filter-trigger-bar">
+        <button
+          type="button"
+          className="filter-trigger-btn"
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+        >
+          <span className="filter-trigger-icon" aria-hidden="true">
+            ⚙
+          </span>
+          <span>Фильтры</span>
+          {activeCount > 0 ? (
+            <span className="filter-trigger-count">{activeCount}</span>
+          ) : null}
+        </button>
+        {activeCount > 0 ? (
+          <Link className="filter-trigger-reset" href="/vacancies" scroll={false}>
+            Сбросить
           </Link>
-        </div>
+        ) : null}
+      </div>
+
+      <div className={`filter-panel-shell${open ? " is-open" : ""}`}>
+        <button
+          type="button"
+          className="filter-backdrop"
+          aria-label="Закрыть фильтры"
+          onClick={() => setOpen(false)}
+        />
+        <aside
+          className="filter-panel filter-panel-sticky"
+          role="dialog"
+          aria-modal={open}
+          aria-label="Фильтры вакансий"
+        >
+          <div className="filter-panel-inner">
+            <button
+              type="button"
+              className="filter-sheet-grab"
+              aria-label="Закрыть фильтры"
+              onClick={() => setOpen(false)}
+            />
+            <div className="filter-panel-header">
+              <h2 className="filter-panel-heading">Фильтры</h2>
+              <Link className="filter-reset-link" href="/vacancies" scroll={false}>
+                <span className="filter-reset-icon" aria-hidden="true">
+                  ✕
+                </span>
+                <span>Сбросить фильтры</span>
+              </Link>
+            </div>
         <form
           ref={formRef}
           className="filter-form"
@@ -331,7 +417,27 @@ export function VacancyFilterForm({ selected, options }: Props) {
             </button>
           </div>
         </form>
+            <div className="filter-sheet-footer">
+              <Link
+                className="filter-sheet-reset"
+                href="/vacancies"
+                scroll={false}
+              >
+                Сбросить
+              </Link>
+              <button
+                type="button"
+                className="filter-sheet-apply"
+                onClick={() => setOpen(false)}
+              >
+                {resultCount != null
+                  ? `Показать ${resultCount}${resultNoun ? ` ${resultNoun}` : ""}`
+                  : "Показать вакансии"}
+              </button>
+            </div>
+          </div>
+        </aside>
       </div>
-    </aside>
+    </>
   );
 }

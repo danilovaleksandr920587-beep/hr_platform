@@ -497,6 +497,20 @@ body.careerlab-site .filter-submit-btn {
   font-weight: 500;
 }
 
+/* ─── Мобильные фильтры: bottom-sheet (см. media ≤1024px) ─── */
+/* На десктопе shell «прозрачен» — aside остаётся сеточной колонкой,
+   а моб.-элементы (триггер, backdrop, ручка, футер) скрыты. */
+.filter-panel-shell {
+  display: contents;
+}
+
+.filter-trigger-bar,
+.filter-backdrop,
+.filter-sheet-grab,
+.filter-sheet-footer {
+  display: none;
+}
+
 /* Results */
 .results-meta {
   display: flex;
@@ -1594,15 +1608,191 @@ body.careerlab-site .footer-links a:hover {
     grid-template-columns: 1fr;
   }
 
+  /* Липкая кнопка «Фильтры» над списком */
+  .filter-trigger-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: calc(60px + env(safe-area-inset-top, 0px));
+    z-index: 30;
+    padding: 10px 0 12px;
+    margin: -4px 0 4px;
+    background: var(--bg);
+  }
+
+  .filter-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border2);
+    background: var(--white);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .filter-trigger-icon {
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .filter-trigger-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--lime);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .filter-trigger-reset {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  /* Затемнение под шторкой */
+  .filter-panel-shell.is-open .filter-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    border: none;
+    background: rgba(0, 0, 0, 0.45);
+    animation: filterFade 0.18s ease;
+  }
+
+  /* Панель по умолчанию скрыта, открывается как шторка снизу */
   body.careerlab-site .filter-panel {
-    position: relative;
+    display: none;
+  }
+
+  body.careerlab-site .filter-panel-shell.is-open .filter-panel {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
     top: auto;
+    z-index: 1101;
     width: 100%;
     min-width: 0;
     max-width: none;
-    max-height: none;
-    overflow-y: visible;
-    overscroll-behavior: auto;
+    max-height: 88vh;
+    margin: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    animation: filterSlideUp 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  body.careerlab-site .filter-panel-shell.is-open .filter-panel-inner {
+    display: flex;
+    flex-direction: column;
+    max-height: 88vh;
+    border: none;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+  }
+
+  /* Ручка-«grabber» сверху */
+  .filter-panel-shell.is-open .filter-sheet-grab {
+    display: block;
+    position: relative;
+    flex-shrink: 0;
+    width: 100%;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .filter-panel-shell.is-open .filter-sheet-grab::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border2);
+  }
+
+  /* Группы фильтров скроллятся между шапкой и футером */
+  body.careerlab-site .filter-panel-shell.is-open .filter-form {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Десктопная кнопка «Применить зарплату» не нужна — есть общий футер */
+  body.careerlab-site .filter-panel-shell.is-open .filter-bottom-actions {
+    display: none;
+  }
+
+  /* Липкий футер шторки */
+  .filter-panel-shell.is-open .filter-sheet-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    background: var(--white);
+  }
+
+  .filter-sheet-reset {
+    padding: 13px 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border2);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .filter-sheet-apply {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--ink);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  @keyframes filterSlideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes filterFade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .articles-grid {
