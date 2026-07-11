@@ -163,6 +163,32 @@ export function diversifyVacanciesByCompany(rows: VacancyRow[]): VacancyRow[] {
   return [...featured, ...positioned.map((p) => p.row)];
 }
 
+export type VacancySort = "new" | "salary_desc" | "salary_asc";
+
+/**
+ * Сортировка по зарплате. Вакансии без зарплаты уходят в конец (в обоих
+ * направлениях), чтобы «дороже сначала» не начиналось с безоплатных.
+ * Для убывания ключ - верхняя граница вилки, для возрастания - нижняя.
+ */
+export function sortVacanciesBySalary(
+  rows: VacancyRow[],
+  ascending: boolean,
+): VacancyRow[] {
+  const keyed = rows.map((row) => {
+    const max = typeof row.salary_max === "number" ? row.salary_max : null;
+    const min = typeof row.salary_min === "number" ? row.salary_min : null;
+    const key = ascending ? (min ?? max) : (max ?? min);
+    return { row, key };
+  });
+  keyed.sort((a, b) => {
+    if (a.key == null && b.key == null) return 0;
+    if (a.key == null) return 1;
+    if (b.key == null) return -1;
+    return ascending ? a.key - b.key : b.key - a.key;
+  });
+  return keyed.map((k) => k.row);
+}
+
 export async function listVacancies(
   filters: VacancyFilters = {},
 ): Promise<VacancyRow[]> {

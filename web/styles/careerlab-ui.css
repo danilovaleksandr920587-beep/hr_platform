@@ -1622,23 +1622,31 @@ body.careerlab-site .footer-links a:hover {
   }
 
   .filter-trigger-btn {
+    flex: 1;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 11px 18px;
-    border-radius: 999px;
+    justify-content: center;
+    gap: 9px;
+    padding: 15px 20px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border2);
     background: var(--white);
     font-family: inherit;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--ink);
     cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .filter-trigger-btn:active {
+    border-color: var(--lime-dim);
   }
 
   .filter-trigger-icon {
-    font-size: 15px;
-    line-height: 1;
+    display: block;
+    flex-shrink: 0;
+    color: var(--lime-dim);
   }
 
   .filter-trigger-count {

@@ -174,9 +174,25 @@ export function VacancyFilterForm({
           aria-haspopup="dialog"
           aria-expanded={open}
         >
-          <span className="filter-trigger-icon" aria-hidden="true">
-            ⚙
-          </span>
+          <svg
+            className="filter-trigger-icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="4" y1="7" x2="13" y2="7" />
+            <line x1="19" y1="7" x2="20" y2="7" />
+            <circle cx="16" cy="7" r="2.4" />
+            <line x1="4" y1="17" x2="8" y2="17" />
+            <line x1="14" y1="17" x2="20" y2="17" />
+            <circle cx="11" cy="17" r="2.4" />
+          </svg>
           <span>Фильтры</span>
           {activeCount > 0 ? (
             <span className="filter-trigger-count">{activeCount}</span>
@@ -211,7 +227,12 @@ export function VacancyFilterForm({
             />
             <div className="filter-panel-header">
               <h2 className="filter-panel-heading">Фильтры</h2>
-              <Link className="filter-reset-link" href="/vacancies" scroll={false}>
+              <Link
+                className="filter-reset-link"
+                href="/vacancies"
+                scroll={false}
+                onClick={() => setOpen(false)}
+              >
                 <span className="filter-reset-icon" aria-hidden="true">
                   ✕
                 </span>
@@ -422,6 +443,7 @@ export function VacancyFilterForm({
                 className="filter-sheet-reset"
                 href="/vacancies"
                 scroll={false}
+                onClick={() => setOpen(false)}
               >
                 Сбросить
               </Link>
