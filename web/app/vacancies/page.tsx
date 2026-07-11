@@ -3,15 +3,12 @@ import { unstable_cache } from "next/cache";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyCard } from "@/components/VacancyCard";
 import { VacancyFilterForm } from "@/components/VacancyFilterForm";
-import { VacancySortSelect } from "@/components/VacancySortSelect";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import {
   diversifyVacanciesByCompany,
   listVacancies,
   listVacancyFilterOptions,
-  sortVacanciesBySalary,
   type VacancyFilters,
-  type VacancySort,
 } from "@/lib/data/vacancies";
 import { isPublicSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { multiParam, optionalInt, optionalString } from "@/lib/searchParams";
@@ -46,17 +43,12 @@ type PageProps = {
 // search_document, company_about) до передачи в клиентский VacancyCard - иначе
 // полные тексты всех вакансий дублировались в HTML и RSC-payload (3.6 МБ).
 const getVacanciesPageData = unstable_cache(
-  async (filters: VacancyFilters, sort: VacancySort) => {
+  async (filters: VacancyFilters) => {
     const [rows, filterOptions] = await Promise.all([
       listVacancies(filters),
       listVacancyFilterOptions(),
     ]);
-    const ordered =
-      sort === "salary_desc"
-        ? sortVacanciesBySalary(rows, false)
-        : sort === "salary_asc"
-          ? sortVacanciesBySalary(rows, true)
-          : diversifyVacanciesByCompany(rows);
+    const ordered = diversifyVacanciesByCompany(rows);
     const cards = ordered.map((row) => ({
       row: {
         ...row,
@@ -77,9 +69,6 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
   const session = await getSessionFromCookies();
   const sp = await searchParams;
   const q = optionalString(sp, "q");
-  const sortRaw = optionalString(sp, "sort");
-  const sort: VacancySort =
-    sortRaw === "salary_desc" || sortRaw === "salary_asc" ? sortRaw : "new";
   const filters = {
     q: q || undefined,
     sphere: multiParam(sp, "sphere"),
@@ -92,7 +81,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
   };
 
   const supabaseEnvOk = isPublicSupabaseConfigured();
-  const { cards, filterOptions } = await getVacanciesPageData(filters, sort);
+  const { cards, filterOptions } = await getVacanciesPageData(filters);
   const count = cards.length;
   const noun =
     count % 10 === 1 && count % 100 !== 11
@@ -153,7 +142,6 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                   <span>{noun}</span>{" "}
                   <span className="muted">по вашим условиям</span>
                 </h2>
-                <VacancySortSelect value={sort} />
               </div>
 
               {cards.length === 0 ? (
