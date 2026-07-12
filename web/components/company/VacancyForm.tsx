@@ -41,7 +41,10 @@ const TYPE_OPTIONS = [
 
 export type VacancyFormValues = {
   title: string;
-  description: string;
+  tasks: string;
+  requirements: string;
+  conditions: string;
+  aboutTeam: string;
   sphere: string;
   exp: string;
   format: string;
@@ -56,7 +59,10 @@ export type VacancyFormValues = {
 
 const EMPTY: VacancyFormValues = {
   title: "",
-  description: "",
+  tasks: "",
+  requirements: "",
+  conditions: "",
+  aboutTeam: "",
   sphere: "it",
   exp: "none",
   format: "remote",
@@ -75,12 +81,14 @@ export function VacancyForm({
   initial,
   status,
   companyVerified,
+  companyTrusted = false,
 }: {
   companyId: string;
   slug?: string;
   initial?: Partial<VacancyFormValues>;
   status?: CompanyVacancyStatus;
   companyVerified: boolean;
+  companyTrusted?: boolean;
 }) {
   const router = useRouter();
   const isEdit = Boolean(slug);
@@ -96,7 +104,10 @@ export function VacancyForm({
   function payload() {
     return {
       title: values.title,
-      description: values.description,
+      tasks: values.tasks,
+      requirements: values.requirements,
+      conditions: values.conditions,
+      aboutTeam: values.aboutTeam,
       sphere: values.sphere,
       exp: values.exp,
       format: values.format,
@@ -122,6 +133,11 @@ export function VacancyForm({
   }
 
   async function save() {
+    if (!values.tasks.trim()) {
+      setError("Заполните задачи - без них вакансия не пройдёт модерацию.");
+      setNotice(null);
+      return;
+    }
     setLoading("save");
     setError(null);
     setNotice(null);
@@ -181,14 +197,48 @@ export function VacancyForm({
         />
       </label>
       <label className="company-field">
-        Описание * (задачи, требования, условия - минимум 100 символов)
+        Задачи * (что будет делать человек)
         <textarea
           className="company-textarea"
-          style={{ minHeight: 220 }}
-          value={values.description}
-          onChange={(e) => set("description", e.target.value)}
+          style={{ minHeight: 110 }}
+          value={values.tasks}
+          onChange={(e) => set("tasks", e.target.value)}
           required
-          maxLength={20000}
+          maxLength={10000}
+          placeholder={"Разбирать тикеты из саппорта\nПисать автотесты на новые фичи\nУчаствовать в код-ревью команды"}
+        />
+      </label>
+      <label className="company-field">
+        Требования * (что нужно знать и уметь)
+        <textarea
+          className="company-textarea"
+          style={{ minHeight: 110 }}
+          value={values.requirements}
+          onChange={(e) => set("requirements", e.target.value)}
+          maxLength={10000}
+          placeholder={"База SQL и Python на уровне pet-проектов\nGit: ветки, pull request\nАнглийский для чтения документации"}
+        />
+      </label>
+      <label className="company-field">
+        Условия * (график, менторство, оплата)
+        <textarea
+          className="company-textarea"
+          style={{ minHeight: 110 }}
+          value={values.conditions}
+          onChange={(e) => set("conditions", e.target.value)}
+          maxLength={10000}
+          placeholder={"Оплачиваемая стажировка 20-40 часов в неделю\nМентор и план на первые 3 месяца\nОформление по ТК или ГПХ"}
+        />
+      </label>
+      <label className="company-field">
+        О команде (необязательно)
+        <textarea
+          className="company-textarea"
+          style={{ minHeight: 80 }}
+          value={values.aboutTeam}
+          onChange={(e) => set("aboutTeam", e.target.value)}
+          maxLength={10000}
+          placeholder="Сколько людей в команде, кто будет ментором, как устроен онбординг"
         />
       </label>
       <div className="company-field-row">
@@ -239,6 +289,9 @@ export function VacancyForm({
           <input className="company-input" value={values.city} onChange={(e) => set("city", e.target.value)} placeholder="Москва" />
         </label>
       </div>
+      <p className="company-hint" style={{ margin: 0 }}>
+        Вакансии с указанной вилкой получают заметно больше откликов.
+      </p>
       <label className="company-field">
         Навыки (через запятую)
         <input className="company-input" value={values.skills} onChange={(e) => set("skills", e.target.value)} placeholder="Python, SQL, Git" />
@@ -269,6 +322,14 @@ export function VacancyForm({
 
       {error && <p className="company-error">{error}</p>}
       {notice && <p className="company-notice">{notice}</p>}
+
+      {isEdit && status === "published" && !companyTrusted && (
+        <div className="panel company-banner company-banner--warn" style={{ margin: 0 }}>
+          <p style={{ margin: 0 }}>
+            После правки вакансия уйдёт на повторную модерацию и временно пропадёт из каталога.
+          </p>
+        </div>
+      )}
 
       <div className="company-form-actions">
         <button className="btn-dark" onClick={save} disabled={loading !== null} type="button">

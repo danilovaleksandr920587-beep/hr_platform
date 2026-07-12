@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { requireCompanyRole, isCompanyAccess } from "@/lib/company/guard";
 import { getCompanyById, updateCompanyProfile } from "@/lib/company/store";
+import { syncCompanyBrandingToVacancies } from "@/lib/company/vacancies";
 
 type RouteProps = { params: Promise<{ id: string }> };
 
@@ -42,6 +43,13 @@ export async function PATCH(req: Request, { params }: RouteProps) {
       return NextResponse.json({ error: "ИНН - 10 или 12 цифр." }, { status: 400 });
     }
   }
+  const logoUrl = body.logoUrl !== undefined ? String(body.logoUrl).trim().slice(0, 500) : undefined;
+  if (logoUrl && !/^https:\/\/.+/i.test(logoUrl)) {
+    return NextResponse.json(
+      { error: "Логотип - прямая https-ссылка на картинку." },
+      { status: 400 },
+    );
+  }
 
   try {
     await updateCompanyProfile(id, {
@@ -50,8 +58,16 @@ export async function PATCH(req: Request, { params }: RouteProps) {
       website: body.website !== undefined ? String(body.website).trim().slice(0, 300) : undefined,
       description:
         body.description !== undefined ? String(body.description).trim().slice(0, 5000) : undefined,
-      logoUrl: body.logoUrl !== undefined ? String(body.logoUrl).trim().slice(0, 500) : undefined,
+      logoUrl,
     });
+    // Логотип и «о компании» дублируются в строках vacancies - обновляем их сразу,
+    // чтобы опубликованные вакансии не ждали следующей правки
+    if (logoUrl !== undefined || body.description !== undefined) {
+      const updated = await getCompanyById(id);
+      if (updated) {
+        await syncCompanyBrandingToVacancies(updated).catch((e) => console.error(e));
+      }
+    }
     return NextResponse.json({ ok: true });
   } catch (e: unknown) {
     const code =

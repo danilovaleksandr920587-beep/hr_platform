@@ -23,7 +23,7 @@
 | `/research` | `app/research/page.tsx` | Дашборд исследований зарплат (chart.js) |
 | `/privacy-policy` | `app/privacy-policy/page.tsx` | Политика конфиденциальности |
 | `/consent` | `app/consent/page.tsx` | Согласие на обработку ПД (152-ФЗ), вкл. передачу резюме работодателю |
-| `/for-companies` | `app/for-companies/page.tsx` | Лендинг "Для компаний": как разместить вакансию |
+| `/for-companies` | `app/for-companies/page.tsx` | Лендинг "Для компаний": бесплатное размещение, как это работает, FAQ, контакт поддержки. Ссылка в шапке и футере |
 
 Хабы-категории описаны в `lib/knowledge-clusters.ts` (6 кластеров с приоритетами).
 

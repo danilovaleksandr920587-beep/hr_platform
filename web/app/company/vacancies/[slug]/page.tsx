@@ -16,6 +16,17 @@ export const metadata: Metadata = {
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+type Blocks = NonNullable<Awaited<ReturnType<typeof getCompanyVacancyBySlug>>>["description_blocks"];
+
+/** Текст блоков заданного kind: body + пункты items с "- " (items редактируются как строки). */
+function blocksText(blocks: Blocks, kinds: string[]): string {
+  return (blocks ?? [])
+    .filter((b) => kinds.includes(b.kind))
+    .map((b) => [b.body, ...(b.items ?? []).map((i) => `- ${i}`)].filter(Boolean).join("\n"))
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export default async function CompanyVacancyEditPage({ params }: PageProps) {
   const { slug } = await params;
   const { company, companies } = await requireActiveCompany(`/company/vacancies/${slug}`);
@@ -50,9 +61,17 @@ export default async function CompanyVacancyEditPage({ params }: PageProps) {
               slug={vacancy.slug}
               status={vacancy.status}
               companyVerified={company.status === "verified"}
+              companyTrusted={company.trusted}
               initial={{
                 title: vacancy.title,
-                description: vacancy.description ?? "",
+                // Старые вакансии с плоским описанием: текст кладём в "Задачи",
+                // при сохранении он превратится в структурные блоки
+                tasks: vacancy.description_blocks?.length
+                  ? blocksText(vacancy.description_blocks, ["tasks", "stack", "other"])
+                  : (vacancy.description ?? ""),
+                requirements: blocksText(vacancy.description_blocks, ["requirements"]),
+                conditions: blocksText(vacancy.description_blocks, ["conditions"]),
+                aboutTeam: blocksText(vacancy.description_blocks, ["about"]),
                 sphere: vacancy.sphere,
                 exp: vacancy.exp,
                 format: vacancy.format,

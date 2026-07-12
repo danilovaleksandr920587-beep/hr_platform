@@ -5,6 +5,7 @@ import { getCompanyById } from "@/lib/company/store";
 import {
   changeCompanyVacancyStatus,
   getCompanyVacancyBySlug,
+  hasStructuredDescription,
   parseVacancyBody,
   updateCompanyVacancy,
   validateVacancyInput,
@@ -75,10 +76,16 @@ export async function PATCH(req: Request, { params }: RouteProps) {
     }
 
     const input = parseVacancyBody(raw);
-    // Частичное редактирование: валидируем только присланные поля
+    const structured = hasStructuredDescription(raw);
+    // Частичное редактирование: валидируем только присланные поля.
+    // description и description_blocks собираются из структурных полей формы.
     const patch: Partial<typeof input> = {};
     for (const key of Object.keys(input) as (keyof typeof input)[]) {
-      if (raw[key] !== undefined || (key === "applyUrl" && raw.applyMode !== undefined)) {
+      const provided =
+        raw[key] !== undefined ||
+        (key === "applyUrl" && raw.applyMode !== undefined) ||
+        ((key === "description" || key === "descriptionBlocks") && structured);
+      if (provided) {
         // @ts-expect-error - присваивание по ключу с общим типом
         patch[key] = input[key];
       }
@@ -86,7 +93,7 @@ export async function PATCH(req: Request, { params }: RouteProps) {
     const invalid = validateVacancyInput(patch);
     if (invalid) return NextResponse.json({ error: invalid }, { status: 400 });
 
-    const vacancy = await updateCompanyVacancy(id, slug, patch, { trusted: company.trusted });
+    const vacancy = await updateCompanyVacancy(company, slug, patch);
     if (vacancy.status === "pending_review") {
       notifyAdminsModerationQueue({ kind: "vacancy", name: vacancy.title });
     }

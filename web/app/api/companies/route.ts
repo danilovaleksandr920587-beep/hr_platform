@@ -16,7 +16,13 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { name?: string; inn?: string; website?: string; description?: string };
+  let body: {
+    name?: string;
+    inn?: string;
+    website?: string;
+    logoUrl?: string;
+    description?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -31,12 +37,20 @@ export async function POST(req: Request) {
   if (inn && !/^\d{10}(\d{2})?$/.test(inn)) {
     return NextResponse.json({ error: "ИНН - 10 или 12 цифр." }, { status: 400 });
   }
+  const logoUrl = String(body.logoUrl ?? "").trim().slice(0, 500);
+  if (logoUrl && !/^https:\/\/.+/i.test(logoUrl)) {
+    return NextResponse.json(
+      { error: "Логотип - прямая https-ссылка на картинку." },
+      { status: 400 },
+    );
+  }
 
   try {
     const company = await createCompany({
       name,
       inn,
       website: String(body.website ?? "").trim().slice(0, 300),
+      logoUrl,
       description: String(body.description ?? "").trim().slice(0, 5000),
       createdBy: session.id,
     });

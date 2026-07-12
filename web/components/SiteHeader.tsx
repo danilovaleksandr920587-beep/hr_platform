@@ -30,6 +30,11 @@ const NAV = [
   },
   { href: "/research", label: "Исследования", match: (p: string) => p === "/research" },
   {
+    href: "/for-companies",
+    label: "Для компаний",
+    match: (p: string) => p.startsWith("/for-companies") || p.startsWith("/company"),
+  },
+  {
     href: "/office",
     label: "Личный кабинет",
     match: (p: string) => p.startsWith("/office") || p.startsWith("/login"),

@@ -8,19 +8,24 @@ export function CompanyCreateForm() {
   const [name, setName] = useState("");
   const [inn, setInn] = useState("");
   const [website, setWebsite] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (logoUrl.trim() && !/^https:\/\//i.test(logoUrl.trim())) {
+      setError("Ссылка на логотип должна начинаться с https://");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/companies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, inn, website, description }),
+        body: JSON.stringify({ name, inn, website, logoUrl, description }),
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
@@ -69,6 +74,19 @@ export function CompanyCreateForm() {
           placeholder="https://example.ru"
           type="url"
         />
+      </label>
+      <label className="company-field">
+        Логотип (URL картинки)
+        <input
+          className="company-input"
+          value={logoUrl}
+          onChange={(e) => setLogoUrl(e.target.value)}
+          placeholder="https://example.ru/logo.png"
+          type="url"
+        />
+        <span className="company-hint">
+          Прямая https-ссылка на картинку, лучше квадратную. Показывается на карточках вакансий.
+        </span>
       </label>
       <label className="company-field">
         О компании

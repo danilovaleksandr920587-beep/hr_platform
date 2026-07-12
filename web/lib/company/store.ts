@@ -56,6 +56,7 @@ export async function createCompany(input: {
   name: string;
   inn?: string;
   website?: string;
+  logoUrl?: string;
   description?: string;
   createdBy: string;
 }): Promise<CompanyRow> {
@@ -63,12 +64,13 @@ export async function createCompany(input: {
   const slug = await uniqueCompanySlug(input.name);
   const company = await sql.begin(async (tx) => {
     const rows = (await tx`
-      insert into companies (slug, name, inn, website, description, created_by)
+      insert into companies (slug, name, inn, website, logo_url, description, created_by)
       values (
         ${slug},
         ${input.name},
         ${input.inn?.trim() || null},
         ${input.website?.trim() || null},
+        ${input.logoUrl?.trim() || null},
         ${input.description?.trim() ?? ""},
         ${input.createdBy}
       )
@@ -120,13 +122,17 @@ export async function updateCompanyProfile(
   fields: { name?: string; inn?: string; website?: string; description?: string; logoUrl?: string },
 ): Promise<void> {
   const sql = getSql();
+  // logo_url: undefined - не трогаем, "" - очищаем (nullif), иначе - новое значение
   await sql`
     update companies set
       name        = coalesce(${fields.name ?? null}, name),
       inn         = coalesce(${fields.inn ?? null}, inn),
       website     = coalesce(${fields.website ?? null}, website),
       description = coalesce(${fields.description ?? null}, description),
-      logo_url    = coalesce(${fields.logoUrl ?? null}, logo_url),
+      logo_url    = case when ${fields.logoUrl === undefined}
+                      then logo_url
+                      else nullif(${fields.logoUrl ?? ""}, '')
+                    end,
       updated_at  = now()
     where id = ${id}
   `;

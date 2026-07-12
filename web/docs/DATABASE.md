@@ -88,5 +88,6 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 | `YANDEX_GPT_API_KEY`, `YANDEX_GPT_FOLDER_ID` | YandexGPT (анализ резюме) |
 | `SMTP_*` | Почта: восстановление пароля + B2B-уведомления (отклики, инвайты, модерация) |
 | `NEXT_PUBLIC_SITE_URL` | Канонический URL (https://lab-career.ru) |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | Email поддержки (mailto в футере, лендинге, баннерах кабинета). Дефолт support@lab-career.ru |
 | `PLATFORM_ADMIN_EMAILS` | Email админов платформы через запятую: доступ к /admin/moderation и письма о новых компаниях/вакансиях |
 | `RESUME_STORAGE_DIR` | Каталог файлов резюме откликов (опционально, дефолт `web/storage/resumes`) |

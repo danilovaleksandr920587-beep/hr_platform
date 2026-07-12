@@ -9,6 +9,8 @@ import {
 export type BoardApplication = {
   id: string;
   vacancy_slug: string;
+  /** Название вакансии; протягивается страницей, фолбэк - slug. */
+  vacancy_title?: string;
   applicant_name: string;
   applicant_email: string;
   contact: string;
@@ -118,7 +120,7 @@ export function ApplicationsBoard({
                   </p>
                   <p className="application-card-meta">
                     {formatDate(a.created_at)}
-                    {showVacancyColumn ? ` · ${a.vacancy_slug}` : ""}
+                    {showVacancyColumn ? ` · ${a.vacancy_title || a.vacancy_slug}` : ""}
                     {` · ${a.applicant_email}`}
                     {a.contact ? ` · ${a.contact}` : ""}
                   </p>
@@ -169,13 +171,19 @@ export function ApplicationsBoard({
 
               {noteFor === a.id && (
                 <div className="application-note-form">
+                  {noteAction === "rejected" && (
+                    <p className="company-hint" style={{ margin: "0 0 6px" }}>
+                      Кандидат получит ваш комментарий письмом. Джуны запоминают компании,
+                      которые дают фидбек.
+                    </p>
+                  )}
                   <textarea
                     className="company-textarea"
                     style={{ minHeight: 70 }}
                     placeholder={
                       noteAction === "invited"
                         ? "Как связаться, когда и какой следующий шаг (кандидат получит это письмом)"
-                        : "Необязательный комментарий к отказу"
+                        : "Например: сейчас ищем кандидата с опытом React-проектов - соберите 1-2 pet-проекта и возвращайтесь"
                     }
                     value={note}
                     onChange={(e) => setNote(e.target.value)}

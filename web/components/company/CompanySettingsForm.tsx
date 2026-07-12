@@ -10,7 +10,7 @@ export function CompanySettingsForm({
 }: {
   companyId: string;
   isOwner: boolean;
-  initial: { name: string; inn: string; website: string; description: string };
+  initial: { name: string; inn: string; website: string; logoUrl: string; description: string };
 }) {
   const router = useRouter();
   const [values, setValues] = useState(initial);
@@ -20,6 +20,11 @@ export function CompanySettingsForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (values.logoUrl.trim() && !/^https:\/\//i.test(values.logoUrl.trim())) {
+      setError("Ссылка на логотип должна начинаться с https://");
+      setNotice(null);
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -81,6 +86,19 @@ export function CompanySettingsForm({
           onChange={(e) => setValues((v) => ({ ...v, website: e.target.value }))}
           type="url"
         />
+      </label>
+      <label className="company-field">
+        Логотип (URL картинки)
+        <input
+          className="company-input"
+          value={values.logoUrl}
+          onChange={(e) => setValues((v) => ({ ...v, logoUrl: e.target.value }))}
+          type="url"
+          placeholder="https://example.ru/logo.png"
+        />
+        <span className="company-hint">
+          Прямая https-ссылка на картинку, лучше квадратную. Показывается на карточках вакансий.
+        </span>
       </label>
       <label className="company-field">
         О компании (показывается на страницах вакансий)

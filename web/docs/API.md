@@ -45,9 +45,9 @@
 
 | Endpoint | Методы | Роль | Что делает |
 |----------|--------|------|------------|
-| `/api/companies` | POST | auth | Создать компанию (status=pending), owner-членство, письмо админам |
+| `/api/companies` | POST | auth | Создать компанию (status=pending, поля вкл. logoUrl - только https), owner-членство, письмо админам |
 | `/api/companies/mine` | GET | auth | Мои компании и роли |
-| `/api/company/[id]` | GET, PATCH | member / owner | Профиль компании |
+| `/api/company/[id]` | GET, PATCH | member / owner | Профиль компании. PATCH logoUrl/description дублирует брендинг во все вакансии компании |
 | `/api/company/[id]/members` | GET | member | Участники + непринятые инвайты |
 | `/api/company/[id]/members/[accountId]` | PATCH | owner | Роль/деактивация (нельзя убрать последнего owner) |
 | `/api/company/[id]/invites` | POST | owner | Приглашение по email (токен 7 дней). Возвращает `inviteUrl` + `emailSent`; письмо только если SMTP настроен, иначе ссылку передают вручную |
@@ -63,6 +63,13 @@
 Статусы: draft -> pending_review -> published/rejected; published -> archived.
 `submit` требует company.status=verified; для trusted-компаний - сразу published.
 Правка published-вакансии не-trusted компанией возвращает её на модерацию.
+
+Описание в POST/PATCH - структурные поля `tasks`, `requirements`, `conditions`,
+`aboutTeam`: сервер собирает из них `description_blocks` (формат
+`lib/data/vacancy-schema.ts`) и склейку в `description` (поиск/SEO). Плоское
+поле `description` поддерживается для обратной совместимости (blocks=null).
+При каждой правке в строку vacancies дублируются company_logo_url и
+company_about из профиля компании.
 
 ## B2B: отклики
 

@@ -2,6 +2,7 @@ import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { transliterate } from "@/lib/transliterate";
 import { vacancyShapes } from "@/lib/data/vacancy-schema";
+import type { VacancyDescriptionBlock } from "@/lib/types";
 import type { CompanyRow } from "./store";
 import type { CompanyVacancyStatus } from "./constants";
 
@@ -36,7 +37,7 @@ function typeColumn(): string {
  */
 function companyVacancySelect(): string {
   const typeSel = vacShape() === "web" ? "type" : "type:employment_type";
-  return `id,slug,title,company,description,sphere,exp,format,${typeSel},salary_min,salary_max,city,skills,apply_mode,apply_url,status,status_reason,is_published,is_archived,published_at,company_id`;
+  return `id,slug,title,company,description,description_blocks,sphere,exp,format,${typeSel},salary_min,salary_max,city,skills,apply_mode,apply_url,status,status_reason,is_published,is_archived,published_at,company_id`;
 }
 
 /** Поле поиска: web-схема хранит текст в search_document; на root оставляем null
@@ -56,6 +57,8 @@ const TYPES = ["internship", "project", "parttime"] as const;
 export type CompanyVacancyInput = {
   title: string;
   description: string;
+  /** Структурные блоки из формы (Задачи/Требования/Условия/О команде); null - плоское описание. */
+  descriptionBlocks: VacancyDescriptionBlock[] | null;
   sphere: string;
   exp: string;
   format: string;
@@ -74,6 +77,7 @@ export type CompanyVacancyRow = {
   title: string;
   company: string;
   description: string | null;
+  description_blocks: VacancyDescriptionBlock[] | null;
   sphere: string;
   exp: string;
   format: string;
@@ -92,14 +96,46 @@ export type CompanyVacancyRow = {
   company_id: string;
 };
 
+/** Поля структурного описания в теле запроса формы вакансии. */
+export const STRUCTURED_DESCRIPTION_KEYS = ["tasks", "requirements", "conditions", "aboutTeam"] as const;
+
+export function hasStructuredDescription(body: Record<string, unknown>): boolean {
+  return STRUCTURED_DESCRIPTION_KEYS.some((k) => body[k] !== undefined);
+}
+
+/** Блоки в формате description_blocks (рендерит VacancyDetailClient); пустые поля пропускаем. */
+function buildDescriptionBlocks(body: Record<string, unknown>): VacancyDescriptionBlock[] {
+  const text = (key: string) => String(body[key] ?? "").trim().slice(0, 10000);
+  const blocks: VacancyDescriptionBlock[] = [];
+  const push = (kind: VacancyDescriptionBlock["kind"], title: string, value: string) => {
+    if (value) blocks.push({ kind, title, body: value, items: [] });
+  };
+  push("tasks", "Задачи", text("tasks"));
+  push("requirements", "Требования", text("requirements"));
+  push("conditions", "Условия", text("conditions"));
+  push("about", "О команде", text("aboutTeam"));
+  return blocks;
+}
+
+/** Склейка блоков в плоский description - для поиска, SEO и обратной совместимости. */
+function joinDescriptionBlocks(blocks: VacancyDescriptionBlock[]): string {
+  return blocks.map((b) => `${b.title}:\n${b.body ?? ""}`).join("\n\n");
+}
+
 /** Разбор тела запроса формы вакансии (общий для POST и PATCH). */
 export function parseVacancyBody(body: Record<string, unknown>): CompanyVacancyInput {
   const skills = Array.isArray(body.skills)
     ? (body.skills as unknown[]).map(String).map((s) => s.trim()).filter(Boolean).slice(0, 20)
     : [];
+  const structured = hasStructuredDescription(body);
+  const blocks = structured ? buildDescriptionBlocks(body) : null;
+  const description = blocks
+    ? joinDescriptionBlocks(blocks)
+    : String(body.description ?? "").trim();
   return {
     title: String(body.title ?? "").trim().slice(0, 200),
-    description: String(body.description ?? "").trim().slice(0, 20000),
+    description: description.slice(0, 20000),
+    descriptionBlocks: blocks,
     sphere: String(body.sphere ?? ""),
     exp: String(body.exp ?? "none"),
     format: String(body.format ?? ""),
@@ -118,7 +154,7 @@ export function validateVacancyInput(input: Partial<CompanyVacancyInput>): strin
     return "Название вакансии - минимум 5 символов.";
   }
   if (input.description !== undefined && input.description.trim().length < 100) {
-    return "Описание - минимум 100 символов: расскажите о задачах, требованиях и условиях.";
+    return "Опишите задачи, требования и условия - суммарно минимум 100 символов.";
   }
   if (input.sphere !== undefined && !SPHERES.includes(input.sphere as (typeof SPHERES)[number])) {
     return "Некорректная сфера.";
@@ -188,6 +224,7 @@ export async function createCompanyVacancy(
       title: input.title.trim(),
       company: company.name,
       description: input.description.trim(),
+      description_blocks: input.descriptionBlocks,
       sphere: input.sphere,
       exp: input.exp,
       format: input.format,
@@ -267,18 +304,33 @@ export async function getVacancyForApply(slug: string): Promise<{
   }) ?? null;
 }
 
+/** Обновить дублируемый брендинг (логотип, «о компании») во всех вакансиях компании. */
+export async function syncCompanyBrandingToVacancies(company: CompanyRow): Promise<void> {
+  const sb = createServiceRoleClient();
+  const { error } = await sb
+    .from("vacancies")
+    .update({
+      company_logo_url: company.logo_url,
+      company_about: company.description || null,
+    })
+    .eq("company_id", company.id)
+    .eq("source", "company");
+  if (error) throw new Error(`syncCompanyBrandingToVacancies: ${error.message}`);
+}
+
 export async function updateCompanyVacancy(
-  companyId: string,
+  company: CompanyRow,
   slug: string,
   input: Partial<CompanyVacancyInput>,
-  options: { trusted: boolean },
 ): Promise<CompanyVacancyRow> {
+  const companyId = company.id;
   const existing = await getCompanyVacancyBySlug(companyId, slug);
   if (!existing) throw new Error("Вакансия не найдена");
 
   const patch: Record<string, unknown> = {};
   if (input.title !== undefined) patch.title = input.title.trim();
   if (input.description !== undefined) patch.description = input.description.trim();
+  if (input.descriptionBlocks !== undefined) patch.description_blocks = input.descriptionBlocks;
   if (input.sphere !== undefined) patch.sphere = input.sphere;
   if (input.exp !== undefined) patch.exp = input.exp;
   if (input.format !== undefined) patch.format = input.format;
@@ -296,8 +348,12 @@ export async function updateCompanyVacancy(
   const description = (patch.description as string) ?? existing.description ?? "";
   Object.assign(patch, searchPatch(`${title} ${existing.company} ${description}`));
 
+  // Актуализируем дублируемый брендинг компании при каждой правке
+  patch.company_logo_url = company.logo_url;
+  patch.company_about = company.description || null;
+
   // Правка опубликованной вакансии непроверенной компанией - обратно на модерацию
-  if (existing.status === "published" && !options.trusted) {
+  if (existing.status === "published" && !company.trusted) {
     patch.status = "pending_review";
     Object.assign(patch, statusFlags("pending_review"));
   }

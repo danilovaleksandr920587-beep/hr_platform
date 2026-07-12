@@ -32,6 +32,7 @@ export default async function CompanySettingsPage() {
               name: company.name,
               inn: company.inn ?? "",
               website: company.website ?? "",
+              logoUrl: company.logo_url ?? "",
               description: company.description ?? "",
             }}
           />

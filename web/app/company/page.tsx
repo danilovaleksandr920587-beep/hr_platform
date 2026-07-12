@@ -6,6 +6,7 @@ import { requireActiveCompany } from "@/lib/company/active-company";
 import { listCompanyVacancies } from "@/lib/company/vacancies";
 import { listApplicationsForCompany } from "@/lib/company/applications";
 import { COMPANY_STATUS_LABELS } from "@/lib/company/constants";
+import { SUPPORT_EMAIL } from "@/lib/support";
 
 export const metadata: Metadata = {
   title: "Кабинет компании",
@@ -39,13 +40,14 @@ export default async function CompanyDashboardPage() {
           <strong>Компания не прошла проверку.</strong>
           {company.status_reason ? ` Причина: ${company.status_reason}.` : ""}{" "}
           Обновите данные в <Link className="text-link" href="/company/settings">настройках</Link> и
-          напишите в поддержку.
+          напишите в <a className="text-link" href={`mailto:${SUPPORT_EMAIL}`}>поддержку</a>.
         </p>
       </div>
     ) : company.status === "blocked" ? (
       <div className="panel company-banner company-banner--error">
         <p>
-          <strong>Компания заблокирована.</strong> Свяжитесь с поддержкой платформы.
+          <strong>Компания заблокирована.</strong> Свяжитесь с{" "}
+          <a className="text-link" href={`mailto:${SUPPORT_EMAIL}`}>поддержкой платформы</a>.
         </p>
       </div>
     ) : null;

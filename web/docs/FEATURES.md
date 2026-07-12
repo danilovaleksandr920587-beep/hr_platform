@@ -45,13 +45,25 @@
   деактивация участников, защита от удаления последнего owner
 - Вакансии компании: CRUD в той же таблице `vacancies` (source=company),
   статусы draft -> pending_review -> published/rejected -> archived;
-  premoderation, для trusted-компаний - автопубликация
+  premoderation, для trusted-компаний - автопубликация. Форма описания -
+  структурная (Задачи/Требования/Условия + О команде): пишется в
+  `description_blocks` + склейка в `description` для поиска/SEO; старые
+  плоские описания рендерятся через фолбэк «О роли»
+- Логотип компании: поле «Логотип (URL)» в создании и настройках (только
+  https-ссылка); дублируется в `vacancies.company_logo_url` при создании
+  и правке вакансии, при смене в настройках синкается во все вакансии
+  компании (`syncCompanyBrandingToVacancies`)
 - Отклики: apply_mode=internal - форма на платформе (резюме PDF/DOCX,
   сопроводительное, контакт), у компании воронка со статусами
-  new/viewed/invited/rejected, у кандидата - `/office/applications` с отзывом
+  new/viewed/invited/rejected, у кандидата - `/office/applications` с отзывом.
+  В карточке отклика - название вакансии (join по slug на уровне страницы)
 - Email-уведомления: новый отклик (команде), смена статуса (кандидату),
   приглашение, итоги модерации, алерты админам. Fire-and-forget через SMTP
-- Лендинг `/for-companies`, ссылка в футере
+- Лендинг `/for-companies` (бесплатность в hero, FAQ, контакт поддержки),
+  ссылки в шапке и футере
+- Поддержка: email из `NEXT_PUBLIC_SUPPORT_EMAIL` (фолбэк
+  support@lab-career.ru), mailto в футере, лендинге и баннерах
+  rejected/blocked кабинета компании
 - Дизайн и фазы 2-3: `docs/company-portal-design.md`
 
 ## Кабинет компании - фаза 2
