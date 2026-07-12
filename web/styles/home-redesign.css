@@ -328,6 +328,81 @@
   white-space: nowrap;
 }
 
+/* Партнёры «Нанимают сейчас» - реальные компании-клиенты со ссылками на профиль */
+.cl-partners-strip {
+  background: var(--cl-white);
+  border-top: 1px solid var(--cl-border);
+  padding: 22px clamp(1rem, 4vw, 60px);
+}
+
+.cl-partners-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cl-partners-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--cl-dark);
+  font-weight: 700;
+}
+
+.cl-partners-all {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cl-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cl-partners-all:hover {
+  color: var(--cl-dark);
+}
+
+.cl-partners-items {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cl-partner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 7px 8px;
+  border: 1px solid var(--cl-border);
+  border-radius: 999px;
+  background: var(--cl-white);
+  text-decoration: none;
+  color: var(--cl-dark);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cl-partner-chip:hover {
+  border-color: var(--cl-lime-dim);
+  box-shadow: 0 4px 14px rgba(181, 219, 42, 0.18);
+}
+
+.cl-partner-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: contain;
+  background: var(--cl-white);
+  border: 1px solid var(--cl-border);
+  flex-shrink: 0;
+}
+
+.cl-partner-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* Section typography */
 .cl-sec-eyebrow {
   font-size: 11px;

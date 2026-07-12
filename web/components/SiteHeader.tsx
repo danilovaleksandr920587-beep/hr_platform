@@ -14,6 +14,11 @@ const NAV = [
     match: (p: string) => p.startsWith("/vacancies"),
   },
   {
+    href: "/companies",
+    label: "Работодатели",
+    match: (p: string) => p.startsWith("/companies"),
+  },
+  {
     href: "/knowledge-base",
     label: "База знаний",
     match: (p: string) => p.startsWith("/knowledge-base"),

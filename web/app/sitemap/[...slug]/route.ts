@@ -1,9 +1,12 @@
 import { listArticles } from "@/lib/data/articles";
 import { listVacancies } from "@/lib/data/vacancies";
+import { listPublicCompanySlugs } from "@/lib/company/public";
 
 const STATIC_PATHS = [
   "",
   "/vacancies",
+  "/companies",
+  "/for-companies",
   "/knowledge-base",
   "/knowledge-base/resume",
   "/knowledge-base/interview",
@@ -82,7 +85,7 @@ export async function GET(
   const id = sitemapIdFromSlug(slug);
   const base = getBaseUrl();
 
-  if (!id || !["static", "vacancies", "articles"].includes(id)) {
+  if (!id || !["static", "vacancies", "articles", "companies"].includes(id)) {
     return new Response("Not Found", { status: 404 });
   }
 
@@ -114,16 +117,25 @@ export async function GET(
                 priority: row.is_archived ? 0.5 : 0.72,
               }),
           )
-        : (await listArticles({})).map((row) =>
-            renderUrl({
-              url: `${base}/knowledge-base/${row.slug}`,
-              lastModified: row.published_at
-                ? new Date(row.published_at)
-                : new Date(),
-              changeFrequency: "weekly",
-              priority: 0.85,
-            }),
-          );
+        : id === "companies"
+          ? (await listPublicCompanySlugs().catch(() => [])).map((slug) =>
+              renderUrl({
+                url: `${base}/companies/${slug}`,
+                lastModified: new Date(),
+                changeFrequency: "weekly",
+                priority: 0.7,
+              }),
+            )
+          : (await listArticles({})).map((row) =>
+              renderUrl({
+                url: `${base}/knowledge-base/${row.slug}`,
+                lastModified: row.published_at
+                  ? new Date(row.published_at)
+                  : new Date(),
+                changeFrequency: "weekly",
+                priority: 0.85,
+              }),
+            );
 
   return xmlResponse(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

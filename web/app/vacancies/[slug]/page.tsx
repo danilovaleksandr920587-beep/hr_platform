@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VacancyDetailClient } from "@/components/vacancies/VacancyDetailClient";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { getVacancyApplyMode, getVacancyBySlug, listVacancies } from "@/lib/data/vacancies";
+import { getVacancyApplyMode, getVacancyBySlug, listVacancies, listVacanciesByCompanyId } from "@/lib/data/vacancies";
+import { getPublicCompanyById } from "@/lib/company/public";
 import { buildVacancyStaticParams } from "@/lib/data/vacancy-static-paths";
 import { EXP_LABELS, FORMAT_LABELS, SPHERE_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
 import "@/styles/vacancy-detail-ref.css";
@@ -104,6 +105,16 @@ export default async function VacancyDetailPage({ params }: PageProps) {
 
   const isArchived = row.is_archived ?? false;
 
+  // Блок «О работодателе» - только для вакансий verified-компаний из кабинета.
+  const companyProfile = row.company_id
+    ? await getPublicCompanyById(row.company_id).catch(() => null)
+    : null;
+  const companyOtherVacancies = companyProfile
+    ? (await listVacanciesByCompanyId(companyProfile.id, 4).catch(() => []))
+        .filter((v) => v.slug !== row.slug)
+        .slice(0, 3)
+    : [];
+
   // Похожие — только из активных вакансий (is_archived=false применяется в listVacancies)
   const similarRows = (
     await listVacancies({ sphere: [row.sphere], fields: "card", limit: 8 })
@@ -202,6 +213,18 @@ export default async function VacancyDetailPage({ params }: PageProps) {
         />
         <VacancyDetailClient
           viewerScope={session?.id ?? null}
+          companyProfile={
+            companyProfile
+              ? {
+                  slug: companyProfile.slug,
+                  name: companyProfile.name,
+                  otherVacancies: companyOtherVacancies.map((v) => ({
+                    slug: v.slug,
+                    title: v.title,
+                  })),
+                }
+              : null
+          }
           slug={row.slug}
           title={row.title}
           company={row.company}

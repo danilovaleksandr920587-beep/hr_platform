@@ -40,6 +40,7 @@
 | `/api/vacancies/featured` | GET | Избранные вакансии для главной |
 | `/api/vacancies/by-slugs` | POST | Карточки вакансий по списку slug (для сохранёнок) |
 | `/api/articles/by-slugs` | POST | Карточки статей по списку slug |
+| `/api/vacancies/[slug]/track` | POST | Трекинг `{event:'view'\|'apply'}` для дашборда работодателя. Публичный, всегда 204. Инкремент в `vacancy_stats` (dedup просмотров - на клиенте через sessionStorage) |
 
 ## B2B: компании и команда (Auth; роль проверяет `lib/company/guard.ts`)
 
@@ -89,6 +90,7 @@ company_about из профиля компании.
 | `/api/admin/moderation` | GET | Очередь: компании pending + вакансии pending_review |
 | `/api/admin/companies/[id]/verify` | POST | `{approve, reason?, trusted?}` + письмо и in-app владельцам |
 | `/api/admin/vacancies/[slug]/review` | POST | `{approve, reason?}` + письмо и in-app команде |
+| `/api/admin/vacancies/[slug]/feature` | POST | `{featured, days?}` - закрепление вакансии (платное размещение). days>0 = срок (featured_until = now+days), 0/пусто = бессрочно. Работает для любой опубликованной вакансии |
 
 ## B2B фаза 2: in-app уведомления (Auth)
 

@@ -519,3 +519,680 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ── Кнопка-контур (используется на лендинге работодателям) ── */
+.btn-outline {
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--dark);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.btn-outline:hover {
+  border-color: var(--lime-dim);
+  background: var(--lime-pale);
+}
+
+/* ── Тарифы /for-companies ── */
+.pricing-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  margin-bottom: 14px;
+  align-items: stretch;
+}
+
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl, 22px);
+  padding: 26px 24px 24px;
+}
+
+/* Акцентный тариф - тёмная карточка в языке бренда (лайм на чёрном) */
+.pricing-card--dark {
+  background: var(--dark);
+  border-color: var(--dark);
+  box-shadow: 0 16px 44px rgba(13, 15, 8, 0.28);
+}
+
+.pricing-tag {
+  position: absolute;
+  top: -11px;
+  left: 24px;
+  background: var(--lime);
+  color: var(--dark);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.pricing-name {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin: 0 0 10px;
+}
+
+.pricing-card--dark .pricing-name {
+  color: #fff;
+}
+
+.pricing-price {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.03em;
+  margin: 0 0 4px;
+}
+
+.pricing-card--dark .pricing-price {
+  color: var(--lime);
+}
+
+.pricing-period {
+  font-family: "Golos Text", "Onest", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+
+.pricing-card--dark .pricing-period {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pricing-tagline {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.pricing-card--dark .pricing-tagline {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  display: grid;
+  gap: 10px;
+  align-content: start; /* НЕ растягивать пункты по высоте карточки */
+  flex: 1;
+}
+
+.pricing-features li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.pricing-card--dark .pricing-features li {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.pricing-features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--lime-dim);
+  font-weight: 700;
+}
+
+.pricing-card--dark .pricing-features li::before {
+  color: var(--lime);
+}
+
+.pricing-cta {
+  width: 100%;
+  text-align: center;
+}
+
+.pricing-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+
+/* ── /for-companies: хиро, статы, кнопки, демо, финальный CTA ── */
+.fc-hero .ph-title {
+  max-width: 720px;
+}
+
+.fc-hero-sub {
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(13, 15, 8, 0.6);
+  margin: 10px 0 0;
+}
+
+.fc-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.fc-btn-dark,
+.fc-btn-lime,
+.fc-btn-ghost,
+.fc-btn-outline {
+  display: inline-block;
+  padding: 13px 28px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.fc-btn-dark {
+  background: var(--dark);
+  color: #fff;
+}
+
+.fc-btn-dark:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(13, 15, 8, 0.25);
+}
+
+.fc-btn-lime {
+  background: var(--lime);
+  color: var(--dark);
+}
+
+.fc-btn-lime:hover {
+  background: var(--lime-dim);
+  transform: translateY(-1px);
+}
+
+.fc-btn-ghost {
+  border: 1.5px solid rgba(13, 15, 8, 0.25);
+  color: var(--dark);
+  background: transparent;
+}
+
+.fc-btn-ghost:hover {
+  border-color: var(--dark);
+}
+
+.fc-btn-outline {
+  border: 1.5px solid var(--border2);
+  color: var(--dark);
+  background: var(--white);
+}
+
+.fc-btn-outline:hover {
+  border-color: var(--lime-dim);
+  background: var(--lime-pale);
+}
+
+.fc-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.fc-stat {
+  background: var(--white);
+  padding: 26px clamp(1rem, 3vw, 44px);
+}
+
+.fc-stat-num {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 900;
+  color: var(--dark);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.fc-stat-label {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.fc-sec-title {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--dark);
+  margin: 44px 0 20px;
+}
+
+.fc-sec-title:first-child {
+  margin-top: 0;
+}
+
+.fc-demo-section {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.fc-demo-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 5fr) minmax(300px, 7fr);
+  gap: clamp(1.5rem, 4vw, 56px);
+  align-items: center;
+}
+
+.fc-demo-text p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+
+.pcd-wrap {
+  pointer-events: none;
+  user-select: none;
+}
+
+.pcd-card {
+  transform: rotate(-1deg);
+  box-shadow: 0 24px 60px rgba(13, 15, 8, 0.16);
+}
+
+/* ── FAQ-аккордеон ── */
+.faq-list {
+  display: grid;
+  gap: 10px;
+}
+
+.faq-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.faq-q {
+  list-style: none;
+  cursor: pointer;
+  padding: 18px 52px 18px 22px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--dark);
+  position: relative;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.faq-q::after {
+  content: "+";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--lime);
+  color: var(--dark);
+  font-weight: 600;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.faq-item[open] .faq-q::after {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.faq-q:hover {
+  background: var(--lime-pale);
+}
+
+.faq-a {
+  margin: 0;
+  padding: 0 22px 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.fc-final-cta {
+  margin-top: 48px;
+  background: var(--dark);
+  border-radius: var(--radius-xl, 22px);
+  padding: clamp(2rem, 5vw, 3.2rem);
+  text-align: center;
+}
+
+.fc-final-cta-title {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+}
+
+.fc-final-cta-sub {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  margin: 0 0 22px;
+}
+
+@media (max-width: 760px) {
+  .fc-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .fc-demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pcd-card {
+    transform: none;
+  }
+}
+
+/* ── Админ: управление закреплениями ── */
+.featured-add-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.featured-add-form .company-input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.featured-days-input {
+  flex: 0 0 90px !important;
+  min-width: 0 !important;
+}
+
+.featured-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+/* ── Публичный профиль компании /companies/[slug] ── */
+.co-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(13, 15, 8, 0.5);
+  margin-bottom: 20px;
+}
+
+.co-breadcrumb a {
+  color: rgba(13, 15, 8, 0.5);
+  text-decoration: none;
+}
+
+.co-breadcrumb a:hover {
+  color: var(--dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.co-breadcrumb span:last-child {
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.co-hero-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.co-hero-logo {
+  background: var(--white);
+  box-shadow: 0 10px 30px rgba(13, 15, 8, 0.12);
+  border: none;
+  padding: 8px;
+}
+
+.co-hero-title {
+  margin: 10px 0 10px;
+  font-size: clamp(24px, 3.4vw, 34px);
+}
+
+.co-site-pill {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--dark);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.co-site-pill:hover {
+  background: #fff;
+}
+
+.co-about {
+  margin-bottom: 30px;
+}
+
+.co-about-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.co-about-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+.co-vacancies-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.co-vacancies-title {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--dark);
+  margin: 0;
+}
+
+.co-vacancies-count {
+  background: var(--lime);
+  color: var(--dark);
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.company-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--lime-pale);
+  border: 1px solid var(--lime-dim);
+  color: #3a5a00;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 20px;
+}
+
+.company-verified-badge::before {
+  content: "✓";
+  font-weight: 800;
+}
+
+/* ── Каталог /companies ── */
+.companies-catalog {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  margin: 28px 0 8px;
+}
+
+.company-catalog-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--white);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.company-catalog-card:hover {
+  border-color: var(--lime-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.company-catalog-name {
+  margin: 0 0 2px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.company-catalog-meta {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--lime-dim);
+  font-weight: 600;
+}
+
+.company-catalog-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ── Список «другие вакансии компании» в блоке «О компании» на вакансии ── */
+.company-vacancy-block-list {
+  list-style: none;
+  padding: 16px 0 0;
+  margin: 16px 0 0;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 8px;
+}
+
+.company-vacancy-block-list a {
+  color: var(--dark);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.company-vacancy-block-list a:hover {
+  color: var(--lime-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Нативный блок партнёров (PartnersInline, вне home-scope) ── */
+.partners-inline-head {
+  margin: 0 0 14px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.partners-inline-items {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.partners-inline-all {
+  font-size: 13px;
+}
+
+.partner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 7px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--white);
+  text-decoration: none;
+  color: var(--dark);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.partner-chip:hover {
+  border-color: var(--lime-dim);
+  box-shadow: 0 4px 14px rgba(168, 201, 32, 0.18);
+}
+
+.partner-chip-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: contain;
+  background: var(--white);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.partner-chip-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}

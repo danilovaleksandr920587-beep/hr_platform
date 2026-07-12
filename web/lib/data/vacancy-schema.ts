@@ -8,9 +8,9 @@ export const VACANCY_SELECT_WEB_CARD =
 
 /** Схема из supabase/migrations в корне репо (employment_type, is_featured). */
 export const VACANCY_SELECT_ROOT =
-  "id,slug,title,company,description,description_blocks,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,company_about,company_logo_url,city,skills,source_published_at,is_archived";
+  "id,slug,title,company,description,description_blocks,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,featured_until,source,company_id,company_about,company_logo_url,city,skills,source_published_at,is_archived";
 export const VACANCY_SELECT_ROOT_CARD =
-  "id,slug,title,company,description,city,skills,source_published_at,company_logo_url,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,is_archived";
+  "id,slug,title,company,description,city,skills,source_published_at,company_logo_url,sphere,exp,format,employment_type,salary_min,salary_max,apply_url,published_at,is_featured,featured_until,source,is_archived";
 
 export type VacancyDbShape = "web" | "root";
 
@@ -39,7 +39,17 @@ export function normalizeVacancyRow(
     (row.type as string | undefined) ??
     (row.employment_type as string | undefined) ??
     "";
-  const featured = Boolean(row.featured ?? row.is_featured);
+  // Эффективное закрепление: флаг оплачен И срок не истёк (null = бессрочно).
+  // Истёкшие featured отдаём как обычные - без ручного снятия и без cron.
+  const featuredUntilRaw = row.featured_until;
+  const featuredUntil =
+    typeof featuredUntilRaw === "string" && featuredUntilRaw.length > 0
+      ? featuredUntilRaw
+      : null;
+  const featuredFlag = Boolean(row.featured ?? row.is_featured);
+  const featuredActive =
+    featuredFlag &&
+    (featuredUntil == null || new Date(featuredUntil).getTime() > Date.now());
   const desc =
     row.description != null ? String(row.description) : null;
   const sdRaw = row.search_document;
@@ -92,7 +102,10 @@ export function normalizeVacancyRow(
     salary_max: (row.salary_max as number | null) ?? null,
     apply_url: (row.apply_url as string | null | undefined) ?? null,
     search_document,
-    featured,
+    featured: featuredActive,
+    featured_until: featuredUntil,
+    source: (row.source as string | null | undefined) ?? null,
+    company_id: (row.company_id as string | null | undefined) ?? null,
     // null -> "" (не "null"): пустая строка falsy, вызывающие корректно уходят в фолбэк
     published_at: row.published_at != null ? String(row.published_at) : "",
     company_about: (row.company_about as string | null | undefined) ?? null,

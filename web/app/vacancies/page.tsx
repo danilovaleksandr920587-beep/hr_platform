@@ -83,6 +83,13 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
   const supabaseEnvOk = isPublicSupabaseConfigured();
   const { cards, filterOptions } = await getVacanciesPageData(filters);
   const count = cards.length;
+
+  // Закреплённые размещения выносим в отдельную полосу сверху (не больше 3 -
+  // «бутиковость» держим намеренно). Остальное, включая featured сверх лимита,
+  // идёт обычным списком.
+  const featuredStrip = cards.filter((c) => c.row.featured).slice(0, 3);
+  const stripIds = new Set(featuredStrip.map((c) => c.row.id));
+  const restCards = cards.filter((c) => !stripIds.has(c.row.id));
   const noun =
     count % 10 === 1 && count % 100 !== 11
       ? "вакансия"
@@ -144,6 +151,25 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                 </h2>
               </div>
 
+              {featuredStrip.length > 0 ? (
+                <section className="featured-strip" aria-label="Рекомендуемые вакансии">
+                  <div className="featured-strip-head">
+                    <span className="featured-strip-title">Рекомендуем</span>
+                  </div>
+                  <div className="jobs-list">
+                    {featuredStrip.map(({ row, preview }, i) => (
+                      <VacancyCard
+                        key={row.id}
+                        row={row}
+                        index={i}
+                        viewerScope={session?.id ?? null}
+                        descriptionPreview={preview}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
               {cards.length === 0 ? (
                 <p className="vacancies-empty">
                   {!supabaseEnvOk ? (
@@ -168,7 +194,7 @@ export default async function VacanciesPage({ searchParams }: PageProps) {
                 </p>
               ) : (
                 <div className="jobs-list">
-                  {cards.map(({ row, preview }, i) => (
+                  {restCards.map(({ row, preview }, i) => (
                     <VacancyCard
                       key={row.id}
                       row={row}

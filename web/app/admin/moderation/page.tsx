@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ModerationQueue } from "@/components/admin/ModerationQueue";
+import { FeaturedManager } from "@/components/admin/FeaturedManager";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { isPlatformAdmin } from "@/lib/auth/platform-admin";
 import { listPendingCompanies } from "@/lib/company/store";
-import { listVacanciesPendingReview } from "@/lib/company/vacancies";
+import { listVacanciesPendingReview, listFeaturedVacancies } from "@/lib/company/vacancies";
 
 export const metadata: Metadata = {
   title: "Модерация",
@@ -19,9 +20,10 @@ export default async function AdminModerationPage() {
   if (!session) redirect("/login?next=/admin/moderation");
   if (!isPlatformAdmin(session.email)) redirect("/");
 
-  const [companies, vacancies] = await Promise.all([
+  const [companies, vacancies, featured] = await Promise.all([
     listPendingCompanies().catch(() => []),
     listVacanciesPendingReview().catch(() => []),
+    listFeaturedVacancies().catch(() => []),
   ]);
 
   return (
@@ -48,6 +50,17 @@ export default async function AdminModerationPage() {
               city: v.city,
             }))}
           />
+          <div style={{ marginTop: 32 }}>
+            <FeaturedManager
+              initial={featured.map((v) => ({
+                slug: v.slug,
+                title: v.title,
+                company: v.company,
+                source: v.source,
+                featured_until: v.featured_until,
+              }))}
+            />
+          </div>
         </div>
       </main>
       <SiteFooter />

@@ -5,6 +5,7 @@ import { CompanyNav } from "@/components/company/CompanyNav";
 import { VacancyStatusBadge } from "@/components/company/VacancyStatusBadge";
 import { requireActiveCompany } from "@/lib/company/active-company";
 import { listCompanyVacancies } from "@/lib/company/vacancies";
+import { getVacancyStats } from "@/lib/company/stats";
 
 export const metadata: Metadata = {
   title: "Вакансии компании",
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default async function CompanyVacanciesPage() {
   const { company, companies } = await requireActiveCompany("/company/vacancies");
   const vacancies = await listCompanyVacancies(company.id).catch(() => []);
+  const stats = await getVacancyStats(vacancies.map((v) => v.slug)).catch(() => new Map());
 
   return (
     <>
@@ -52,6 +54,13 @@ export default async function CompanyVacanciesPage() {
                       {v.city || "Локация не указана"}
                       {v.status === "rejected" && v.status_reason ? ` · Причина отклонения: ${v.status_reason}` : ""}
                     </p>
+                    {v.status === "published" ? (
+                      <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--dark, #111)", fontWeight: 600 }}>
+                        {(stats.get(v.slug)?.views ?? 0).toLocaleString("ru-RU")} просмотров
+                        {" · "}
+                        {(stats.get(v.slug)?.apply_clicks ?? 0).toLocaleString("ru-RU")} переходов «Откликнуться»
+                      </p>
+                    ) : null}
                   </div>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <VacancyStatusBadge status={v.status} />

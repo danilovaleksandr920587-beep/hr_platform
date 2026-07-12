@@ -5,6 +5,26 @@ import { useEffect, useState } from "react";
 import { SAVED_ITEMS_EVENT, isVacancySaved, setVacancySaved } from "@/lib/client/saved-items";
 import type { VacancyDescriptionBlock } from "@/lib/types";
 
+/** Шлёт событие вакансии, не блокируя навигацию (sendBeacon с fetch-фолбэком). */
+function trackVacancyEvent(slug: string, event: "view" | "apply") {
+  try {
+    const url = `/api/vacancies/${encodeURIComponent(slug)}/track`;
+    const payload = JSON.stringify({ event });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([payload], { type: "application/json" }));
+      return;
+    }
+    void fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    });
+  } catch {
+    // трекинг не должен ломать страницу
+  }
+}
+
 type SimilarVacancy = {
   slug: string;
   company: string;
@@ -14,8 +34,16 @@ type SimilarVacancy = {
   typeClass: string;
 };
 
+/** Публичный профиль verified-компании (для блока «О компании» с бейджем). */
+export type CompanyProfileTeaser = {
+  slug: string;
+  name: string;
+  otherVacancies: { slug: string; title: string }[];
+};
+
 type Props = {
   viewerScope?: string | null;
+  companyProfile?: CompanyProfileTeaser | null;
   slug: string;
   title: string;
   company: string;
@@ -61,10 +89,27 @@ export function VacancyDetailClient(props: Props) {
     return () => window.removeEventListener(SAVED_ITEMS_EVENT, sync);
   }, [props.slug, props.viewerScope]);
 
+  // Просмотр: один beacon на загрузку страницы (dedup через sessionStorage,
+  // чтобы reload не накручивал). Метрика для дашборда работодателя.
+  useEffect(() => {
+    const key = `vv:${props.slug}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      // sessionStorage недоступен - всё равно шлём один раз за монтирование
+    }
+    trackVacancyEvent(props.slug, "view");
+  }, [props.slug]);
+
   function toggleSave() {
     const next = !saved;
     setVacancySaved(props.slug, next, props.viewerScope);
     setSaved(next);
+  }
+
+  function onApplyClick() {
+    trackVacancyEvent(props.slug, "apply");
   }
 
   async function copyLink() {
@@ -155,7 +200,11 @@ export function VacancyDetailClient(props: Props) {
               )}
 
               {!isArchived && props.featured ? (
-                <div className="kvref-featured-badge">⭐ Рекомендуем</div>
+                props.companyProfile ? (
+                  <div className="kvref-featured-badge kvref-partner-badge">Рекомендуем</div>
+                ) : (
+                  <div className="kvref-featured-badge">⭐ Рекомендуем</div>
+                )
               ) : null}
 
               <h1 className="kvref-vac-title">{props.title}</h1>
@@ -186,6 +235,7 @@ export function VacancyDetailClient(props: Props) {
                   href={applyHref}
                   target={applyIsExternal ? "_blank" : undefined}
                   rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                  onClick={onApplyClick}
                 >
                   Откликнуться
                 </Link>
@@ -206,10 +256,38 @@ export function VacancyDetailClient(props: Props) {
           </div>
 
           <div className="kvref-vac-body">
-            {props.companyAbout ? (
+            {props.companyAbout || props.companyProfile ? (
               <div className="kvref-vac-section">
                 <div className="kvref-vac-section-title">О компании</div>
-                <p className="kvref-body-p">{props.companyAbout}</p>
+                {props.companyProfile ? (
+                  <p style={{ margin: "0 0 10px" }}>
+                    <span className="company-verified-badge">Проверенный работодатель</span>
+                  </p>
+                ) : null}
+                {props.companyAbout ? (
+                  <p className="kvref-body-p">{props.companyAbout}</p>
+                ) : null}
+                {props.companyProfile ? (
+                  <>
+                    <p className="kvref-body-p" style={{ marginTop: 8 }}>
+                      <Link
+                        className="text-link"
+                        href={`/companies/${props.companyProfile.slug}`}
+                      >
+                        Профиль {props.companyProfile.name} и все вакансии →
+                      </Link>
+                    </p>
+                    {props.companyProfile.otherVacancies.length > 0 ? (
+                      <ul className="company-vacancy-block-list">
+                        {props.companyProfile.otherVacancies.map((v) => (
+                          <li key={v.slug}>
+                            <Link href={`/vacancies/${v.slug}`}>{v.title}</Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </>
+                ) : null}
               </div>
             ) : null}
             <div className="kvref-vac-section">
@@ -265,6 +343,7 @@ export function VacancyDetailClient(props: Props) {
                       href={applyHref}
                       target={applyIsExternal ? "_blank" : undefined}
                       rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                      onClick={onApplyClick}
                     >
                       Откликнуться на вакансию
                     </Link>
@@ -307,6 +386,7 @@ export function VacancyDetailClient(props: Props) {
                   href={applyHref}
                   target={applyIsExternal ? "_blank" : undefined}
                   rel={applyIsExternal ? "noopener noreferrer" : undefined}
+                  onClick={onApplyClick}
                 >
                   Откликнуться
                 </Link>

@@ -75,7 +75,7 @@ body.careerlab-site header.cl-topbar {
 
 .cl-topbar-nav {
   display: flex;
-  gap: clamp(0.75rem, 2vw, 28px);
+  gap: clamp(0.6rem, 1.35vw, 18px);
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;

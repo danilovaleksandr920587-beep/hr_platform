@@ -297,6 +297,46 @@ export async function listVacancySlugs(): Promise<string[]> {
   return listPublishedSlugsFromRest("vacancies");
 }
 
+/**
+ * Активные вакансии одной компании (по company_id) - для публичной карточки
+ * компании. Читается anon-клиентом (RLS: is_published = true), закреплённые
+ * сверху. Толерантно к отсутствию колонки company_id на старой схеме -> [].
+ */
+export async function listVacanciesByCompanyId(
+  companyId: string,
+  limit = 50,
+): Promise<VacancyRow[]> {
+  if (!isPublicSupabaseConfigured() || !companyId) return [];
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb: any = supabase;
+  const shapes = vacancyShapes();
+
+  for (const shape of shapes) {
+    const select = shape === "web" ? VACANCY_SELECT_WEB_CARD : VACANCY_SELECT_ROOT_CARD;
+    const featuredCol = shape === "web" ? "featured" : "is_featured";
+    const { data, error } = await sb
+      .from("vacancies")
+      .select(select)
+      .eq("company_id", companyId)
+      .eq("is_published", true)
+      .eq("is_archived", false)
+      .order(featuredCol, { ascending: false })
+      .order("published_at", { ascending: false })
+      .limit(limit);
+    if (error) {
+      if (shapes.length > 1 && isVacancySchemaMismatchError(error)) continue;
+      console.error("listVacanciesByCompanyId", error.message);
+      return [];
+    }
+    return ((data ?? []) as unknown[]).map((r) =>
+      normalizeVacancyRow(r as Record<string, unknown>),
+    );
+  }
+  return [];
+}
+
 export async function listVacanciesBySlugs(slugs: string[]): Promise<VacancyRow[]> {
   if (!isPublicSupabaseConfigured()) return [];
   const clean = [...new Set(slugs.map((s) => s.trim()).filter(Boolean))];

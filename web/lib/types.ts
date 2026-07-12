@@ -14,6 +14,14 @@ export type VacancyRow = {
   apply_url?: string | null;
   search_document: string | null;
   featured: boolean;
+  /** До какой даты активно закрепление (null = бессрочно). Считается только
+      вместе с featured; истёкшие featured отдаются как featured=false. */
+  featured_until?: string | null;
+  /** parser (агрегатор) | company (кабинет работодателя). Company-вакансии -
+      это платные клиенты: их закрепление подаётся как «Партнёр». */
+  source?: string | null;
+  /** Ссылка на companies.id (только у company-вакансий); для блока о компании. */
+  company_id?: string | null;
   published_at: string;
   company_about?: string | null;
   company_logo_url?: string | null;

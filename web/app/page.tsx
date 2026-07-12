@@ -6,6 +6,7 @@ import { SphereIcon } from "@/components/home/SphereIcon";
 import { SiteFooter } from "@/components/SiteFooter";
 import { listArticles } from "@/lib/data/articles";
 import { listVacancies } from "@/lib/data/vacancies";
+import { listPublicCompanies } from "@/lib/company/public";
 import { KNOWLEDGE_CLUSTERS } from "@/lib/knowledge-clusters";
 import type { VacancyRow } from "@/lib/types";
 import { SPHERE_LABELS } from "@/lib/vacancy-labels";
@@ -100,10 +101,12 @@ const BENTO_FALLBACK = [
 ];
 
 export default async function HomePage() {
-  const [allVacancies, allArticles] = await Promise.all([
+  const [allVacancies, allArticles, partnerCompanies] = await Promise.all([
     listVacancies({ fields: "card", limit: 1000 }),
     listArticles(),
+    listPublicCompanies().catch(() => []),
   ]);
+  const partners = partnerCompanies.slice(0, 8);
 
   const vacancyCount = allVacancies.length;
   const freshArticles = allArticles.slice(0, 4);
@@ -228,6 +231,28 @@ export default async function HomePage() {
             <span className="cl-logos-item">Ozon</span>
           </div>
         </div>
+
+        {partners.length > 0 ? (
+          <section className="cl-partners-strip" aria-label="Компании-партнёры, нанимающие сейчас">
+            <div className="cl-partners-head">
+              <span className="cl-partners-label">Нанимают сейчас</span>
+              <Link href="/companies" className="cl-partners-all">
+                Все компании →
+              </Link>
+            </div>
+            <div className="cl-partners-items">
+              {partners.map((c) => (
+                <Link key={c.id} href={`/companies/${c.slug}`} className="cl-partner-chip">
+                  {c.logo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="cl-partner-logo" src={c.logo_url} alt={c.name} />
+                  ) : null}
+                  <span className="cl-partner-name">{c.name}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="cl-audience-section" aria-labelledby="cl-aud-title">
           <div className="cl-audience-inner">

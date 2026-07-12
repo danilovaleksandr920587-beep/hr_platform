@@ -469,3 +469,61 @@ export async function reviewVacancy(
   if (error) throw new Error(`reviewVacancy: ${error.message}`);
   return data as unknown as CompanyVacancyRow;
 }
+
+/** Имя колонки закрепления в текущей схеме (root: is_featured, web: featured). */
+function featuredColumn(): string {
+  return vacShape() === "web" ? "featured" : "is_featured";
+}
+
+export type FeaturedVacancyRow = {
+  slug: string;
+  title: string;
+  company: string;
+  source: string | null;
+  featured_until: string | null;
+};
+
+/**
+ * Ставит/снимает закрепление вакансии (платное размещение). Работает для любой
+ * опубликованной вакансии - и парсерной, и из кабинета компании. days>0 задаёт
+ * срок (featured_until = now + days); без срока закрепление бессрочно (null).
+ * Снятие обнуляет и флаг, и срок.
+ */
+export async function setVacancyFeatured(
+  slug: string,
+  featured: boolean,
+  days?: number,
+): Promise<FeaturedVacancyRow> {
+  const col = featuredColumn();
+  const until =
+    featured && typeof days === "number" && days > 0
+      ? new Date(Date.now() + days * 86_400_000).toISOString()
+      : null;
+  const patch: Record<string, unknown> = { [col]: featured, featured_until: until };
+
+  const sb = createServiceRoleClient();
+  const { data, error } = await sb
+    .from("vacancies")
+    .update(patch)
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .select(`slug,title,company,source,featured_until`)
+    .maybeSingle();
+  if (error) throw new Error(`setVacancyFeatured: ${error.message}`);
+  if (!data) throw new Error("setVacancyFeatured: not found");
+  return data as unknown as FeaturedVacancyRow;
+}
+
+/** Текущие закреплённые вакансии (для админ-панели), скоро истекающие сверху. */
+export async function listFeaturedVacancies(): Promise<FeaturedVacancyRow[]> {
+  const col = featuredColumn();
+  const sb = createServiceRoleClient();
+  const { data, error } = await sb
+    .from("vacancies")
+    .select(`slug,title,company,source,featured_until`)
+    .eq(col, true)
+    .eq("is_published", true)
+    .order("featured_until", { ascending: true, nullsFirst: false });
+  if (error) throw new Error(`listFeaturedVacancies: ${error.message}`);
+  return (data ?? []) as unknown as FeaturedVacancyRow[];
+}

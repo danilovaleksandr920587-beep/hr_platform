@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ResumeAnalyzerPage } from "@/components/tools/ResumeAnalyzerPage";
+import { PartnersInline } from "@/components/company/PartnersInline";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import "@/styles/resume-analyzer.css";
 
@@ -14,6 +15,7 @@ export default async function ResumeAnalyzerRoutePage() {
   return (
     <>
       <ResumeAnalyzerPage userScope={session?.id ?? null} />
+      <PartnersInline />
       <SiteFooter />
     </>
   );

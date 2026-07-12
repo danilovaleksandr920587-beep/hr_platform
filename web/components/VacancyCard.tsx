@@ -7,6 +7,7 @@ import {
   isVacancySaved,
   setVacancySaved,
 } from "@/lib/client/saved-items";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import type { VacancyRow } from "@/lib/types";
 import {
   EXP_LABELS,
@@ -50,6 +51,9 @@ export function VacancyCard({
   const isLoggedIn = Boolean(viewerScope);
   const applyHref = row.apply_url || href;
   const applyIsExternal = Boolean(row.apply_url);
+  // Платное закрепление клиента из кабинета работодателя получает
+  // премиум-оформление карточки (тёмная рамка, засветка).
+  const isPartner = row.featured && row.source === "company";
   useEffect(() => {
     if (!isLoggedIn) return;
     const sync = () => setSaved(isVacancySaved(row.slug, viewerScope));
@@ -72,26 +76,35 @@ export function VacancyCard({
 
   return (
     <article
-      className={`job-card vacancy-card-modern${row.featured ? " featured" : ""}`}
+      className={`job-card vacancy-card-modern${row.featured ? " featured" : ""}${isPartner ? " partner" : ""}`}
     >
       {row.featured ? (
-        <span className="featured-badge">Рекомендуем</span>
+        <span className={isPartner ? "partner-corner" : "featured-corner"}>
+          Рекомендуем
+        </span>
       ) : null}
       <div className="job-card-top">
         <div className="job-card-left">
-          <div className="job-company">{row.company}</div>
-          {row.city ? <div className="job-co">{row.city}</div> : null}
+          <div className="job-company-row">
+            <CompanyLogo
+              src={row.company_logo_url}
+              name={row.company}
+              size={isPartner ? 46 : 40}
+              radius={isPartner ? 11 : 9}
+            />
+            <div className="job-company-meta">
+              <div className="job-company">{row.company}</div>
+              {row.city ? <div className="job-co">{row.city}</div> : null}
+            </div>
+          </div>
           <h2 className="job-title">
             <Link href={href}>{row.title}</Link>
           </h2>
         </div>
         <div className="job-salary-block">
-          {row.company_logo_url ? (
-            <img src={row.company_logo_url} alt={row.company} style={{ width: 36, height: 36, borderRadius: 8, objectFit: "contain", marginBottom: 8 }} onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
-          ) : null}
           {salaryMissing ? null : (
-            <div className="job-salary">
-              {row.salary_min!.toLocaleString("ru-RU")} —{" "}
+            <div className={`job-salary${isPartner ? " partner-salary" : ""}`}>
+              {row.salary_min!.toLocaleString("ru-RU")} –{" "}
               {row.salary_max!.toLocaleString("ru-RU")} ₽
             </div>
           )}

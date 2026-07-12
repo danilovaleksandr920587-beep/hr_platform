@@ -5,6 +5,7 @@ import { CompanyNav } from "@/components/company/CompanyNav";
 import { requireActiveCompany } from "@/lib/company/active-company";
 import { listCompanyVacancies } from "@/lib/company/vacancies";
 import { listApplicationsForCompany } from "@/lib/company/applications";
+import { getVacancyStats } from "@/lib/company/stats";
 import { COMPANY_STATUS_LABELS } from "@/lib/company/constants";
 import { SUPPORT_EMAIL } from "@/lib/support";
 
@@ -25,6 +26,14 @@ export default async function CompanyDashboardPage() {
   const pending = vacancies.filter((v) => v.status === "pending_review").length;
   const drafts = vacancies.filter((v) => v.status === "draft" || v.status === "rejected").length;
   const newApplications = applications.filter((a) => a.status === "new").length;
+
+  const stats = await getVacancyStats(vacancies.map((v) => v.slug)).catch(() => new Map());
+  let totalViews = 0;
+  let totalApplyClicks = 0;
+  for (const s of stats.values()) {
+    totalViews += s.views;
+    totalApplyClicks += s.apply_clicks;
+  }
 
   const statusBanner =
     company.status === "pending" ? (
@@ -80,6 +89,18 @@ export default async function CompanyDashboardPage() {
               <div className="company-stat-label">Черновики и отклонённые</div>
             </Link>
           </div>
+          {published > 0 ? (
+            <div className="company-stats" style={{ marginTop: 12 }}>
+              <div className="company-stat">
+                <div className="company-stat-num">{totalViews.toLocaleString("ru-RU")}</div>
+                <div className="company-stat-label">Просмотров вакансий</div>
+              </div>
+              <div className="company-stat">
+                <div className="company-stat-num">{totalApplyClicks.toLocaleString("ru-RU")}</div>
+                <div className="company-stat-label">Переходов «Откликнуться»</div>
+              </div>
+            </div>
+          ) : null}
           <p style={{ marginTop: 24 }}>
             <Link className="btn-dark" href="/company/vacancies/new">
               + Новая вакансия

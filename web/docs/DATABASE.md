@@ -15,7 +15,11 @@
 `exp` (none/lt1/1-3/gte3), `format` (remote/hybrid/office),
 `employment_type` (internship/project/parttime), `salary_min/max`,
 `bonus_tags[]`, флаги `is_published/is_featured/is_new`, `search_vector`
-(tsvector russian, GIN-индекс).
+(tsvector russian, GIN-индекс). `featured_until timestamptz` (миграция
+`20260713000000_*`, ролью supabase_admin): срок платного закрепления.
+Эффективное закрепление считается в приложении: `is_featured AND (featured_until
+IS NULL OR featured_until > now())` - истёкшие featured отдаются как обычные без
+cron (`lib/data/vacancy-schema.ts`). NULL = бессрочно (редакционное).
 
 B2B-колонки (миграция `20260705000000_company_portal.sql`): `source`
 (parser/company), `company_id`, `status` (draft/pending_review/published/
@@ -44,6 +48,7 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 | `user_saved_articles` | account_id, slug | Сохранённые статьи |
 | `user_checklist_progress` | account_id, ... | Прогресс чек-листа |
 | `user_resume_analyses` | account_id, score, result_json, target_role | История AI-анализов резюме |
+| `vacancy_stats` | vacancy_slug (PK), views, apply_clicks, updated_at | Просмотры и клики «Откликнуться» вакансий (для дашборда работодателя). Миграция `20260713010000_*` (роль postgres). Инкремент через `/api/vacancies/[slug]/track`, связь с vacancies по slug без FK (`lib/company/stats.ts`) |
 
 ВАЖНО: при изменении этих таблиц менять схему нужно руками в БД - и лучше
 завести миграцию, чтобы уйти от ручного состояния.
@@ -63,7 +68,7 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 
 | Таблица | Ключевые поля | Назначение |
 |---------|---------------|------------|
-| `companies` | slug, name, inn (unique), status (pending/verified/rejected/blocked), status_reason, trusted, created_by | Компании; trusted = автопубликация вакансий без премодерации |
+| `companies` | slug, name, inn (unique), logo_url, website, description, status (pending/verified/rejected/blocked), status_reason, trusted, created_by | Компании; trusted = автопубликация вакансий без премодерации. Публичное чтение verified-компаний для SEO-страниц `/companies*` - `lib/company/public.ts` (демо-компания `careerlab-demo` скрыта) |
 | `company_members` | company_id + account_id (PK), role (owner/recruiter), status (active/disabled) | Членство и роли |
 | `company_invites` | company_id + email (unique), role, token_hash (sha256), expires_at (7 дней), accepted_at | Приглашения в команду |
 | `applications` | vacancy_slug + account_id (unique), company_id, resume_file, cover_letter, contact, status (new/viewed/invited/rejected/withdrawn), status_note | Отклики; resume_file - имя файла в RESUME_STORAGE_DIR |
@@ -91,3 +96,4 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | Email поддержки (mailto в футере, лендинге, баннерах кабинета). Дефолт support@lab-career.ru |
 | `PLATFORM_ADMIN_EMAILS` | Email админов платформы через запятую: доступ к /admin/moderation и письма о новых компаниях/вакансиях |
 | `RESUME_STORAGE_DIR` | Каталог файлов резюме откликов (опционально, дефолт `web/storage/resumes`) |
+| `SHOW_DEMO_COMPANY` | `1` - показывать демо-компанию `careerlab-demo` в публичном каталоге `/companies*` (для дев-среды и живого демо клиенту). По умолчанию скрыта |
