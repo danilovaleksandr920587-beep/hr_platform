@@ -34,11 +34,13 @@ const NAV = [
     match: (p: string) => p.startsWith("/tools/resume-analyzer"),
   },
   { href: "/research", label: "Исследования", match: (p: string) => p === "/research" },
-  {
-    href: "/for-companies",
-    label: "Для компаний",
-    match: (p: string) => p.startsWith("/for-companies") || p.startsWith("/company"),
-  },
+  // Временно скрыто из меню (монетизация ещё не запущена публично).
+  // Вернуть - раскомментировать. Сама страница /for-companies остаётся доступной.
+  // {
+  //   href: "/for-companies",
+  //   label: "Для компаний",
+  //   match: (p: string) => p.startsWith("/for-companies") || p.startsWith("/company"),
+  // },
   {
     href: "/office",
     label: "Личный кабинет",
