@@ -803,6 +803,11 @@
   align-items: center;
 }
 
+/* Без min-width:0 мок-карточка раздувает колонку шире вьюпорта на мобилке */
+.fc-demo-grid > * {
+  min-width: 0;
+}
+
 .fc-demo-text p {
   font-size: 15px;
   line-height: 1.65;

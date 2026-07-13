@@ -322,6 +322,13 @@ body.careerlab-site main > section.section:first-child {
   margin: 0 auto;
 }
 
+/* Колонка результатов - grid-элемент: без min-width:0 длинный заголовок
+   вакансии раздувает трек шире вьюпорта и появляется горизонтальный скролл. */
+.jl-results,
+.vacancies-main {
+  min-width: 0;
+}
+
 /* Sidebar = текущие фильтры */
 body.careerlab-site .filter-panel {
   position: sticky;
@@ -748,6 +755,7 @@ body.careerlab-site .active-filter-pill {
   color: var(--dark);
   letter-spacing: -0.01em;
   margin-bottom: 3px;
+  overflow-wrap: anywhere;
 }
 
 .job-title {
@@ -757,6 +765,7 @@ body.careerlab-site .active-filter-pill {
   line-height: 1.3;
   letter-spacing: -0.01em;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .job-desc {
