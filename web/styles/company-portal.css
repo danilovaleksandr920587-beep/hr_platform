@@ -700,8 +700,10 @@
   display: inline-block;
   padding: 13px 28px;
   border-radius: 14px;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
@@ -710,6 +712,7 @@
 .fc-btn-dark {
   background: var(--dark);
   color: #fff;
+  border: none;
 }
 
 .fc-btn-dark:hover {
@@ -720,6 +723,7 @@
 .fc-btn-lime {
   background: var(--lime);
   color: var(--dark);
+  border: none;
 }
 
 .fc-btn-lime:hover {
@@ -1062,6 +1066,29 @@
   justify-content: center;
 }
 
+/* Пустое состояние каталога вакансий компании - оформленная карточка вместо
+   одинокой строки, чтобы профиль без вакансий не выглядел «недоделанным». */
+.company-empty {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.company-empty-title {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 8px;
+}
+
+.company-empty-text {
+  margin: 0 auto 18px;
+  max-width: 440px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
 .company-verified-badge {
   display: inline-flex;
   align-items: center;
@@ -1200,4 +1227,188 @@
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* ── Модалка заявки на размещение (/for-companies) ── */
+.pr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(13, 15, 8, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: pr-fade 0.15s ease;
+}
+
+@keyframes pr-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pr-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: var(--white);
+  border-radius: var(--radius-xl, 22px);
+  padding: 32px;
+  box-shadow: 0 30px 80px rgba(13, 15, 8, 0.3);
+}
+
+.pr-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pr-close:hover {
+  background: #e8e8e0;
+  color: var(--dark);
+}
+
+.pr-title {
+  font-family: var(--font-unbounded), "Unbounded", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--dark);
+  margin: 0 0 6px;
+}
+
+.pr-sub {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.pr-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.pr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.pr-field > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pr-field input,
+.pr-field select,
+.pr-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  background: var(--bg);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--dark);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pr-field textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.pr-field input:focus,
+.pr-field select:focus,
+.pr-field textarea:focus {
+  border-color: var(--lime-dim);
+  background: var(--white);
+}
+
+/* honeypot - убираем из потока и от глаз, но не display:none (боты его пропускают) */
+.pr-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pr-error {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--coral, #d9534f);
+}
+
+.pr-submit {
+  width: 100%;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.pr-alt {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.pr-alt a {
+  color: var(--dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pr-done {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.pr-done-check {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--lime);
+  color: var(--dark);
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pr-done .fc-btn-dark {
+  margin-top: 20px;
+}
+
+@media (max-width: 560px) {
+  .pr-modal {
+    padding: 24px 20px;
+  }
 }

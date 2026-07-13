@@ -86,6 +86,7 @@ export default async function CompanyPage({ params }: PageProps) {
                 size={84}
                 radius={20}
                 className="co-hero-logo"
+                eager
               />
               <div style={{ minWidth: 0 }}>
                 <span className="company-verified-badge">Проверенный работодатель</span>
@@ -119,12 +120,16 @@ export default async function CompanyPage({ params }: PageProps) {
               <span className="co-vacancies-count">{cards.length}</span>
             </div>
             {cards.length === 0 ? (
-              <p className="company-hint">
-                Сейчас открытых вакансий нет.{" "}
-                <Link className="text-link" href="/vacancies">
-                  Посмотреть все вакансии
+              <div className="panel company-empty">
+                <p className="company-empty-title">Пока нет открытых вакансий</p>
+                <p className="company-empty-text">
+                  Эта компания сейчас не набирает. В общем каталоге - свежие
+                  стажировки и junior-позиции от проверенных работодателей.
+                </p>
+                <Link className="btn-outline" href="/vacancies">
+                  Смотреть все вакансии
                 </Link>
-              </p>
+              </div>
             ) : (
               <div className="jobs-list">
                 {cards.map(({ row, preview }, i) => (

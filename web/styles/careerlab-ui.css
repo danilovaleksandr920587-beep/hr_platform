@@ -797,6 +797,32 @@ body.careerlab-site .active-filter-pill {
   color: var(--muted2);
 }
 
+/* На узких экранах карточка вакансии складывает верхний ряд в колонку:
+   зарплата уходит под заголовок. Иначе несжимаемая вилка (white-space:nowrap)
+   выдавливает имя компании и название в узкую колонку, где длинные слова
+   рвутся по буквам («Career/Lab/Demo», «разрабо-тчик»). Десктоп (широкие
+   карточки каталога) не затрагиваем. */
+@media (max-width: 560px) {
+  .job-card-top {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .job-salary-block {
+    text-align: left;
+  }
+
+  .job-card.partner .job-salary-block,
+  .job-card.featured .job-salary-block {
+    padding-top: 0;
+  }
+
+  .job-company,
+  .job-title {
+    overflow-wrap: break-word;
+  }
+}
+
 .job-tags {
   display: flex;
   gap: 6px;

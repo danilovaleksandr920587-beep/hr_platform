@@ -13,12 +13,16 @@ export function CompanyLogo({
   size = 40,
   radius = 10,
   className,
+  eager = false,
 }: {
   src?: string | null;
   name: string;
   size?: number;
   radius?: number;
   className?: string;
+  /** Логотип над сгибом (герой профиля) - грузим сразу, иначе на мобилке
+   *  ленивая загрузка даёт вспышку пустой белой плашки до отрисовки. */
+  eager?: boolean;
 }) {
   const [broken, setBroken] = useState(false);
   if (!src || broken) return null;
@@ -29,7 +33,8 @@ export function CompanyLogo({
       className={`co-logo${className ? ` ${className}` : ""}`}
       src={src}
       alt={name}
-      loading="lazy"
+      loading={eager ? "eager" : "lazy"}
+      decoding={eager ? "sync" : "async"}
       style={{ width: size, height: size, borderRadius: radius }}
       onError={() => setBroken(true)}
     />

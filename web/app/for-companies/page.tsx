@@ -1,21 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SUPPORT_EMAIL } from "@/lib/support";
+import { PlacementButton } from "@/components/PlacementRequestForm";
 
 export const metadata: Metadata = {
   title: "Работодателям - размещение вакансий для начинающих специалистов",
   description:
     "Разместите вакансию там, где её ищут начинающие специалисты: закрепление в топе каталога, пост в Telegram-канале и статья о работе у вас, которая остаётся в поиске. Пакеты от 5 000 ₽.",
 };
-
-const REQUEST_SUBJECT = encodeURIComponent("Размещение на CareerLab");
-function requestMailto(pkg: string) {
-  const body = encodeURIComponent(
-    `Здравствуйте! Интересует размещение на CareerLab.\n\nПакет: ${pkg}\nКомпания: \nВакансии (названия или ссылки): \nКонтакт: `,
-  );
-  return `mailto:${SUPPORT_EMAIL}?subject=${REQUEST_SUBJECT}&body=${body}`;
-}
 
 const STATS = [
   { num: "100%", label: "аудитории - студенты и начинающие специалисты в активном поиске" },
@@ -186,9 +178,9 @@ export default function ForCompaniesPage() {
               поэтому каждая позиция остаётся на виду, а не теряется в выдаче.
             </p>
             <div className="fc-hero-actions">
-              <a className="fc-btn-dark" href={requestMailto("Бутик")}>
+              <PlacementButton packageName="Бутик" className="fc-btn-dark">
                 Оставить заявку
-              </a>
+              </PlacementButton>
               <a className="fc-btn-ghost" href="#packages">
                 Смотреть пакеты
               </a>
@@ -225,12 +217,12 @@ export default function ForCompaniesPage() {
                       <li key={f}>{f}</li>
                     ))}
                   </ul>
-                  <a
+                  <PlacementButton
+                    packageName={p.name}
                     className={p.dark ? "fc-btn-lime pricing-cta" : "fc-btn-outline pricing-cta"}
-                    href={requestMailto(p.name)}
                   >
                     {p.cta}
-                  </a>
+                  </PlacementButton>
                 </div>
               ))}
             </div>
@@ -299,9 +291,9 @@ export default function ForCompaniesPage() {
               <p className="fc-final-cta-sub">
                 Напишите нам - ответим в тот же рабочий день и соберём пакет под задачу.
               </p>
-              <a className="fc-btn-lime" href={requestMailto("Бутик")}>
+              <PlacementButton packageName="Бутик" className="fc-btn-lime">
                 Оставить заявку
-              </a>
+              </PlacementButton>
             </div>
 
             <div className="panel" style={{ marginTop: 16, textAlign: "center" }}>
