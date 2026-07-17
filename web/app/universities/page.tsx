@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VuzMonogram } from "@/components/vuz/VuzMonogram";
+import { IconArrow } from "@/components/vuz/VuzIcons";
 import { listPublicUniversities } from "@/lib/university/public";
 import "@/styles/vuz-portal.css";
 
@@ -80,7 +81,9 @@ export default async function UniversitiesPage() {
                     ) : null}
                     <div className="vuz-card-foot">
                       <span className="vuz-card-tag">Карьерный центр</span>
-                      <span className="vuz-card-arrow">Открыть →</span>
+                      <span className="vuz-card-open">
+                        Открыть <IconArrow size={16} />
+                      </span>
                     </div>
                   </Link>
                 ))}

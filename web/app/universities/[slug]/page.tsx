@@ -4,6 +4,13 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VuzMonogram } from "@/components/vuz/VuzMonogram";
 import {
+  IconInternship,
+  IconResume,
+  IconKnowledge,
+  IconSalary,
+  IconArrow,
+} from "@/components/vuz/VuzIcons";
+import {
   getPublicUniversityBySlug,
   getPublicUniversityStats,
   listPublicUniversitySlugs,
@@ -15,24 +22,40 @@ export const revalidate = 600;
 /** Продающий блок «что получают студенты вуза» - ценность платформы. */
 const STUDENT_BENEFITS = [
   {
-    icon: "🎯",
+    Icon: IconInternship,
     title: "Стажировки и junior-вакансии",
     text: "Проверенные работодатели, которые берут студентов без опыта - в одном каталоге с фильтрами.",
   },
   {
-    icon: "🧠",
+    Icon: IconResume,
     title: "AI-разбор резюме",
     text: "Загрузи резюме - получи балл и конкретные правки, чтобы пройти отбор.",
   },
   {
-    icon: "📚",
+    Icon: IconKnowledge,
     title: "База знаний",
     text: "Гайды по резюме, собеседованиям и тестовым заданиям - от отклика до оффера.",
   },
   {
-    icon: "💰",
+    Icon: IconSalary,
     title: "Калькулятор зарплат",
     text: "Реальные вилки по направлению и городу, чтобы идти на переговоры с цифрами.",
+  },
+];
+
+/** Как студент попадает в систему - 3 шага. */
+const STUDENT_STEPS = [
+  {
+    title: "Выбери свой вуз",
+    text: "В личном кабинете отметь вуз - это займёт 10 секунд и подключит тебя к карьерному центру.",
+  },
+  {
+    title: "Получи подборку под себя",
+    text: "Платформа подберёт стажировки и junior-вакансии по направлению и уровню.",
+  },
+  {
+    title: "Откликайся и расти",
+    text: "Разбор резюме, гайды и трекинг откликов - до первого оффера.",
   },
 ];
 
@@ -108,29 +131,38 @@ export default async function UniversityPage({ params }: PageProps) {
             <VuzMonogram
               src={university.logo_url}
               name={displayName}
-              size={96}
-              radius={24}
+              size={100}
+              radius={26}
               eager
             />
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <nav className="co-breadcrumb" aria-label="Хлебные крошки" style={{ marginBottom: 10 }}>
+            <div className="vuz-hero-body">
+              <nav className="vuz-hero-crumb" aria-label="Хлебные крошки">
                 <Link href="/universities">Вузы-партнёры</Link>
                 <span aria-hidden="true">/</span>
                 <span>{displayName}</span>
               </nav>
-              <span className="vuz-hero-badge">✦ Вуз-партнёр CareerLab</span>
+              <span className="vuz-hero-badge">Вуз-партнёр CareerLab</span>
               <h1 className="vuz-hero-title">{university.name}</h1>
               {university.city ? (
                 <p className="vuz-hero-city">
                   {[university.city, university.region].filter(Boolean).join(", ")}
                 </p>
               ) : null}
+              <div className="vuz-hero-chips">
+                <span className="vuz-hero-chip">
+                  <IconInternship size={16} /> Стажировки и junior-вакансии
+                </span>
+                <span className="vuz-hero-chip">
+                  <IconResume size={16} /> AI-разбор резюме
+                </span>
+                <span className="vuz-hero-chip">Бесплатно для студентов</span>
+              </div>
             </div>
           </div>
         </div>
 
         <section className="section">
-          <div className="container" style={{ maxWidth: 900, display: "flex", flexDirection: "column", gap: 22 }}>
+          <div className="container" style={{ maxWidth: 940, display: "flex", flexDirection: "column", gap: 32 }}>
             <div className="panel co-about">
               <p className="co-about-label">Карьерный центр</p>
               <p className="co-about-text">{university.description}</p>
@@ -147,15 +179,30 @@ export default async function UniversityPage({ params }: PageProps) {
             ) : null}
 
             <div>
-              <h2 className="co-about-label" style={{ marginBottom: 14 }}>
-                Что получают студенты {displayName}
-              </h2>
+              <p className="vuz-section-eyebrow">Для студентов</p>
+              <h2 className="vuz-section-title">Что даёт CareerLab студентам {displayName}</h2>
               <div className="vuz-benefits">
-                {STUDENT_BENEFITS.map((b) => (
-                  <div key={b.title} className="vuz-benefit">
-                    <div className="vuz-benefit-icon" aria-hidden>{b.icon}</div>
-                    <p className="vuz-benefit-title">{b.title}</p>
-                    <p className="vuz-benefit-text">{b.text}</p>
+                {STUDENT_BENEFITS.map(({ Icon, title, text }) => (
+                  <div key={title} className="vuz-benefit">
+                    <div className="vuz-benefit-icon">
+                      <Icon size={24} />
+                    </div>
+                    <p className="vuz-benefit-title">{title}</p>
+                    <p className="vuz-benefit-text">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="vuz-section-eyebrow">Как это работает</p>
+              <h2 className="vuz-section-title">Три шага до первой работы</h2>
+              <div className="vuz-steps">
+                {STUDENT_STEPS.map((s, i) => (
+                  <div key={s.title} className="vuz-step">
+                    <div className="vuz-step-num">{i + 1}</div>
+                    <p className="vuz-step-title">{s.title}</p>
+                    <p className="vuz-step-text">{s.text}</p>
                   </div>
                 ))}
               </div>
@@ -192,14 +239,14 @@ export default async function UniversityPage({ params }: PageProps) {
             <div className="vuz-cta">
               <p className="vuz-cta-title">Учишься в {displayName}?</p>
               <p className="vuz-cta-text">
-                Выбери свой вуз в личном кабинете - и попадёшь в карьерную
-                аналитику центра, а сам получишь подборку стажировок под себя.
+                Выбери свой вуз в личном кабинете - попадёшь в карьерную аналитику
+                центра и получишь персональную подборку стажировок.
               </p>
               <div className="vuz-cta-actions">
-                <Link className="btn-dark" href="/office">
-                  Выбрать вуз в кабинете
+                <Link className="vuz-btn-primary" href="/office">
+                  Выбрать вуз в кабинете <IconArrow size={18} />
                 </Link>
-                <Link className="btn-outline" href="/vacancies">
+                <Link className="vuz-btn-ghost" href="/vacancies">
                   Смотреть вакансии
                 </Link>
               </div>
