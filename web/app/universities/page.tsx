@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
-import { CompanyLogo } from "@/components/CompanyLogo";
+import { VuzMonogram } from "@/components/vuz/VuzMonogram";
 import { listPublicUniversities } from "@/lib/university/public";
+import "@/styles/vuz-portal.css";
 
 export const revalidate = 600;
 
@@ -51,29 +52,35 @@ export default async function UniversitiesPage() {
                 .
               </p>
             ) : (
-              <div className="companies-catalog">
+              <div className="vuz-catalog">
                 {universities.map((u) => (
                   <Link
                     key={u.id}
                     href={`/universities/${u.slug}`}
-                    className="company-catalog-card"
+                    className="vuz-card"
                   >
-                    <CompanyLogo
-                      src={u.logo_url}
-                      name={u.short_name || u.name}
-                      size={52}
-                      radius={12}
-                    />
-                    <div style={{ minWidth: 0 }}>
-                      <p className="company-catalog-name">{u.short_name || u.name}</p>
-                      <p className="company-catalog-meta">
-                        {[u.city, u.region].filter(Boolean).join(", ") || "вуз-партнёр"}
-                      </p>
-                      {u.description ? (
-                        <p className="company-catalog-desc">
-                          {truncateAtWord(u.description, 110)}
-                        </p>
-                      ) : null}
+                    <div className="vuz-card-top">
+                      <VuzMonogram
+                        src={u.logo_url}
+                        name={u.short_name || u.name}
+                        size={56}
+                        radius={14}
+                      />
+                      <div style={{ minWidth: 0 }}>
+                        <p className="vuz-card-name">{u.short_name || u.name}</p>
+                        {u.city ? (
+                          <span className="vuz-card-city">
+                            {[u.city, u.region].filter(Boolean).join(", ")}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    {u.description ? (
+                      <p className="vuz-card-desc">{truncateAtWord(u.description, 150)}</p>
+                    ) : null}
+                    <div className="vuz-card-foot">
+                      <span className="vuz-card-tag">Карьерный центр</span>
+                      <span className="vuz-card-arrow">Открыть →</span>
                     </div>
                   </Link>
                 ))}
