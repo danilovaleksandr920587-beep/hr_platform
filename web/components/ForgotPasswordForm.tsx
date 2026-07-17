@@ -73,10 +73,14 @@ export function ForgotPasswordForm() {
           {error}
         </p>
       ) : null}
-      {message ? <p className="hero-text" style={{ marginTop: "0.75rem" }}>{message}</p> : null}
-      <p className="hero-text" style={{ marginTop: "0.5rem" }}>
-        Не пришло письмо? Проверьте папку «Спам» или повторите запрос через минуту.
-      </p>
+      {message ? (
+        <>
+          <p className="hero-text" style={{ marginTop: "0.75rem" }}>{message}</p>
+          <p className="hero-text" style={{ marginTop: "0.5rem" }}>
+            Не пришло письмо? Проверьте папку «Спам» или повторите запрос через минуту.
+          </p>
+        </>
+      ) : null}
     </div>
   );
 }

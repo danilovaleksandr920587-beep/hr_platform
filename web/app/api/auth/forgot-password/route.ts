@@ -8,8 +8,8 @@ import { getRealOrigin } from "@/lib/http/origin";
 type AccountRow = { id: string };
 type ResetRow = { created_at: string };
 
-const GENERIC_MESSAGE =
-  "Если аккаунт с таким email существует, мы отправили инструкцию по восстановлению пароля.";
+const SENT_MESSAGE = "Отправили ссылку для смены пароля на ваш email.";
+const RATE_LIMIT_MESSAGE = "Ссылку уже отправляли. Повторите запрос через минуту.";
 
 export async function POST(req: Request) {
   if (!isPasswordAuthConfigured()) {
@@ -48,7 +48,10 @@ export async function POST(req: Request) {
     const account = accounts[0];
 
     if (!account) {
-      return NextResponse.json({ ok: true, message: GENERIC_MESSAGE });
+      return NextResponse.json(
+        { error: "Аккаунта с таким email не найдено." },
+        { status: 404 },
+      );
     }
 
     const latest = (await sql`
@@ -62,7 +65,7 @@ export async function POST(req: Request) {
     if (last) {
       const delta = Date.now() - new Date(last.created_at).getTime();
       if (delta < 60 * 1000) {
-        return NextResponse.json({ ok: true, message: GENERIC_MESSAGE });
+        return NextResponse.json({ ok: true, message: RATE_LIMIT_MESSAGE });
       }
     }
 
@@ -81,7 +84,7 @@ export async function POST(req: Request) {
     const resetUrl = `${origin}/reset-password?token=${generated.token}`;
     await sendPasswordResetEmail({ to: email, resetUrl });
 
-    return NextResponse.json({ ok: true, message: GENERIC_MESSAGE });
+    return NextResponse.json({ ok: true, message: SENT_MESSAGE });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Ошибка сервера." }, { status: 500 });

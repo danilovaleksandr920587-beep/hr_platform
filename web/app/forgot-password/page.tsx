@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
       <div className="container" style={{ maxWidth: 520 }}>
         <h1 className="page-title">Забыли пароль?</h1>
         <p className="hero-text">
-          Укажите email аккаунта. Если он существует, мы отправим ссылку для смены пароля.
+          Укажите email аккаунта - отправим ссылку для смены пароля.
         </p>
         <ForgotPasswordForm />
       </div>
