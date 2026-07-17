@@ -90,7 +90,9 @@ export default async function UniversityPage({ params }: PageProps) {
   if (!university || !university.description) notFound();
 
   const displayName = university.short_name || university.name;
-  const cityLine = [university.city, university.region].filter(Boolean).join(", ");
+  const cityLine = [
+    ...new Set([university.city, university.region].filter(Boolean)),
+  ].join(", ");
 
   const [stats, session, allVac] = await Promise.all([
     getPublicUniversityStats(university.id).catch(() => null),

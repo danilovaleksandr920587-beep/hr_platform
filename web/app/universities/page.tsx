@@ -71,7 +71,7 @@ export default async function UniversitiesPage() {
                         <p className="vuz-card-name">{u.short_name || u.name}</p>
                         {u.city ? (
                           <span className="vuz-card-city">
-                            {[u.city, u.region].filter(Boolean).join(", ")}
+                            {[...new Set([u.city, u.region].filter(Boolean))].join(", ")}
                           </span>
                         ) : null}
                       </div>
