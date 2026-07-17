@@ -18,17 +18,20 @@ export function VuzMonogram({
   size = 56,
   radius = 14,
   eager = false,
+  className,
 }: {
   src?: string | null;
   name: string;
   size?: number;
   radius?: number;
   eager?: boolean;
+  className?: string;
 }) {
   if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        className={className}
         src={src}
         alt={name}
         loading={eager ? "eager" : "lazy"}
@@ -39,7 +42,7 @@ export function VuzMonogram({
   }
   return (
     <div
-      className="vuz-mono"
+      className={`vuz-mono${className ? ` ${className}` : ""}`}
       aria-hidden
       style={{ width: size, height: size, borderRadius: radius, fontSize: Math.round(size * 0.34) }}
     >

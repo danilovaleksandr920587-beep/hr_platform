@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
+import { VacancyCard } from "@/components/VacancyCard";
 import { VuzMonogram } from "@/components/vuz/VuzMonogram";
+import { KpiCard, BenchmarkBars } from "@/components/vuz/VuzCharts";
 import {
-  IconInternship,
   IconResume,
   IconKnowledge,
   IconSalary,
@@ -15,49 +16,16 @@ import {
   getPublicUniversityStats,
   listPublicUniversitySlugs,
 } from "@/lib/university/public";
+import { getSessionFromCookies } from "@/lib/auth/session";
+import { listVacancies } from "@/lib/data/vacancies";
+import { salaryBand, getDirection } from "@/lib/data/salary";
+import { vacancyDescriptionPreview } from "@/lib/vacancy-preview";
 import "@/styles/vuz-portal.css";
 
 export const revalidate = 600;
 
-/** Продающий блок «что получают студенты вуза» - ценность платформы. */
-const STUDENT_BENEFITS = [
-  {
-    Icon: IconInternship,
-    title: "Стажировки и junior-вакансии",
-    text: "Проверенные работодатели, которые берут студентов без опыта - в одном каталоге с фильтрами.",
-  },
-  {
-    Icon: IconResume,
-    title: "AI-разбор резюме",
-    text: "Загрузи резюме - получи балл и конкретные правки, чтобы пройти отбор.",
-  },
-  {
-    Icon: IconKnowledge,
-    title: "База знаний",
-    text: "Гайды по резюме, собеседованиям и тестовым заданиям - от отклика до оффера.",
-  },
-  {
-    Icon: IconSalary,
-    title: "Калькулятор зарплат",
-    text: "Реальные вилки по направлению и городу, чтобы идти на переговоры с цифрами.",
-  },
-];
-
-/** Как студент попадает в систему - 3 шага. */
-const STUDENT_STEPS = [
-  {
-    title: "Выбери свой вуз",
-    text: "В личном кабинете отметь вуз - это займёт 10 секунд и подключит тебя к карьерному центру.",
-  },
-  {
-    title: "Получи подборку под себя",
-    text: "Платформа подберёт стажировки и junior-вакансии по направлению и уровню.",
-  },
-  {
-    title: "Откликайся и расти",
-    text: "Разбор резюме, гайды и трекинг откликов - до первого оффера.",
-  },
-];
+/** Направления для зарплатного тизера (junior, Москва). */
+const SALARY_PICKS = ["backend", "analyst", "frontend"] as const;
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -111,103 +79,286 @@ function contactHref(key: string, value: string): string | null {
   return null;
 }
 
+function formatRub(thousands: number): string {
+  return `${(thousands * 1000).toLocaleString("ru-RU")} ₽`;
+}
+
 export default async function UniversityPage({ params }: PageProps) {
   const { slug } = await params;
   const university = await getPublicUniversityBySlug(slug).catch(() => null);
   // Вузы из сида без контента ЦКС не публикуются (пустая витрина позорит)
   if (!university || !university.description) notFound();
 
-  const stats = await getPublicUniversityStats(university.id).catch(() => null);
   const displayName = university.short_name || university.name;
+  const cityLine = [university.city, university.region].filter(Boolean).join(", ");
+
+  const [stats, session, allVac] = await Promise.all([
+    getPublicUniversityStats(university.id).catch(() => null),
+    getSessionFromCookies(),
+    listVacancies({ fields: "card" }).catch(() => []),
+  ]);
+
+  const vacCount = allVac.length;
+  const vacancyCards = allVac.slice(0, 3).map((row) => ({
+    row: {
+      ...row,
+      description: null,
+      description_blocks: null,
+      search_document: null,
+      company_about: null,
+    },
+    preview: vacancyDescriptionPreview(row.description, row.description_blocks),
+  }));
+
+  const salaryTiles = SALARY_PICKS.map((key) => {
+    const dir = getDirection(key);
+    const band = salaryBand(key, "junior", "moscow");
+    return { name: dir.name, band, trend: Math.round(dir.trend * 100) };
+  });
+
   const contactEntries = Object.entries(university.contacts ?? {}).filter(
     ([key, value]) => CONTACT_LABELS[key] && typeof value === "string" && value.trim(),
   );
 
+  const statCards: { num: string; label: string }[] = [
+    { num: `${vacCount}`, label: "стажировок и junior-вакансий открыто сейчас" },
+    { num: "70+", label: "карьерных гайдов приводят студентов из поиска" },
+    stats
+      ? { num: `${stats.student_count}`, label: `студентов ${displayName} уже на платформе` }
+      : { num: "0 ₽", label: "стоимость для студентов и вуза - бесплатно" },
+  ];
+
   return (
     <>
       <main>
-        <div className="vuz-hero">
-          <div className="vuz-hero-inner">
-            <VuzMonogram
-              src={university.logo_url}
-              name={displayName}
-              size={100}
-              radius={26}
-              eager
-            />
-            <div className="vuz-hero-body">
-              <nav className="vuz-hero-crumb" aria-label="Хлебные крошки">
-                <Link href="/universities">Вузы-партнёры</Link>
-                <span aria-hidden="true">/</span>
-                <span>{displayName}</span>
-              </nav>
-              <span className="vuz-hero-badge">Вуз-партнёр CareerLab</span>
-              <h1 className="vuz-hero-title">{university.name}</h1>
-              {university.city ? (
-                <p className="vuz-hero-city">
-                  {[university.city, university.region].filter(Boolean).join(", ")}
+        {/* 1. Hero - лаймовый, в стиле сайта */}
+        <div className="page-header fc-hero">
+          <div className="page-header-inner">
+            <div className="vuz-hero-row">
+              <div style={{ minWidth: 0 }}>
+                <p className="ph-eyebrow">Вуз-партнёр CareerLab</p>
+                <h1 className="ph-title">{university.name}</h1>
+                <p className="fc-hero-sub">
+                  {cityLine ? `${cityLine}. ` : ""}Карьерный центр на CareerLab:
+                  стажировки, AI-разбор резюме и база знаний для студентов
+                  и выпускников {displayName}.
                 </p>
-              ) : null}
-              <div className="vuz-hero-chips">
-                <span className="vuz-hero-chip">
-                  <IconInternship size={16} /> Стажировки и junior-вакансии
-                </span>
-                <span className="vuz-hero-chip">
-                  <IconResume size={16} /> AI-разбор резюме
-                </span>
-                <span className="vuz-hero-chip">Бесплатно для студентов</span>
+                <div className="fc-hero-actions">
+                  <Link className="fc-btn-dark" href="/office">
+                    Выбрать свой вуз
+                  </Link>
+                  <Link className="fc-btn-ghost" href="/vacancies">
+                    Смотреть стажировки
+                  </Link>
+                </div>
               </div>
+              <VuzMonogram
+                src={university.logo_url}
+                name={displayName}
+                size={132}
+                radius={30}
+                eager
+                className="vuz-hero-mono"
+              />
             </div>
           </div>
         </div>
 
+        {/* 2. Полоса цифр */}
+        <div className="fc-stats" aria-label="CareerLab в цифрах">
+          {statCards.map((s) => (
+            <div key={s.label} className="fc-stat">
+              <div className="fc-stat-num">{s.num}</div>
+              <div className="fc-stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
         <section className="section">
-          <div className="container" style={{ maxWidth: 940, display: "flex", flexDirection: "column", gap: 32 }}>
+          <div className="container" style={{ maxWidth: 1040, display: "flex", flexDirection: "column", gap: 40 }}>
+            {/* О карьерном центре */}
             <div className="panel co-about">
               <p className="co-about-label">Карьерный центр</p>
               <p className="co-about-text">{university.description}</p>
             </div>
 
-            {stats ? (
-              <div className="vuz-statband">
-                <span className="vuz-statband-num">{stats.student_count}</span>
-                <span className="vuz-statband-text">
-                  студентов и выпускников {displayName} уже ищут стажировки и первую
-                  работу на CareerLab
-                </span>
+            {/* 3. Живые стажировки - главный крючок */}
+            {vacancyCards.length > 0 ? (
+              <div>
+                <p className="vuz-eyebrow">Прямо сейчас</p>
+                <h2 className="fc-sec-title" style={{ marginTop: 0 }}>
+                  Стажировки, на которые можно откликнуться
+                </h2>
+                <div className="jobs-list">
+                  {vacancyCards.map(({ row, preview }, i) => (
+                    <VacancyCard
+                      key={row.id}
+                      row={row}
+                      index={i}
+                      viewerScope={session?.id ?? null}
+                      descriptionPreview={preview}
+                    />
+                  ))}
+                </div>
+                <div style={{ marginTop: 16 }}>
+                  <Link className="fc-btn-outline" href="/vacancies">
+                    Смотреть все вакансии
+                  </Link>
+                </div>
               </div>
             ) : null}
 
+            {/* 4. Зарплатный тизер */}
             <div>
-              <p className="vuz-section-eyebrow">Для студентов</p>
-              <h2 className="vuz-section-title">Что даёт CareerLab студентам {displayName}</h2>
-              <div className="vuz-benefits">
-                {STUDENT_BENEFITS.map(({ Icon, title, text }) => (
-                  <div key={title} className="vuz-benefit">
-                    <div className="vuz-benefit-icon">
-                      <Icon size={24} />
+              <p className="vuz-eyebrow">Сколько платят новичкам</p>
+              <h2 className="fc-sec-title" style={{ marginTop: 0 }}>
+                Зарплаты junior в 2026
+              </h2>
+              <div className="vuz-salary-grid">
+                {salaryTiles.map((t) => (
+                  <div key={t.name} className="vuz-salary-card">
+                    <p className="vuz-salary-name">{t.name}</p>
+                    <p className="vuz-salary-band">
+                      {formatRub(t.band.low)} – {formatRub(t.band.high)}
+                    </p>
+                    <div className="vuz-salary-meta">
+                      <span>junior · Москва</span>
+                      <span className="vuz-salary-trend">
+                        <IconSalary size={13} /> +{t.trend}%/год
+                      </span>
                     </div>
-                    <p className="vuz-benefit-title">{title}</p>
-                    <p className="vuz-benefit-text">{text}</p>
                   </div>
                 ))}
               </div>
+              <div style={{ marginTop: 16 }}>
+                <Link className="fc-btn-outline" href="/tools/salary-calculator">
+                  Посчитать свою зарплату
+                </Link>
+              </div>
             </div>
 
+            {/* 5. Сервисы - bento */}
             <div>
-              <p className="vuz-section-eyebrow">Как это работает</p>
-              <h2 className="vuz-section-title">Три шага до первой работы</h2>
-              <div className="vuz-steps">
-                {STUDENT_STEPS.map((s, i) => (
-                  <div key={s.title} className="vuz-step">
-                    <div className="vuz-step-num">{i + 1}</div>
-                    <p className="vuz-step-title">{s.title}</p>
-                    <p className="vuz-step-text">{s.text}</p>
+              <p className="vuz-eyebrow">Что даёт CareerLab</p>
+              <h2 className="fc-sec-title" style={{ marginTop: 0 }}>
+                Сервисы для студентов {displayName}
+              </h2>
+              <div className="vuz-bento">
+                <div className="vuz-cell vuz-cell--dark">
+                  <div className="vuz-icon-tile">
+                    <IconResume size={24} />
                   </div>
-                ))}
+                  <p className="vuz-cell-title" style={{ color: "#fff" }}>
+                    AI-разбор резюме
+                  </p>
+                  <p className="vuz-cell-text">
+                    Загрузи резюме - за минуту получи балл и конкретные правки под
+                    вакансию, чтобы пройти отбор.
+                  </p>
+                  <div className="vuz-resume" aria-hidden>
+                    <div className="vuz-resume-score">
+                      <span className="vuz-resume-num">
+                        78<span>/100</span>
+                      </span>
+                    </div>
+                    <ul className="vuz-resume-list">
+                      <li>
+                        <span className="vuz-resume-dot" style={{ background: "#b5db2a" }} />
+                        Добавь метрики к проектам
+                      </li>
+                      <li>
+                        <span className="vuz-resume-dot" style={{ background: "#f3b21c" }} />
+                        Укажи стек в шапке
+                      </li>
+                      <li>
+                        <span className="vuz-resume-dot" style={{ background: "#e0562f" }} />
+                        Слишком длинное - сократи до 1 страницы
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="vuz-bento-col">
+                  <div className="vuz-cell">
+                    <div className="vuz-icon-tile">
+                      <IconKnowledge size={24} />
+                    </div>
+                    <p className="vuz-cell-title">База знаний</p>
+                    <p className="vuz-cell-text">
+                      70+ гайдов: резюме, собеседования, тестовые - от отклика
+                      до оффера.
+                    </p>
+                  </div>
+                  <div className="vuz-cell">
+                    <div className="vuz-icon-tile">
+                      <IconSalary size={24} />
+                    </div>
+                    <p className="vuz-cell-title">Калькулятор зарплат</p>
+                    <p className="vuz-cell-text">
+                      Реальные вилки по направлению и городу - чтобы идти
+                      на переговоры с цифрами.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
+            {/* 6. Для карьерного центра - вторая аудитория */}
+            <div className="vuz-cc">
+              <div className="vuz-cc-grid">
+                <div>
+                  <p className="vuz-cc-eyebrow">Карьерному центру {displayName}</p>
+                  <h2 className="vuz-cc-title">
+                    Кабинет с живой аналитикой по вашим студентам
+                  </h2>
+                  <ul className="vuz-cc-list">
+                    <li>
+                      <IconArrow size={18} /> Сколько студентов ищут работу, что
+                      смотрят, как откликаются
+                    </li>
+                    <li>
+                      <IconArrow size={18} /> Воронка до приглашения и сравнение
+                      со средним по платформе
+                    </li>
+                    <li>
+                      <IconArrow size={18} /> Всё обезличенно - без слежки за
+                      конкретными студентами
+                    </li>
+                  </ul>
+                  <Link className="fc-btn-lime" href="/vuz-demo">
+                    Открыть демо кабинета
+                  </Link>
+                </div>
+                <div className="vuz-cc-card">
+                  <div className="vuz-cc-kpis">
+                    <KpiCard
+                      label="Студентов"
+                      value={342}
+                      sub="+48 за 30 дней"
+                      spark={[3, 5, 4, 8, 11, 9, 14, 18]}
+                    />
+                    <KpiCard
+                      label="Откликов, 30 дней"
+                      value={176}
+                      spark={[12, 18, 15, 27, 31, 29, 44, 52]}
+                      accent={false}
+                    />
+                  </div>
+                  <BenchmarkBars
+                    items={[
+                      {
+                        label: "Откликов на студента за 30 дней",
+                        vuzValue: 0.5,
+                        platformValue: 0.4,
+                        deltaPct: 28,
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Контакты ЦКС */}
             {contactEntries.length > 0 ? (
               <div className="panel">
                 <p className="co-about-label">Контакты карьерного центра</p>
@@ -235,22 +386,6 @@ export default async function UniversityPage({ params }: PageProps) {
                 </ul>
               </div>
             ) : null}
-
-            <div className="vuz-cta">
-              <p className="vuz-cta-title">Учишься в {displayName}?</p>
-              <p className="vuz-cta-text">
-                Выбери свой вуз в личном кабинете - попадёшь в карьерную аналитику
-                центра и получишь персональную подборку стажировок.
-              </p>
-              <div className="vuz-cta-actions">
-                <Link className="vuz-btn-primary" href="/office">
-                  Выбрать вуз в кабинете <IconArrow size={18} />
-                </Link>
-                <Link className="vuz-btn-ghost" href="/vacancies">
-                  Смотреть вакансии
-                </Link>
-              </div>
-            </div>
           </div>
         </section>
       </main>

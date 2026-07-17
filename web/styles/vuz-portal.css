@@ -1,7 +1,7 @@
 /* ============================================================
    Витрина вузов: каталог /universities и лендинг /universities/[slug].
-   Отдельные классы (не трогают каталог компаний). Тёмный премиум-hero +
-   лаймовые акценты, SVG-иконки. Переменные (--lime, --dark и т.п.) глобальны.
+   Опирается на глобальный дизайн-язык сайта (page-header, fc-*, panel,
+   jobs-list); здесь - только вуз-специфика. Каталог компаний не затронут.
    ============================================================ */
 
 /* ── Монограмма вуза (лого-фолбэк) ───────────────────────── */
@@ -18,6 +18,28 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
+/* ── Hero лендинга (лаймовый, в стиле page-header) ───────── */
+.vuz-hero-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.vuz-hero-mono {
+  box-shadow: 0 16px 44px rgba(20, 22, 14, 0.18);
+}
+
+/* ── Секции ──────────────────────────────────────────────── */
+.vuz-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6f9500;
+  margin: 0 0 8px;
+}
+
 /* ── Каталог ─────────────────────────────────────────────── */
 .vuz-catalog {
   display: grid;
@@ -25,7 +47,6 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   margin: 28px 0 8px;
 }
-
 .vuz-card {
   position: relative;
   display: flex;
@@ -126,159 +147,77 @@
   transform: translateX(4px);
 }
 
-/* ── Лендинг: тёмный премиум-hero ────────────────────────── */
-.vuz-hero {
-  position: relative;
-  overflow: hidden;
-  background: #14160e;
-  color: #fff;
-  padding: 56px clamp(1rem, 4vw, 60px) 52px;
+/* ── Зарплатный тизер ────────────────────────────────────── */
+.vuz-salary-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
-.vuz-hero::before {
-  content: "";
-  position: absolute;
-  width: 560px;
-  height: 560px;
-  border-radius: 50%;
-  right: -160px;
-  top: -240px;
-  background: radial-gradient(circle, rgba(201, 241, 53, 0.3), transparent 68%);
-  pointer-events: none;
+.vuz-salary-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--white);
+  padding: 20px 22px;
 }
-.vuz-hero::after {
-  content: "";
-  position: absolute;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  left: -140px;
-  bottom: -180px;
-  background: radial-gradient(circle, rgba(201, 241, 53, 0.12), transparent 70%);
-  pointer-events: none;
-}
-.vuz-hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1040px;
-  margin: 0 auto;
-  display: flex;
-  gap: 28px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.vuz-hero .vuz-mono {
-  box-shadow: 0 12px 40px rgba(201, 241, 53, 0.35);
-}
-.vuz-hero-body {
-  min-width: 0;
-  flex: 1;
-}
-.vuz-hero-crumb {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 14px;
-}
-.vuz-hero-crumb a {
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-}
-.vuz-hero-crumb a:hover {
-  color: var(--lime);
-}
-.vuz-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid rgba(201, 241, 53, 0.5);
-  color: var(--lime);
-  border-radius: 20px;
-  padding: 5px 13px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  margin-bottom: 14px;
-}
-.vuz-hero-title {
-  margin: 0;
-  font-family: "Unbounded", sans-serif;
-  font-size: clamp(26px, 4vw, 42px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.06;
-  color: #fff;
-}
-.vuz-hero-city {
-  margin: 12px 0 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.55);
-}
-.vuz-hero-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-.vuz-hero-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  padding: 7px 14px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-}
-.vuz-hero-chip svg {
-  color: var(--lime);
-}
-
-/* ── Секции лендинга ─────────────────────────────────────── */
-.vuz-section-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #7fa300;
+.vuz-salary-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
   margin: 0 0 8px;
 }
-.vuz-section-title {
+.vuz-salary-band {
   font-family: "Unbounded", sans-serif;
-  font-size: clamp(20px, 3vw, 26px);
+  font-size: clamp(20px, 3vw, 24px);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--dark);
-  margin: 0 0 18px;
-  line-height: 1.15;
+  margin: 0;
+}
+.vuz-salary-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.vuz-salary-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #4e6b00;
+  background: var(--lime-pale);
+  border-radius: 20px;
+  padding: 2px 8px;
 }
 
-/* ── Что получают студенты ───────────────────────────────── */
-.vuz-benefits {
+/* ── Bento сервисов ──────────────────────────────────────── */
+.vuz-bento {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: 1.4fr 1fr;
 }
-.vuz-benefit {
+.vuz-bento-col {
+  display: grid;
+  gap: 14px;
+  align-content: stretch;
+}
+.vuz-cell {
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--white);
   padding: 22px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-.vuz-benefit:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 36px rgba(20, 22, 14, 0.1);
-  border-color: var(--lime-dim);
+.vuz-cell--dark {
+  background: #14160e;
+  border-color: #14160e;
+  color: #fff;
 }
-.vuz-benefit-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+.vuz-icon-tile {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
   background: linear-gradient(145deg, #e4fa9a, #c9f135);
   color: #14160e;
   display: flex;
@@ -286,175 +225,156 @@
   justify-content: center;
   margin-bottom: 14px;
 }
-.vuz-benefit-title {
+.vuz-cell-title {
   margin: 0 0 6px;
   font-family: "Unbounded", sans-serif;
   font-size: 15px;
   font-weight: 700;
-  color: var(--dark);
-  line-height: 1.25;
+  color: inherit;
 }
-.vuz-benefit-text {
+.vuz-cell-text {
   margin: 0;
   font-size: 13.5px;
   line-height: 1.55;
   color: var(--muted);
 }
-
-/* ── Как это работает (шаги) ─────────────────────────────── */
-.vuz-steps {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  counter-reset: vuzstep;
-}
-.vuz-step {
-  position: relative;
-  padding: 22px;
-  border-radius: 18px;
-  background: var(--bg, #f6f7f1);
-  border: 1px solid var(--border);
-}
-.vuz-step-num {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--dark);
-  color: var(--lime);
-  font-family: "Unbounded", sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-.vuz-step-title {
-  margin: 0 0 5px;
-  font-weight: 700;
-  font-size: 14.5px;
-  color: var(--dark);
-}
-.vuz-step-text {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--muted);
+.vuz-cell--dark .vuz-cell-text {
+  color: rgba(255, 255, 255, 0.65);
 }
 
-/* ── Стат-полоса ─────────────────────────────────────────── */
-.vuz-statband {
-  position: relative;
-  overflow: hidden;
+/* Мок AI-разбора резюме внутри большой ячейки */
+.vuz-resume {
   display: flex;
   align-items: center;
-  gap: 22px;
-  flex-wrap: wrap;
-  background: #14160e;
-  border-radius: 22px;
-  padding: 28px 30px;
-  color: #fff;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.vuz-statband::after {
-  content: "";
-  position: absolute;
-  width: 260px;
-  height: 260px;
+.vuz-resume-score {
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  right: -100px;
-  top: -120px;
-  background: radial-gradient(circle, rgba(201, 241, 53, 0.22), transparent 70%);
+  border: 3px solid rgba(201, 241, 53, 0.25);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
-.vuz-statband-num {
-  position: relative;
+.vuz-resume-num {
   font-family: "Unbounded", sans-serif;
-  font-size: clamp(32px, 5vw, 46px);
+  font-size: 22px;
   font-weight: 900;
   color: var(--lime);
   line-height: 1;
 }
-.vuz-statband-text {
-  position: relative;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.72);
-  max-width: 380px;
-  line-height: 1.5;
+.vuz-resume-num span {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+.vuz-resume-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.vuz-resume-list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.vuz-resume-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-/* ── CTA ─────────────────────────────────────────────────── */
-.vuz-cta {
+/* ── Блок «для карьерного центра» (тёмная карточка) ──────── */
+.vuz-cc {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #d3f36b, #c9f135);
-  border-radius: 22px;
-  padding: 34px 30px;
-  text-align: center;
+  background: #14160e;
+  border-radius: 24px;
+  padding: 36px clamp(20px, 4vw, 44px);
+  color: #fff;
 }
-.vuz-cta::before {
+.vuz-cc::before {
   content: "";
   position: absolute;
-  width: 300px;
-  height: 300px;
+  width: 460px;
+  height: 460px;
   border-radius: 50%;
-  left: -120px;
-  bottom: -160px;
-  background: rgba(255, 255, 255, 0.28);
+  right: -160px;
+  top: -200px;
+  background: radial-gradient(circle, rgba(201, 241, 53, 0.22), transparent 68%);
+  pointer-events: none;
 }
-.vuz-cta-title {
+.vuz-cc-grid {
   position: relative;
-  margin: 0 0 8px;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.vuz-cc-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--lime);
+  margin: 0 0 10px;
+}
+.vuz-cc-title {
   font-family: "Unbounded", sans-serif;
-  font-size: clamp(19px, 3vw, 24px);
+  font-size: clamp(20px, 3vw, 27px);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #14160e;
+  line-height: 1.14;
+  margin: 0 0 16px;
 }
-.vuz-cta-text {
-  position: relative;
-  margin: 0 auto 20px;
-  font-size: 14px;
-  color: rgba(20, 22, 14, 0.72);
-  max-width: 460px;
-  line-height: 1.55;
-}
-.vuz-cta-actions {
-  position: relative;
-  display: flex;
+.vuz-cc-list {
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+  display: grid;
   gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
 }
-.vuz-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #14160e;
-  color: #fff;
-  border-radius: 12px;
-  padding: 13px 24px;
+.vuz-cc-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform 0.15s ease, background 0.15s ease;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
 }
-.vuz-btn-primary:hover {
-  background: #000;
-  transform: translateY(-2px);
+.vuz-cc-list li svg {
+  color: var(--lime);
+  flex-shrink: 0;
+  margin-top: 2px;
 }
-.vuz-btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(20, 22, 14, 0.06);
-  color: #14160e;
-  border: 1px solid rgba(20, 22, 14, 0.2);
-  border-radius: 12px;
-  padding: 13px 24px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.15s ease;
+.vuz-cc-card {
+  background: #f6f7f1;
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
 }
-.vuz-btn-ghost:hover {
-  background: rgba(20, 22, 14, 0.12);
+.vuz-cc-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Адаптив ─────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .vuz-bento,
+  .vuz-cc-grid {
+    grid-template-columns: 1fr;
+  }
 }
