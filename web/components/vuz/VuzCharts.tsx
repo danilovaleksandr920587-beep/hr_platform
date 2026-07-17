@@ -1,7 +1,10 @@
+import { CountUp } from "./CountUp";
+
 /**
- * Инфографика кабинета вуза. Чистые SVG server-компоненты (без клиентского JS):
- * рендерятся на сервере, легковесны, одинаково выглядят в живом /vuz и в
- * демо /vuz-demo. Палитра - лаймовая дизайн-система CareerLab.
+ * Инфографика кабинета вуза. В основном чистый SVG (рендер на сервере,
+ * легковесно, одинаково в живом /vuz и демо /vuz-demo). Единственный
+ * клиентский островок - CountUp в KPI (анимация числа). Палитра - лаймовая
+ * дизайн-система CareerLab.
  */
 
 const C = {
@@ -64,7 +67,7 @@ export function KpiCard({
         {label}
       </span>
       <span style={{ fontFamily: '"Unbounded", sans-serif', fontSize: 32, fontWeight: 800, color: C.dark, lineHeight: 1 }}>
-        {typeof value === "number" ? fmt(value) : value}
+        {typeof value === "number" ? <CountUp value={value} /> : value}
       </span>
       {sub ? <span style={{ fontSize: 12, color: C.muted }}>{sub}</span> : null}
       {spark && spark.length > 1 ? (
@@ -263,6 +266,66 @@ export function TrendChart({
           </span>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── Бенчмарк: вуз против среднего по платформе ───────────────────────────────
+// Обезличенное сравнение - главная продающая метрика (дизайн-док §4.1).
+
+export type BenchmarkItem = {
+  label: string;
+  vuzValue: number;
+  platformValue: number;
+  deltaPct: number;
+  suffix?: string;
+};
+
+export function BenchmarkBars({ items }: { items: BenchmarkItem[] }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      {items.map((it) => {
+        const max = Math.max(it.vuzValue, it.platformValue, 0.001);
+        const vuzW = Math.max((it.vuzValue / max) * 100, 4);
+        const platW = Math.max((it.platformValue / max) * 100, 4);
+        const up = it.deltaPct > 0;
+        const flat = it.deltaPct === 0;
+        const pill = flat
+          ? { bg: "#eef0e9", fg: "#5c604e", text: "на уровне среднего" }
+          : up
+            ? { bg: "#e4fa9a", fg: "#3d6b45", text: `+${it.deltaPct}% к среднему` }
+            : { bg: "#fdecea", fg: "#9a3b31", text: `${it.deltaPct}% к среднему` };
+        const fmtVal = (v: number) =>
+          `${Number.isInteger(v) ? v : v.toFixed(1)}${it.suffix ?? ""}`;
+        return (
+          <div key={it.label}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 10, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, color: "#2c3020", fontWeight: 600 }}>{it.label}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: pill.bg, color: pill.fg, whiteSpace: "nowrap" }}>
+                {pill.text}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <span style={{ fontSize: 11, color: "#7c806e", width: 92, flexShrink: 0 }}>Ваш вуз</span>
+              <div style={{ flex: 1, height: 16, borderRadius: 8, background: "#f4f5ef", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${vuzW}%`, borderRadius: 8, background: "linear-gradient(90deg,#a8d63a,#c9f135)" }} />
+              </div>
+              <span style={{ fontFamily: '"Unbounded", sans-serif', fontSize: 13, fontWeight: 700, color: "#1e2114", width: 52, textAlign: "right" }}>
+                {fmtVal(it.vuzValue)}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 11, color: "#7c806e", width: 92, flexShrink: 0 }}>Среднее</span>
+              <div style={{ flex: 1, height: 16, borderRadius: 8, background: "#f4f5ef", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${platW}%`, borderRadius: 8, background: "#cfd3c4" }} />
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#7c806e", width: 52, textAlign: "right" }}>
+                {fmtVal(it.platformValue)}
+              </span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

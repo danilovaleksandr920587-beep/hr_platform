@@ -29,6 +29,10 @@ const DEMO: UniversityDashboard = {
     { study_year: 6, count: 24 },
   ],
   inactive30d: 71,
+  benchmark: [
+    { label: "Откликов на студента за 30 дней", vuzValue: 0.5, platformValue: 0.4, deltaPct: 28 },
+    { label: "Доля студентов с AI-разбором резюме", vuzValue: 68, platformValue: 54, deltaPct: 26, suffix: "%" },
+  ],
   trend: [
     { label: "26.05", students: 3, applications: 12 },
     { label: "02.06", students: 5, applications: 18 },

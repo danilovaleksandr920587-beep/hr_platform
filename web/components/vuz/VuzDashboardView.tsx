@@ -1,4 +1,4 @@
-import { KpiCard, FunnelChart, DonutChart, TrendChart } from "./VuzCharts";
+import { KpiCard, FunnelChart, DonutChart, TrendChart, BenchmarkBars } from "./VuzCharts";
 import type { UniversityDashboard } from "@/lib/university/stats";
 
 /**
@@ -50,6 +50,16 @@ export function VuzDashboardView({ d }: { d: UniversityDashboard }) {
           accent={false}
         />
       </div>
+
+      {d.benchmark && d.benchmark.length > 0 ? (
+        <div
+          className="panel"
+          style={{ background: "linear-gradient(160deg,#fbffe9,#ffffff 60%)" }}
+        >
+          <p className="co-about-label">Ваши студенты против среднего по платформе</p>
+          <BenchmarkBars items={d.benchmark} />
+        </div>
+      ) : null}
 
       {d.trend.length > 1 ? (
         <div className="panel">

@@ -32,7 +32,20 @@ export type UniversityDashboard = {
   inactive30d: number;
   /** Тренд по неделям (8 точек): новые студенты и отклики. */
   trend: { label: string; students: number; applications: number }[];
+  /** Сравнение со средним по платформе (обезличенно). null - базы мало. */
+  benchmark:
+    | {
+        label: string;
+        vuzValue: number;
+        platformValue: number;
+        deltaPct: number;
+        suffix?: string;
+      }[]
+    | null;
 };
+
+/** Минимум студентов на платформе, чтобы среднее было осмысленным. */
+const BENCHMARK_MIN_PLATFORM = 20;
 
 export async function getUniversityDashboard(
   universityId: string,
@@ -124,6 +137,47 @@ export async function getUniversityDashboard(
 
   const belowThreshold = core.student_count < UNIVERSITY_STATS_MIN_GROUP;
 
+  // Бенчмарк: сравнение вуза со средним по всем задекларировавшим вуз
+  // студентам платформы. Обезличенно, показываем только выше порогов.
+  const [plat] = (await sql`
+    select
+      (select count(*)::int from student_profiles
+        where university_id is not null) as students,
+      (select count(*)::int from applications a
+        join student_profiles sp on sp.account_id = a.account_id
+        where sp.university_id is not null
+          and a.created_at > now() - interval '30 days') as apps_30d,
+      (select count(distinct ra.account_id)::int from user_resume_analyses ra
+        join student_profiles sp on sp.account_id = ra.account_id
+        where sp.university_id is not null) as with_resume
+  `) as { students: number; apps_30d: number; with_resume: number }[];
+
+  const round1 = (n: number) => Math.round(n * 10) / 10;
+  const deltaPct = (a: number, b: number) => (b > 0 ? Math.round((a / b - 1) * 100) : 0);
+
+  let benchmark: UniversityDashboard["benchmark"] = null;
+  if (!belowThreshold && plat.students >= BENCHMARK_MIN_PLATFORM) {
+    const vuzAppsRate = core.applications_30d / core.student_count;
+    const platAppsRate = plat.apps_30d / plat.students;
+    const vuzResumeRate = core.with_analysis / core.student_count;
+    const platResumeRate = plat.with_resume / plat.students;
+    benchmark = [
+      {
+        label: "Откликов на студента за 30 дней",
+        vuzValue: round1(vuzAppsRate),
+        platformValue: round1(platAppsRate),
+        deltaPct: deltaPct(vuzAppsRate, platAppsRate),
+      },
+      {
+        label: "Доля студентов с AI-разбором резюме",
+        vuzValue: Math.round(vuzResumeRate * 100),
+        platformValue: Math.round(platResumeRate * 100),
+        deltaPct: deltaPct(vuzResumeRate, platResumeRate),
+        suffix: "%",
+      },
+    ];
+  }
+
   return {
     studentCount: core.student_count,
     studentsNew30d: core.students_new_30d,
@@ -146,5 +200,6 @@ export async function getUniversityDashboard(
     byStudyYear: belowThreshold ? [] : byYear,
     inactive30d: belowThreshold ? 0 : core.inactive_30d,
     trend: belowThreshold ? [] : trend,
+    benchmark,
   };
 }
