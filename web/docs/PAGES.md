@@ -26,6 +26,8 @@
 | `/for-companies` | `app/for-companies/page.tsx` | Лендинг "Для компаний": лаймовый hero + статы аудитории, пакеты (Размещение 5к / Бутик от 15к тёмная карточка / Сезон от 30к), живой мок партнёрской карточки, шаги, FAQ, CTA "Оставить заявку" (mailto). Ссылка в шапке и футере |
 | `/companies` | `app/companies/page.tsx` | Каталог "Работодатели": verified-компании с логотипами и числом активных вакансий. Ссылка в шапке ("Работодатели"). Демо-компания скрыта |
 | `/companies/[slug]` | `app/companies/[slug]/page.tsx` | Публичный профиль verified-компании: логотип, бейдж, описание, её вакансии. SSG по slug, в sitemap |
+| `/universities` | `app/universities/page.tsx` | Каталог вузов-партнёров: только active с заполненной витриной (description) |
+| `/universities/[slug]` | `app/universities/[slug]/page.tsx` | Публичная витрина вуза: лого, блок ЦКС, контакты, опц. число студентов (public_stats и >= порога K). SSG по slug, в sitemap. Вузы из сида без контента - 404 |
 
 Хабы-категории описаны в `lib/knowledge-clusters.ts` (6 кластеров с приоритетами).
 
@@ -44,8 +46,9 @@
 | `/vacancies/[slug]/apply` | `app/vacancies/[slug]/apply/page.tsx` | Форма отклика (только apply_mode=internal), сама редиректит на /login |
 
 Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
-редиректит `/office*`, `/company*`, `/company-invite`, `/admin*` на `/login?next=...`
-(next сохраняет query string). Роль/членство проверяются на страницах и в API.
+редиректит `/office*`, `/company*`, `/company-invite`, `/vuz*`, `/vuz-invite`,
+`/admin*` на `/login?next=...` (next сохраняет query string). Роль/членство
+проверяются на страницах и в API.
 
 Колокольчик уведомлений - в шапке (`components/company/NotificationBell.tsx`),
 показывается только залогиненным (сам определяет по 401), поллинг 60с.
@@ -64,9 +67,23 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 | `/company/settings` | `app/company/settings/page.tsx` | Профиль компании (только owner) |
 | `/company-invite` | `app/company-invite/page.tsx` | Принятие приглашения по токену (?token=) |
 | `/admin/moderation` | `app/admin/moderation/page.tsx` | Очередь модерации (только PLATFORM_ADMIN_EMAILS) |
+| `/admin/universities` | `app/admin/universities/page.tsx` | Онбординг вузов: создать вуз, скрыть/активировать, инвайт owner ЦКС (только PLATFORM_ADMIN_EMAILS) |
 
 Активная компания: первая из членств аккаунта (`lib/company/active-company.ts`),
 переключатель нескольких компаний - фаза 2. Дизайн: `docs/company-portal-design.md`.
+
+## Кабинет вуза (все noindex, закрыты guard-ом)
+
+| URL | Файл | Что это |
+|-----|------|---------|
+| `/vuz` | `app/vuz/page.tsx` | Дашборд ЦКС: агрегаты по студентам вуза (счётчики, воронка, по курсам, неактивные). Без членства - подсказка «доступ по приглашению». Ниже порога K=5 студентов - плашка cold-start вместо цифр |
+| `/vuz/team` | `app/vuz/team/page.tsx` | Команда ЦКС: участники (owner/staff), инвайты (приглашает owner) |
+| `/vuz/settings` | `app/vuz/settings/page.tsx` | Витрина: описание ЦКС, контакты, лого, тумблер public_stats. Публикация витрины = заполненное описание |
+| `/vuz-invite` | `app/vuz-invite/page.tsx` | Принятие приглашения ЦКС по токену (?token=) |
+
+Активный вуз: первый из членств (`lib/university/active-university.ts`),
+переключатель - фаза 3. Самозаписи вуза нет: онбординг только через
+`/admin/universities`. Дизайн: `docs/vuz-portal-design.md`.
 
 ## Служебные роуты (не страницы)
 

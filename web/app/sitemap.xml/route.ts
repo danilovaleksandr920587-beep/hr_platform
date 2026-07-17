@@ -1,4 +1,4 @@
-const SITEMAP_IDS = ["static", "vacancies", "articles", "companies"] as const;
+const SITEMAP_IDS = ["static", "vacancies", "articles", "companies", "universities"] as const;
 
 function getBaseUrl() {
   return (

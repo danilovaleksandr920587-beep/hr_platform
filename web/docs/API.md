@@ -9,7 +9,7 @@
 | `/api/auth/register` | POST | Регистрация email+пароль, пишет в `careerlab_accounts` (email_verified=false), шлёт письмо подтверждения. Rate-limit 5/час по IP |
 | `/api/auth/login` | POST | Вход, ставит session-cookie (30 дней). Rate-limit 10/15мин по IP (антибрутфорс) |
 | `/api/auth/logout` | POST | Сброс cookie |
-| `/api/auth/forgot-password` | POST | Генерирует токен в `careerlab_password_resets`, шлёт письмо по SMTP. Origin ссылки - через x-forwarded-* |
+| `/api/auth/forgot-password` | POST | Генерирует токен в `careerlab_password_resets`, шлёт письмо по SMTP. Origin ссылки - через x-forwarded-*. Несуществующий email - явный 404 (осознанный трейдофф UX > анти-энумерация), повтор < 60с - сообщение «уже отправляли» без нового письма |
 | `/api/auth/reset-password` | POST | Смена пароля по токену. После успеха шлёт письмо «пароль изменён» |
 | `/api/auth/verify-email` | GET | Подтверждение email по токену из письма (`careerlab_email_verifications`). new_email != null - смена адреса. Редиректит на `/office?verify=...`. Шлёт welcome при первом подтверждении |
 | `/api/auth/resend-verification` | POST | Повторная отправка письма подтверждения (Auth). Троттлинг 60с |
@@ -41,6 +41,7 @@
 | `/api/vacancies/by-slugs` | POST | Карточки вакансий по списку slug (для сохранёнок) |
 | `/api/articles/by-slugs` | POST | Карточки статей по списку slug |
 | `/api/vacancies/[slug]/track` | POST | Трекинг `{event:'view'\|'apply'}` для дашборда работодателя. Публичный, всегда 204. Инкремент в `vacancy_stats` (dedup просмотров - на клиенте через sessionStorage) |
+| `/api/placement-request` | POST | Заявка на платное размещение с лендинга `/for-companies` (письмо владельцу платформы) |
 
 ## B2B: компании и команда (Auth; роль проверяет `lib/company/guard.ts`)
 
@@ -105,3 +106,30 @@ company_about из профиля компании.
 company_moderation, vacancy_moderation. Колокольчик - в шапке (`NotificationBell`,
 поллинг 60с). Роли компании теперь owner/admin/recruiter (admin - команда и
 профиль, кроме действий с владельцами).
+
+## Вузы: справочник и учебный профиль студента
+
+| Endpoint | Методы | Что делает |
+|----------|--------|------------|
+| `/api/universities` | GET | Публичный поиск по справочнику вузов (`?q=`, ILIKE по названию/городу, active, до 50) - для селекта «Вуз» в кабинете |
+| `/api/office/student-profile` | GET, PUT | Auth. Учебный профиль (самодекларация): вуз, факультет, курс, год выпуска. В PUT ключ `universityId` отсутствует = не менять, `null` = очистить. Смена вуза сбрасывает `email_verified_domain` |
+
+## Вузы: кабинет ЦКС (Auth; роль проверяет `lib/university/guard.ts`)
+
+| Endpoint | Методы | Что делает |
+|----------|--------|------------|
+| `/api/universities/mine` | GET | Мои вузы + роли (owner/staff) |
+| `/api/university/[id]` | GET, PATCH | staff+. Карточка вуза; PATCH - витрина (description, contacts, logoUrl, publicStats). Название/город/статус меняет только админ платформы |
+| `/api/university/[id]/dashboard` | GET | staff+. Агрегаты дашборда (`lib/university/stats.ts`): только обезличенные счётчики, срезы < порога K=5 не раскрываются |
+| `/api/university/[id]/members` | GET | staff+. Участники + непринятые инвайты |
+| `/api/university/[id]/members/[acc]` | PATCH | owner. Роль/деактивация (себя менять нельзя - защита от вуза без owner) |
+| `/api/university/[id]/invites` | POST | owner. Приглашение коллеги по email (токен 7 дней, механика company_invites). Возвращает `inviteUrl` + `emailSent` |
+| `/api/university-invites/accept` | POST | Auth. Принять инвайт по токену (email должен совпасть) |
+
+## Вузы: админ (PLATFORM_ADMIN_EMAILS)
+
+| Endpoint | Методы | Что делает |
+|----------|--------|------------|
+| `/api/admin/universities` | GET, POST | Список вузов (со счётчиками студентов/членов) / создать вуз (самозаписи вузов нет) |
+| `/api/admin/universities/[id]` | PATCH | Название, город, регион, лого, статус active/hidden |
+| `/api/admin/universities/[id]/invites` | POST | Инвайт ЦКС (обычно owner) при онбординге пилота. Возвращает `inviteUrl` + `emailSent` |

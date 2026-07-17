@@ -81,6 +81,21 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 Файлы резюме: `RESUME_STORAGE_DIR` (по умолчанию `web/storage/resumes/`,
 в git не попадает), отдача только через `/api/applications/[id]/resume`.
 
+## Таблицы вузов (миграции `20260717000000_*` и `20260717000100_*`)
+
+Обе применять **ролью приложения** (DATABASE_URL, postgres) - как company_portal.
+`20260717000100_universities_seed.sql` - сид справочника (~100 вузов РФ) для
+селекта «Вуз» у студента; добор - через `/admin/universities`. Доступ к
+таблицам - только прямой Postgres (`lib/university/*`), RLS включён без политик.
+Дизайн: `docs/vuz-portal-design.md`.
+
+| Таблица | Ключевые поля | Назначение |
+|---------|---------------|------------|
+| `universities` | slug (unique), name, short_name, city, region, logo_url, description, contacts jsonb, status (active/hidden), public_stats, email_domains[], created_by | Справочник вузов + витрина. Самозаписи нет - создаёт админ платформы (или сид). Витрина `/universities/[slug]` публикуется при description <> '' |
+| `university_members` | university_id + account_id (PK), role (owner/staff), status (active/disabled) | Команда ЦКС |
+| `university_invites` | university_id + email (unique), role, token_hash (sha256), expires_at (7 дней), accepted_at | Приглашения в ЦКС (токены - общий `lib/company/invite-token.ts`) |
+| `student_profiles` | account_id (PK), university_id (FK, on delete set null), faculty, study_year (1-6), graduation_year, email_verified_domain | Учебный профиль студента: самодекларация вуза. Основа всех агрегатов дашборда ЦКС; вуз видит ТОЛЬКО агрегаты (порог K=5 в `lib/university/constants.ts`) |
+
 ## Env-переменные (значения - в `web/.env.local` на сервере, НЕ в git)
 
 | Переменная | Для чего |

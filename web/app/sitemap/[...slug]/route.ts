@@ -1,6 +1,7 @@
 import { listArticles } from "@/lib/data/articles";
 import { listVacancies } from "@/lib/data/vacancies";
 import { listPublicCompanySlugs } from "@/lib/company/public";
+import { listPublicUniversitySlugs } from "@/lib/university/public";
 
 const STATIC_PATHS = [
   "",
@@ -85,7 +86,7 @@ export async function GET(
   const id = sitemapIdFromSlug(slug);
   const base = getBaseUrl();
 
-  if (!id || !["static", "vacancies", "articles", "companies"].includes(id)) {
+  if (!id || !["static", "vacancies", "articles", "companies", "universities"].includes(id)) {
     return new Response("Not Found", { status: 404 });
   }
 
@@ -126,6 +127,15 @@ export async function GET(
                 priority: 0.7,
               }),
             )
+          : id === "universities"
+            ? (await listPublicUniversitySlugs().catch(() => [])).map((slug) =>
+                renderUrl({
+                  url: `${base}/universities/${slug}`,
+                  lastModified: new Date(),
+                  changeFrequency: "weekly",
+                  priority: 0.7,
+                }),
+              )
           : (await listArticles({})).map((row) =>
               renderUrl({
                 url: `${base}/knowledge-base/${row.slug}`,

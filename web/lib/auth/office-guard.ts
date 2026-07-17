@@ -10,6 +10,10 @@ function isAuthOfficePath(pathname: string): boolean {
   if (pathname === "/company") return true;
   if (pathname.startsWith("/company/")) return true;
   if (pathname === "/company-invite") return true;
+  // Кабинет вуза - тот же паттерн
+  if (pathname === "/vuz") return true;
+  if (pathname.startsWith("/vuz/")) return true;
+  if (pathname === "/vuz-invite") return true;
   if (pathname === "/admin" || pathname.startsWith("/admin/")) return true;
   return false;
 }

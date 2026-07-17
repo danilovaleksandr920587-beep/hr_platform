@@ -243,6 +243,65 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
   const [formFmt, setFormFmt] = useState(profileFormat);
   const [formCity, setFormCity] = useState(profileCity);
 
+  // ── Учёба (самодекларация вуза, vuz-portal-design.md §2 B) ──
+  // Вуз выбирается из справочника /api/universities; сохранённое значение
+  // показывается текстом, совпадение с подсказкой резолвится в universityId.
+  const [studentUniLabel, setStudentUniLabel] = useState("");
+  const [studentStudyYear, setStudentStudyYear] = useState("");
+  const [studentGradYear, setStudentGradYear] = useState("");
+  const [formUni, setFormUni] = useState("");
+  const [formStudyYear, setFormStudyYear] = useState("");
+  const [formGradYear, setFormGradYear] = useState("");
+  const [uniOptions, setUniOptions] = useState<{ id: string; label: string }[]>([]);
+
+  const uniLabel = useCallback(
+    (u: { name: string; short_name: string | null; city: string | null }) =>
+      [u.short_name || u.name, u.city].filter(Boolean).join(", "),
+    [],
+  );
+
+  useEffect(() => {
+    // Демо-режим и незалогиненные получат 401 - тихо пропускаем.
+    fetch("/api/office/student-profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(
+        (data: {
+          profile?: {
+            university: { name: string; short_name: string | null; city: string | null } | null;
+            study_year: number | null;
+            graduation_year: number | null;
+          } | null;
+        } | null) => {
+          const p = data?.profile;
+          if (!p) return;
+          if (p.university) setStudentUniLabel(uniLabel(p.university));
+          if (p.study_year) setStudentStudyYear(String(p.study_year));
+          if (p.graduation_year) setStudentGradYear(String(p.graduation_year));
+        },
+      )
+      .catch(() => {});
+  }, [uniLabel]);
+
+  // Подсказки вуза: подгружаем по вводу (и базовый список при открытии модалки).
+  useEffect(() => {
+    if (!modalOpen) return;
+    const q = formUni.trim();
+    const timer = setTimeout(() => {
+      fetch(`/api/universities?q=${encodeURIComponent(q)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then(
+          (data: {
+            universities?: { id: string; name: string; short_name: string | null; city: string | null }[];
+          } | null) => {
+            if (!data?.universities) return;
+            setUniOptions(data.universities.map((u) => ({ id: u.id, label: uniLabel(u) })));
+          },
+        )
+        .catch(() => {});
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [modalOpen, formUni, uniLabel]);
+
   function openModal() {
     setFormFn(profileFirstName);
     setFormLn(profileSurname);
@@ -250,6 +309,9 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     setFormLvl(profileLevel);
     setFormFmt(profileFormat);
     setFormCity(profileCity);
+    setFormUni(studentUniLabel);
+    setFormStudyYear(studentStudyYear);
+    setFormGradYear(studentGradYear);
     setModalOpen(true);
   }
 
@@ -275,6 +337,29 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
         city: formCity,
       }),
     }).catch(() => {});
+
+    // Учёба: пустое поле вуза = очистить самодекларацию; текст без совпадения
+    // с подсказкой не перетирает сохранённый выбор (universityId неизвестен).
+    const uniText = formUni.trim();
+    const matched = uniOptions.find((o) => o.label === uniText);
+    const studyYear = formStudyYear ? Number(formStudyYear) : null;
+    const gradYear = formGradYear ? Number(formGradYear) : null;
+    if (!uniText || matched || uniText === studentUniLabel) {
+      const shouldClear = !uniText;
+      // Ключ universityId отсутствует = не менять текущий выбор (API-семантика).
+      void fetch("/api/office/student-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...(shouldClear ? { universityId: null } : matched ? { universityId: matched.id } : {}),
+          studyYear,
+          graduationYear: gradYear,
+        }),
+      }).catch(() => {});
+      setStudentUniLabel(shouldClear ? "" : matched ? matched.label : studentUniLabel);
+      setStudentStudyYear(formStudyYear);
+      setStudentGradYear(formGradYear);
+    }
 
     // Also cache in localStorage as fallback
     try {
@@ -865,6 +950,31 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
             <datalist id="office-cities-list">
               {["Москва","Санкт-Петербург","Екатеринбург","Новосибирск","Казань","Нижний Новгород","Красноярск","Челябинск","Самара","Уфа","Ростов-на-Дону","Омск","Пермь","Воронеж","Волгоград","Краснодар","Удалённо"].map(c => <option key={c} value={c} />)}
             </datalist>
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="office-uni">Вуз (необязательно)</label>
+            <input className="form-input" id="office-uni" list="office-uni-list" value={formUni} onChange={(e) => setFormUni(e.target.value)} placeholder="Начни вводить название вуза…" autoComplete="off" />
+            <datalist id="office-uni-list">
+              {uniOptions.map((o) => <option key={o.id} value={o.label} />)}
+            </datalist>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label" htmlFor="office-study-year">Курс</label>
+              <select className="form-select" id="office-study-year" value={formStudyYear} onChange={(e) => setFormStudyYear(e.target.value)}>
+                <option value="">Не указан</option>
+                {[1, 2, 3, 4, 5, 6].map((y) => <option key={y} value={String(y)}>{y}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="office-grad-year">Год выпуска</label>
+              <select className="form-select" id="office-grad-year" value={formGradYear} onChange={(e) => setFormGradYear(e.target.value)}>
+                <option value="">Не указан</option>
+                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 3 + i).map((y) => (
+                  <option key={y} value={String(y)}>{y}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="modal-actions">
             <button type="button" className="btn-save" onClick={saveProfile}>Сохранить</button>
