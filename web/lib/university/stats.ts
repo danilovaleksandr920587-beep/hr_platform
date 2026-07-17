@@ -30,6 +30,8 @@ export type UniversityDashboard = {
   byStudyYear: { study_year: number; count: number }[];
   /** Неактивные: выбрали вуз, но не заходили в активность 30 дней (число, не список). */
   inactive30d: number;
+  /** Тренд по неделям (8 точек): новые студенты и отклики. */
+  trend: { label: string; students: number; applications: number }[];
 };
 
 export async function getUniversityDashboard(
@@ -97,6 +99,29 @@ export async function getUniversityDashboard(
     order by study_year
   `) as { study_year: number; count: number }[];
 
+  // Тренд по неделям (8 недель): новые студенты + отклики. generate_series
+  // гарантирует непрерывную ось даже в пустые недели.
+  const trend = (await sql`
+    with weeks as (
+      select generate_series(
+        date_trunc('week', now()) - interval '7 weeks',
+        date_trunc('week', now()),
+        interval '1 week'
+      ) as wk
+    )
+    select
+      to_char(w.wk, 'DD.MM') as label,
+      (select count(*)::int from student_profiles sp
+        where sp.university_id = ${universityId}
+          and date_trunc('week', sp.updated_at) = w.wk) as students,
+      (select count(*)::int from applications a
+        join student_profiles sp on sp.account_id = a.account_id
+        where sp.university_id = ${universityId}
+          and date_trunc('week', a.created_at) = w.wk) as applications
+    from weeks w
+    order by w.wk
+  `) as { label: string; students: number; applications: number }[];
+
   const belowThreshold = core.student_count < UNIVERSITY_STATS_MIN_GROUP;
 
   return {
@@ -120,5 +145,6 @@ export async function getUniversityDashboard(
         },
     byStudyYear: belowThreshold ? [] : byYear,
     inactive30d: belowThreshold ? 0 : core.inactive_30d,
+    trend: belowThreshold ? [] : trend,
   };
 }

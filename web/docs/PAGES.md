@@ -80,6 +80,7 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 | `/vuz/team` | `app/vuz/team/page.tsx` | Команда ЦКС: участники (owner/staff), инвайты (приглашает owner) |
 | `/vuz/settings` | `app/vuz/settings/page.tsx` | Витрина: описание ЦКС, контакты, лого, тумблер public_stats. Публикация витрины = заполненное описание |
 | `/vuz-invite` | `app/vuz-invite/page.tsx` | Принятие приглашения ЦКС по токену (?token=) |
+| `/vuz-demo` | `app/vuz-demo/page.tsx` | Демо кабинета вуза для продажи: инфографика на иллюстративных данных, noindex, без входа (не guard) |
 
 Активный вуз: первый из членств (`lib/university/active-university.ts`),
 переключатель - фаза 3. Самозаписи вуза нет: онбординг только через
