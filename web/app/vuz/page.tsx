@@ -57,13 +57,27 @@ export default async function VuzDashboardPage() {
             {d.belowThreshold ? (
               <div className="panel company-banner company-banner--warn">
                 <p>
-                  <strong>Данные накапливаются.</strong> Пока вуз выбрали{" "}
-                  {d.studentCount} из минимум {UNIVERSITY_STATS_MIN_GROUP} студентов -
-                  агрегаты откроются, когда студентов станет больше. Быстрее всего
-                  работает рассылка по студентам со ссылкой на платформу: тексты
-                  дадим, напишите в{" "}
+                  <strong>Данные накапливаются.</strong> Агрегаты откроются, когда
+                  вуз выберут минимум {UNIVERSITY_STATS_MIN_GROUP} студентов. Быстрее
+                  всего работает рассылка по студентам со ссылкой на платформу:
+                  тексты дадим, напишите в{" "}
                   <a className="text-link" href={`mailto:${SUPPORT_EMAIL}`}>поддержку</a>.
                 </p>
+                <div style={{ margin: "14px 0 4px", display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ flex: 1, height: 10, borderRadius: 6, background: "#eef0e9", overflow: "hidden" }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        borderRadius: 6,
+                        width: `${Math.min((d.studentCount / UNIVERSITY_STATS_MIN_GROUP) * 100, 100)}%`,
+                        background: "linear-gradient(90deg, #a8d63a, #c9f135)",
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontFamily: '"Unbounded", sans-serif', fontSize: 14, fontWeight: 700, color: "#1e2114", whiteSpace: "nowrap" }}>
+                    {d.studentCount} / {UNIVERSITY_STATS_MIN_GROUP}
+                  </span>
+                </div>
                 <p style={{ margin: "10px 0 0", fontSize: 13 }}>
                   Как будет выглядеть кабинет с данными -{" "}
                   <a className="text-link" href="/vuz-demo">посмотреть демо</a>.

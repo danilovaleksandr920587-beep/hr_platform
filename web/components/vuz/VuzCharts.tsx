@@ -133,26 +133,7 @@ export function FunnelChart({ steps }: { steps: { label: string; value: number }
 }
 
 // ── Донат-распределение (по курсам) с легендой ───────────────────────────────
-
-function polar(cx: number, cy: number, r: number, angleDeg: number): [number, number] {
-  const a = ((angleDeg - 90) * Math.PI) / 180;
-  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-}
-
-function arcPath(cx: number, cy: number, rOuter: number, rInner: number, start: number, end: number): string {
-  const [x1, y1] = polar(cx, cy, rOuter, end);
-  const [x2, y2] = polar(cx, cy, rOuter, start);
-  const [x3, y3] = polar(cx, cy, rInner, start);
-  const [x4, y4] = polar(cx, cy, rInner, end);
-  const large = end - start <= 180 ? 0 : 1;
-  return [
-    `M ${x1.toFixed(2)} ${y1.toFixed(2)}`,
-    `A ${rOuter} ${rOuter} 0 ${large} 0 ${x2.toFixed(2)} ${y2.toFixed(2)}`,
-    `L ${x3.toFixed(2)} ${y3.toFixed(2)}`,
-    `A ${rInner} ${rInner} 0 ${large} 1 ${x4.toFixed(2)} ${y4.toFixed(2)}`,
-    "Z",
-  ].join(" ");
-}
+// stroke-dasharray на кольце: корректно рисует и один сегмент на 100%, и много.
 
 export function DonutChart({
   segments,
@@ -165,19 +146,35 @@ export function DonutChart({
   const size = 180;
   const cx = size / 2;
   const cy = size / 2;
-  let angle = 0;
-  const arcs = segments.map((seg, i) => {
-    const sweep = (seg.value / total) * 360;
-    const path = arcPath(cx, cy, 82, 52, angle, angle + Math.max(sweep, 0.5));
-    angle += sweep;
-    return { path, color: SEGMENT_COLORS[i % SEGMENT_COLORS.length], ...seg };
+  const r = 64;
+  const thickness = 26;
+  const circ = 2 * Math.PI * r;
+  let cum = 0;
+  const rings = segments.map((seg, i) => {
+    const len = (seg.value / total) * circ;
+    const ring = { len, offset: cum, color: SEGMENT_COLORS[i % SEGMENT_COLORS.length], ...seg };
+    cum += len;
+    return ring;
   });
   return (
     <div style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Распределение по курсам">
-        {arcs.map((a) => (
-          <path key={a.label} d={a.path} fill={a.color} />
-        ))}
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.track} strokeWidth={thickness} />
+        <g transform={`rotate(-90 ${cx} ${cy})`}>
+          {rings.map((rg) => (
+            <circle
+              key={rg.label}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="none"
+              stroke={rg.color}
+              strokeWidth={thickness}
+              strokeDasharray={`${rg.len.toFixed(2)} ${circ.toFixed(2)}`}
+              strokeDashoffset={(-rg.offset).toFixed(2)}
+            />
+          ))}
+        </g>
         <text x={cx} y={cy - 4} textAnchor="middle" style={{ fontFamily: '"Unbounded", sans-serif', fontSize: 26, fontWeight: 800, fill: C.dark }}>
           {fmt(total)}
         </text>
@@ -188,11 +185,11 @@ export function DonutChart({
         ) : null}
       </svg>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 120 }}>
-        {arcs.map((a) => (
-          <div key={a.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-            <span style={{ width: 12, height: 12, borderRadius: 4, background: a.color, flexShrink: 0 }} />
-            <span style={{ color: C.ink }}>{a.label}</span>
-            <strong style={{ marginLeft: "auto", color: C.dark }}>{fmt(a.value)}</strong>
+        {rings.map((rg) => (
+          <div key={rg.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+            <span style={{ width: 12, height: 12, borderRadius: 4, background: rg.color, flexShrink: 0 }} />
+            <span style={{ color: C.ink }}>{rg.label}</span>
+            <strong style={{ marginLeft: "auto", color: C.dark }}>{fmt(rg.value)}</strong>
           </div>
         ))}
       </div>

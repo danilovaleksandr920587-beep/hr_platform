@@ -1,13 +1,9 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { requireUniversityRole, isUniversityAccess } from "@/lib/university/guard";
-import { getUniversityById, createUniversityInvite } from "@/lib/university/store";
-import { generateInviteToken } from "@/lib/company/invite-token";
+import { issueUniversityInvite } from "@/lib/university/invite";
 import { UNIVERSITY_ROLES, type UniversityRole } from "@/lib/university/constants";
-import { notifyUniversityInvite } from "@/lib/email/university-notifications";
-import { isSmtpConfigured } from "@/lib/email/smtp";
 import { rateLimit } from "@/lib/rate-limit";
-import { getRealOrigin } from "@/lib/http/origin";
 
 type RouteProps = { params: Promise<{ id: string }> };
 
@@ -17,7 +13,7 @@ export async function POST(req: Request, { params }: RouteProps) {
   const access = await requireUniversityRole(id, "owner");
   if (!isUniversityAccess(access)) return access;
 
-  if (!rateLimit(`university-invite:${id}`, 20, 24 * 60 * 60)) {
+  if (!rateLimit(`university-invite:cabinet:${id}`, 20, 24 * 60 * 60)) {
     return NextResponse.json(
       { error: "Слишком много приглашений за сутки." },
       { status: 429 },
@@ -41,34 +37,19 @@ export async function POST(req: Request, { params }: RouteProps) {
   }
 
   try {
-    const university = await getUniversityById(id);
-    if (!university) {
-      return NextResponse.json({ error: "Вуз не найден." }, { status: 404 });
-    }
-
-    const generated = generateInviteToken();
-    await createUniversityInvite({
+    const result = await issueUniversityInvite({
       universityId: id,
       email,
       role,
-      tokenHash: generated.tokenHash,
       invitedBy: access.session.id,
-      expiresAtIso: generated.expiresAtIso,
     });
-
-    const origin = await getRealOrigin();
-    const inviteUrl = `${origin}/vuz-invite?token=${generated.token}`;
-
-    const emailSent = isSmtpConfigured();
-    if (emailSent) {
-      notifyUniversityInvite({
-        to: email,
-        universityName: university.short_name || university.name,
-        inviteUrl,
-      });
+    if (!result.ok) {
+      return NextResponse.json({ error: "Вуз не найден." }, { status: 404 });
     }
-
-    return NextResponse.json({ ok: true, inviteUrl, emailSent }, { status: 201 });
+    return NextResponse.json(
+      { ok: true, inviteUrl: result.inviteUrl, emailSent: result.emailSent },
+      { status: 201 },
+    );
   } catch {
     return NextResponse.json({ error: "DB error" }, { status: 503 });
   }

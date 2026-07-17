@@ -338,28 +338,26 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
       }),
     }).catch(() => {});
 
-    // Учёба: пустое поле вуза = очистить самодекларацию; текст без совпадения
-    // с подсказкой не перетирает сохранённый выбор (universityId неизвестен).
+    // Учёба. Курс и год выпуска сохраняем всегда. Вуз: пусто -> очистить;
+    // совпал с подсказкой -> сменить; набран вручную без совпадения -> не
+    // трогаем сохранённый вуз (id неизвестен), но курс/год всё равно пишем.
     const uniText = formUni.trim();
     const matched = uniOptions.find((o) => o.label === uniText);
     const studyYear = formStudyYear ? Number(formStudyYear) : null;
     const gradYear = formGradYear ? Number(formGradYear) : null;
-    if (!uniText || matched || uniText === studentUniLabel) {
-      const shouldClear = !uniText;
-      // Ключ universityId отсутствует = не менять текущий выбор (API-семантика).
-      void fetch("/api/office/student-profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...(shouldClear ? { universityId: null } : matched ? { universityId: matched.id } : {}),
-          studyYear,
-          graduationYear: gradYear,
-        }),
-      }).catch(() => {});
-      setStudentUniLabel(shouldClear ? "" : matched ? matched.label : studentUniLabel);
-      setStudentStudyYear(formStudyYear);
-      setStudentGradYear(formGradYear);
-    }
+    const uniPatch = !uniText
+      ? { universityId: null }
+      : matched
+        ? { universityId: matched.id }
+        : {}; // ключ отсутствует = не менять текущий выбор (API-семантика)
+    void fetch("/api/office/student-profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...uniPatch, studyYear, graduationYear: gradYear }),
+    }).catch(() => {});
+    setStudentUniLabel(!uniText ? "" : matched ? matched.label : studentUniLabel);
+    setStudentStudyYear(formStudyYear);
+    setStudentGradYear(formGradYear);
 
     // Also cache in localStorage as fallback
     try {
