@@ -3,8 +3,10 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { VuzNav } from "@/components/vuz/VuzNav";
 import { VuzDashboardView } from "@/components/vuz/VuzDashboardView";
+import { VuzChecklist, type ChecklistItem } from "@/components/vuz/VuzChecklist";
 import { getActiveUniversity } from "@/lib/university/active-university";
 import { getUniversityDashboard } from "@/lib/university/stats";
+import { getUniversityTeamCounts } from "@/lib/university/store";
 import { UNIVERSITY_STATS_MIN_GROUP } from "@/lib/university/constants";
 import { SUPPORT_EMAIL } from "@/lib/support";
 
@@ -45,42 +47,68 @@ export default async function VuzDashboardPage() {
   }
 
   const { university } = context;
-  const d = await getUniversityDashboard(university.id);
+  const [d, team] = await Promise.all([
+    getUniversityDashboard(university.id),
+    getUniversityTeamCounts(university.id),
+  ]);
   const displayName = university.short_name || university.name;
+
+  // Онбординг-чеклист: состояние из реальных данных кабинета.
+  const contactsFilled = Object.values(university.contacts ?? {}).some(
+    (v) => typeof v === "string" && v.trim(),
+  );
+  const checklist: ChecklistItem[] = [
+    {
+      label: "Заполнить описание карьерного центра",
+      done: university.description.trim() !== "",
+      href: "/vuz/settings",
+      cta: "Заполнить",
+      hint: "Публикует витрину вуза для студентов и абитуриентов",
+    },
+    {
+      label: "Добавить контакты ЦКС",
+      done: contactsFilled,
+      href: "/vuz/settings",
+      cta: "Добавить",
+    },
+    {
+      label: "Включить публичные цифры на витрине",
+      done: university.public_stats,
+      href: "/vuz/settings",
+      cta: "Включить",
+      hint: "Число студентов вуза - для абитуриентов (появится выше порога)",
+    },
+    {
+      label: "Пригласить коллегу в кабинет",
+      done: team.members > 1 || team.pendingInvites > 0,
+      href: "/vuz/team",
+      cta: "Пригласить",
+    },
+    {
+      label: "Привести первых студентов (рассылка)",
+      done: d.studentCount >= UNIVERSITY_STATS_MIN_GROUP,
+      href: `mailto:${SUPPORT_EMAIL}?subject=Тексты рассылки для студентов`,
+      cta: "Взять тексты",
+      hint: `Выбрали вуз: ${d.studentCount} из ${UNIVERSITY_STATS_MIN_GROUP} для старта аналитики`,
+    },
+  ];
+  const allDone = checklist.every((i) => i.done);
 
   return (
     <>
       <main className="section">
         <div className="container" style={{ maxWidth: 960 }}>
           <VuzNav universityName={displayName} />
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Чеклист показываем, пока не всё сделано; на пустом кабинете он - главный экран */}
+            {!allDone ? <VuzChecklist items={checklist} /> : null}
+
             {d.belowThreshold ? (
               <div className="panel company-banner company-banner--warn">
-                <p>
-                  <strong>Данные накапливаются.</strong> Агрегаты откроются, когда
-                  вуз выберут минимум {UNIVERSITY_STATS_MIN_GROUP} студентов. Быстрее
-                  всего работает рассылка по студентам со ссылкой на платформу:
-                  тексты дадим, напишите в{" "}
-                  <a className="text-link" href={`mailto:${SUPPORT_EMAIL}`}>поддержку</a>.
-                </p>
-                <div style={{ margin: "14px 0 4px", display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ flex: 1, height: 10, borderRadius: 6, background: "#eef0e9", overflow: "hidden" }}>
-                    <div
-                      style={{
-                        height: "100%",
-                        borderRadius: 6,
-                        width: `${Math.min((d.studentCount / UNIVERSITY_STATS_MIN_GROUP) * 100, 100)}%`,
-                        background: "linear-gradient(90deg, #a8d63a, #c9f135)",
-                      }}
-                    />
-                  </div>
-                  <span style={{ fontFamily: '"Unbounded", sans-serif', fontSize: 14, fontWeight: 700, color: "#1e2114", whiteSpace: "nowrap" }}>
-                    {d.studentCount} / {UNIVERSITY_STATS_MIN_GROUP}
-                  </span>
-                </div>
-                <p style={{ margin: "10px 0 0", fontSize: 13 }}>
-                  Как будет выглядеть кабинет с данными -{" "}
-                  <a className="text-link" href="/vuz-demo">посмотреть демо</a>.
+                <p style={{ margin: 0 }}>
+                  <strong>Аналитика откроется</strong> при {UNIVERSITY_STATS_MIN_GROUP}+
+                  студентах, выбравших вуз. Пока можно посмотреть,{" "}
+                  <a className="text-link" href="/vuz-demo">как будет выглядеть кабинет</a>.
                 </p>
               </div>
             ) : (

@@ -219,6 +219,21 @@ export async function getUniversityMembership(
   return rows[0] ?? null;
 }
 
+/** Счётчики команды для онбординг-чеклиста (одним запросом). */
+export async function getUniversityTeamCounts(
+  universityId: string,
+): Promise<{ members: number; pendingInvites: number }> {
+  const sql = getSql();
+  const rows = (await sql`
+    select
+      (select count(*)::int from university_members
+        where university_id = ${universityId} and status = 'active') as members,
+      (select count(*)::int from university_invites
+        where university_id = ${universityId} and accepted_at is null) as pending
+  `) as { members: number; pending: number }[];
+  return { members: rows[0]?.members ?? 0, pendingInvites: rows[0]?.pending ?? 0 };
+}
+
 export async function listUniversityMembers(
   universityId: string,
 ): Promise<UniversityMemberRow[]> {
