@@ -100,6 +100,11 @@ export default async function VuzDashboardPage() {
         <div className="container" style={{ maxWidth: 960 }}>
           <VuzNav universityName={displayName} />
           <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Link className="btn-outline" href="/vuz/report">
+                Отчёт для ректората →
+              </Link>
+            </div>
             {/* Чеклист показываем, пока не всё сделано; на пустом кабинете он - главный экран */}
             {!allDone ? <VuzChecklist items={checklist} /> : null}
 

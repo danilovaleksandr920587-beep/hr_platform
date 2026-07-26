@@ -79,6 +79,7 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 | `/vuz` | `app/vuz/page.tsx` | Дашборд ЦКС: агрегаты по студентам вуза (счётчики, воронка, по курсам, неактивные). Без членства - подсказка «доступ по приглашению». Ниже порога K=5 студентов - плашка cold-start вместо цифр |
 | `/vuz/team` | `app/vuz/team/page.tsx` | Команда ЦКС: участники (owner/staff), инвайты (приглашает owner) |
 | `/vuz/settings` | `app/vuz/settings/page.tsx` | Витрина: описание ЦКС, контакты, лого, тумблер public_stats. Публикация витрины = заполненное описание |
+| `/vuz/report` | `app/vuz/report/page.tsx` | Печатный отчёт для ректората: KPI, воронка, курсы, направления, бенчмарк. Кнопка «Печать/Сохранить в PDF» (window.print, @media print). Guard, noindex |
 | `/vuz-invite` | `app/vuz-invite/page.tsx` | Принятие приглашения ЦКС по токену (?token=) |
 | `/vuz-demo` | `app/vuz-demo/page.tsx` | Демо кабинета вуза для продажи: инфографика на иллюстративных данных, noindex, без входа (не guard) |
 
