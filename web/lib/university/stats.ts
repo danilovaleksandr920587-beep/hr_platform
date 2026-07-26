@@ -32,6 +32,8 @@ export type UniversityDashboard = {
   inactive30d: number;
   /** Тренд по неделям (8 точек): новые студенты и отклики. */
   trend: { label: string; students: number; applications: number }[];
+  /** Топ направлений студентов (по задекларированному профилю). */
+  topDirections: { label: string; count: number }[];
   /** Сравнение со средним по платформе (обезличенно). null - базы мало. */
   benchmark:
     | {
@@ -135,6 +137,19 @@ export async function getUniversityDashboard(
     order by w.wk
   `) as { label: string; students: number; applications: number }[];
 
+  // Топ-направления: распределение студентов вуза по задекларированному
+  // направлению профиля (user_profiles - наша таблица, без cross-owner join).
+  const topDirections = (await sql`
+    select up.direction as label, count(*)::int as count
+    from student_profiles sp
+    join user_profiles up on up.account_id = sp.account_id
+    where sp.university_id = ${universityId}
+      and coalesce(up.direction, '') <> ''
+    group by up.direction
+    order by count desc, up.direction
+    limit 6
+  `) as { label: string; count: number }[];
+
   const belowThreshold = core.student_count < UNIVERSITY_STATS_MIN_GROUP;
 
   // Бенчмарк: сравнение вуза со средним по всем задекларировавшим вуз
@@ -200,6 +215,7 @@ export async function getUniversityDashboard(
     byStudyYear: belowThreshold ? [] : byYear,
     inactive30d: belowThreshold ? 0 : core.inactive_30d,
     trend: belowThreshold ? [] : trend,
+    topDirections: belowThreshold ? [] : topDirections,
     benchmark,
   };
 }

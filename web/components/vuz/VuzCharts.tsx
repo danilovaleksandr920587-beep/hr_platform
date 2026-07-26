@@ -329,3 +329,29 @@ export function BenchmarkBars({ items }: { items: BenchmarkItem[] }) {
     </div>
   );
 }
+
+// ── Горизонтальный бар-лист (топ-направления студентов) ──────────────────────
+
+export function BarList({ items }: { items: { label: string; value: number }[] }) {
+  const max = Math.max(...items.map((i) => i.value), 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {items.map((it) => {
+        const w = Math.max((it.value / max) * 100, 6);
+        return (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ width: 104, flexShrink: 0, fontSize: 13, color: C.ink }}>
+              {it.label}
+            </span>
+            <div style={{ flex: 1, height: 18, borderRadius: 8, background: C.track, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${w}%`, borderRadius: 8, background: "linear-gradient(90deg,#a8d63a,#c9f135)" }} />
+            </div>
+            <span style={{ width: 34, textAlign: "right", fontFamily: '"Unbounded", sans-serif', fontSize: 13, fontWeight: 700, color: C.dark }}>
+              {fmt(it.value)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

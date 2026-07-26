@@ -29,6 +29,13 @@ const DEMO: UniversityDashboard = {
     { study_year: 6, count: 24 },
   ],
   inactive30d: 71,
+  topDirections: [
+    { label: "Разработка", count: 118 },
+    { label: "Аналитика", count: 74 },
+    { label: "QA", count: 52 },
+    { label: "Дизайн", count: 41 },
+    { label: "Управление", count: 33 },
+  ],
   benchmark: [
     { label: "Откликов на студента за 30 дней", vuzValue: 0.5, platformValue: 0.4, deltaPct: 28 },
     { label: "Доля студентов с AI-разбором резюме", vuzValue: 68, platformValue: 54, deltaPct: 26, suffix: "%" },

@@ -1,4 +1,4 @@
-import { KpiCard, FunnelChart, DonutChart, TrendChart, BenchmarkBars } from "./VuzCharts";
+import { KpiCard, FunnelChart, DonutChart, TrendChart, BenchmarkBars, BarList } from "./VuzCharts";
 import type { UniversityDashboard } from "@/lib/university/stats";
 
 /**
@@ -100,6 +100,18 @@ export function VuzDashboardView({ d }: { d: UniversityDashboard }) {
               }))}
               centerLabel="студентов"
             />
+          </div>
+        ) : null}
+
+        {d.topDirections.length > 0 ? (
+          <div className="panel">
+            <p className="co-about-label">Топ-направления студентов</p>
+            <BarList
+              items={d.topDirections.map((r) => ({ label: r.label, value: r.count }))}
+            />
+            <p style={{ margin: "12px 0 0", fontSize: 12, opacity: 0.6 }}>
+              По направлению, указанному в профиле студента.
+            </p>
           </div>
         ) : null}
       </div>
