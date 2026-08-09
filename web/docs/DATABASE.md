@@ -21,6 +21,35 @@
 IS NULL OR featured_until > now())` - истёкшие featured отдаются как обычные без
 cron (`lib/data/vacancy-schema.ts`). NULL = бессрочно (редакционное).
 
+**Поиск** (миграция `20260809000000_vacancy_search.sql`, роль supabase_admin):
+`search_vector` это generated-колонка с весами A=title, B=company/city/skills,
+C=description, поверх неё GIN-индекс. Ищет SQL-функция
+`search_vacancies(q, spheres, cities, exps, formats, types, salary_from,
+salary_to, include_archived, max_rows)`: `websearch_to_tsquery('russian')` +
+ранжирование `ts_rank_cd`, фильтры применяются внутри неё. Возвращает две
+служебные колонки - `match_tier` (1 = совпало в названии/компании/городе/стеке,
+2 = только в описании) и `match_score`. Вызывается через `supabase.rpc()` из
+`lib/data/vacancies.ts`; если функции нет, код падает обратно на старый ILIKE.
+Разбор и замеры - `docs/SEARCH_AUDIT.md`. Вспомогательная
+`immutable_array_to_string()` нужна только для generated-колонки (штатный
+`array_to_string` помечен STABLE и в generated не годится).
+
+Фаза 2 (`20260809120000_vacancy_search_phase2.sql`, та же роль): расширение
+`pg_trgm` (в схему `extensions`), GIN-индекс `vacancies_title_trgm_idx` и ещё
+три функции:
+- `combine_tsqueries(text[])` - OR из нескольких формулировок запроса; нужна
+  для словаря алиасов в `lib/search/query.ts` (склеить их в текст нельзя:
+  `websearch_to_tsquery` не понимает скобки);
+- `search_vacancies(...)` получила `q_alts`, `only_tier` (1 - основная выдача,
+  2 - совпадения в описании), `page`/`per_page` и оконные тоталы
+  `total_primary`/`total_mentions`; рассеивание по компаниям тоже уехало сюда.
+  Страница `/vacancies` пагинацию не использует - зовёт с `per_page = 1000` и
+  отдаёт всё списком, а `only_tier`/`page` оставлены на будущее;
+- `search_vacancies_fuzzy(q, max_rows)` - триграммы по названию, вызывается
+  только когда обычный поиск дал ноль;
+- `vacancy_facets(...)` - счётчики фильтров по текущей выдаче, каждое измерение
+  считается с учётом всех остальных (drill-down).
+
 B2B-колонки (миграция `20260705000000_company_portal.sql`): `source`
 (parser/company), `company_id`, `status` (draft/pending_review/published/
 rejected/archived), `status_reason`, `apply_mode` (external/internal).
@@ -48,6 +77,7 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 | `user_saved_articles` | account_id, slug | Сохранённые статьи |
 | `user_checklist_progress` | account_id, ... | Прогресс чек-листа |
 | `user_resume_analyses` | account_id, score, result_json, target_role | История AI-анализов резюме |
+| `search_queries` | q, results_count, mentions_count, fuzzy_used, filters jsonb, created_at | Лог поисковых запросов по вакансиям. Миграция `20260809120100_*` (роль postgres). Пишется из `after()` на странице `/vacancies` (`lib/search/log.ts`), ошибки проглатываются. Главный отчёт: запросы с `results_count = 0` - список дыр в словаре алиасов |
 | `vacancy_stats` | vacancy_slug (PK), views, apply_clicks, updated_at | Просмотры и клики «Откликнуться» вакансий (для дашборда работодателя). Миграция `20260713010000_*` (роль postgres). Инкремент через `/api/vacancies/[slug]/track`, связь с vacancies по slug без FK (`lib/company/stats.ts`) |
 
 ВАЖНО: при изменении этих таблиц менять схему нужно руками в БД - и лучше

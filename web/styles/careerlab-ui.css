@@ -466,9 +466,24 @@ body.careerlab-site .filter-check input:checked + .filter-check-box::after {
   color: var(--dark);
 }
 
-body.careerlab-site .filter-check input:checked ~ span:last-child {
+/* Раньше было span:last-child, но после счётчика фасета последним стал он.
+   Целимся в подпись явно. */
+body.careerlab-site .filter-check input:checked ~ .filter-check-label {
   color: var(--dark);
   font-weight: 500;
+}
+
+/* Счётчик фасета: сколько вакансий за этой опцией при текущем запросе */
+body.careerlab-site .filter-check-count {
+  margin-left: auto;
+  padding-left: 8px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+body.careerlab-site .filter-check-count.is-empty {
+  opacity: 0.45;
 }
 
 body.careerlab-site .filter-salary-hint {
@@ -990,6 +1005,51 @@ body.careerlab-site .active-filter-pill {
   background: var(--white);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
+}
+
+/* ─── Поиск: блок «упоминают в описании» (match_tier 2) ───
+   Совпадения по телу описания держим свёрнутыми внизу выдачи, чтобы они не
+   выдавались за результат поиска. Разбор - docs/SEARCH_AUDIT.md */
+.mentions-block {
+  margin-top: 26px;
+}
+
+.mentions-summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+}
+
+.mentions-summary::-webkit-details-marker {
+  display: none;
+}
+
+.mentions-summary::after {
+  content: "▾";
+  margin-left: auto;
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+
+.mentions-block[open] .mentions-summary::after {
+  transform: rotate(180deg);
+}
+
+.mentions-summary:hover {
+  color: var(--dark);
+}
+
+.mentions-list {
+  margin-top: 16px;
 }
 
 /* ─── KB: stats + filter bar ─── */

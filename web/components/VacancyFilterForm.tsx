@@ -27,7 +27,9 @@ const DEFAULT_TYPES: FilterOption[] = Object.entries(TYPE_LABELS).map(
 function mergeOptions(base: FilterOption[], dynamic?: FilterOption[]): FilterOption[] {
   if (!dynamic?.length) return base;
   const byValue = new Map<string, FilterOption>();
-  for (const item of base) byValue.set(item.value, item);
+  // Значения, которых в текущей выдаче нет вовсе, показываем с нулём, а не без
+  // счётчика: «Дизайн 0» честнее, чем «Дизайн» без пометки.
+  for (const item of base) byValue.set(item.value, { ...item, count: 0 });
   for (const item of dynamic) {
     byValue.set(item.value, { ...byValue.get(item.value), ...item });
   }
@@ -41,6 +43,17 @@ function mergeOptions(base: FilterOption[], dynamic?: FilterOption[]): FilterOpt
   }
   merged.push(...Array.from(byValue.values()));
   return merged;
+}
+
+/** Счётчик рядом с опцией фильтра: сколько вакансий добавит этот выбор при
+    текущем запросе и остальных фильтрах (RPC vacancy_facets). */
+function FilterCount({ value }: { value?: number }) {
+  if (value == null) return null;
+  return (
+    <span className={`filter-check-count${value === 0 ? " is-empty" : ""}`}>
+      {value}
+    </span>
+  );
 }
 
 export type VacancyFilterSelected = {
@@ -267,7 +280,8 @@ export function VacancyFilterForm({
                       }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
-                    <span>{s.label}</span>
+                    <span className="filter-check-label">{s.label}</span>
+                    <FilterCount value={s.count} />
                   </label>
                 ))}
               </div>
@@ -292,7 +306,8 @@ export function VacancyFilterForm({
                       }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
-                    <span>{s.label}</span>
+                    <span className="filter-check-label">{s.label}</span>
+                    <FilterCount value={s.count} />
                   </label>
                 ))}
               </div>
@@ -318,7 +333,8 @@ export function VacancyFilterForm({
                         }
                       />
                       <span className="filter-check-box" aria-hidden="true" />
-                      <span>{s.label}</span>
+                      <span className="filter-check-label">{s.label}</span>
+                    <FilterCount value={s.count} />
                     </label>
                   ))}
                 </div>
@@ -344,7 +360,8 @@ export function VacancyFilterForm({
                       }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
-                    <span>{s.label}</span>
+                    <span className="filter-check-label">{s.label}</span>
+                    <FilterCount value={s.count} />
                   </label>
                 ))}
               </div>
@@ -369,7 +386,8 @@ export function VacancyFilterForm({
                       }
                     />
                     <span className="filter-check-box" aria-hidden="true" />
-                    <span>{s.label}</span>
+                    <span className="filter-check-label">{s.label}</span>
+                    <FilterCount value={s.count} />
                   </label>
                 ))}
               </div>

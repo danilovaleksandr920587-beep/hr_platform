@@ -114,5 +114,7 @@ export function normalizeVacancyRow(
     skills,
     source_published_at: (row.source_published_at as string | null | undefined) ?? null,
     is_archived: Boolean(row.is_archived ?? false),
+    match_tier:
+      typeof row.match_tier === "number" ? row.match_tier : undefined,
   };
 }

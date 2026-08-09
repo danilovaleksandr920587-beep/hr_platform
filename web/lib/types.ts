@@ -29,6 +29,10 @@ export type VacancyRow = {
   skills?: string[] | null;
   source_published_at?: string | null;
   is_archived?: boolean;
+  /** Заполняется только поиском (RPC search_vacancies), см. SEARCH_AUDIT.md:
+      1 - совпало в названии/компании/городе/стеке, 2 - только в описании,
+      0 - поиска не было. Страница делит выдачу на два блока по этому полю. */
+  match_tier?: number;
 };
 
 export type VacancyDescriptionBlock = {

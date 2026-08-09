@@ -8,7 +8,7 @@
 | URL | Файл | Что это |
 |-----|------|---------|
 | `/` | `app/page.tsx` | Главная: hero, избранные вакансии, статьи, CTA |
-| `/vacancies` | `app/vacancies/page.tsx` | Каталог вакансий: фильтры (сфера, опыт, формат, тип), полнотекстовый поиск |
+| `/vacancies` | `app/vacancies/page.tsx` | Каталог вакансий: фильтры (сфера, опыт, формат, тип), полнотекстовый поиск. Параметры: `q`, фильтры `sphere/city/exp/format/type/salary_from/salary_to`. Пагинации нет, выдача отдаётся списком целиком; совпадения только в тексте описания - свёрнутый блок внизу. Поиск - RPC `search_vacancies`, см. `docs/SEARCH_AUDIT.md` |
 | `/vacancies/[slug]` | `app/vacancies/[slug]/page.tsx` | Страница вакансии, SSG по slug |
 | `/knowledge-base` | `app/knowledge-base/page.tsx` | База знаний: сетка статей, фильтры по категории и уровню |
 | `/knowledge-base/[slug]` | `app/knowledge-base/[slug]/page.tsx` | Статья, SSG по slug |

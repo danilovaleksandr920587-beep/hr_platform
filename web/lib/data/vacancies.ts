@@ -19,6 +19,7 @@ import {
   TYPE_LABELS,
   type FilterOption,
 } from "@/lib/vacancy-labels";
+import { expandQuery } from "@/lib/search/query";
 
 export type VacancyFilters = {
   q?: string;
@@ -88,13 +89,87 @@ function countOptions(rows: VacancyRow[], key: keyof VacancyRow): Map<string, nu
   return out;
 }
 
-export async function listVacancyFilterOptions(): Promise<{
+export type VacancyFacets = {
   sphere: FilterOption[];
   city: FilterOption[];
   exp: FilterOption[];
   format: FilterOption[];
   type: FilterOption[];
-}> {
+};
+
+/**
+ * Счётчики фильтров по ТЕКУЩЕЙ выдаче (RPC `vacancy_facets`).
+ *
+ * Раньше listVacancyFilterOptions() считала по всей базе без учёта запроса и
+ * фильтров: пользователь видел «Аналитика 181», кликал и получал 4. Каждое
+ * измерение считается на множестве, отфильтрованном всеми остальными
+ * измерениями, - иначе выбор значения обнулял бы собственный список.
+ *
+ * null - RPC нет, вызывающий уходит на listVacancyFilterOptions().
+ */
+export async function listVacancyFacets(
+  filters: VacancyFilters,
+): Promise<VacancyFacets | null> {
+  if (!isPublicSupabaseConfigured()) return null;
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb: any = supabase;
+
+  const needle = filters.q?.trim() ?? "";
+  const { data, error } = await sb.rpc("vacancy_facets", {
+    q: needle || null,
+    q_alts: needle ? expandQuery(needle) : null,
+    spheres: emptyToNull(filters.sphere),
+    cities: emptyToNull(filters.city),
+    exps: emptyToNull(filters.exp),
+    formats: emptyToNull(filters.format),
+    types: emptyToNull(filters.type),
+    salary_from: filters.salaryFrom ?? null,
+    salary_to: filters.salaryTo ?? null,
+  });
+
+  if (error) {
+    if (!isMissingRpc(error)) console.error("listVacancyFacets", error.message);
+    return null;
+  }
+
+  const buckets: Record<string, Map<string, number>> = {
+    sphere: new Map(),
+    city: new Map(),
+    exp: new Map(),
+    format: new Map(),
+    type: new Map(),
+  };
+  for (const row of (data ?? []) as Record<string, unknown>[]) {
+    const dim = String(row.dimension ?? "");
+    const value = String(row.value ?? "").trim();
+    if (!buckets[dim] || !value) continue;
+    buckets[dim].set(value, Number(row.cnt ?? 0));
+  }
+
+  const toOptions = (
+    counts: Map<string, number>,
+    labels?: Record<string, string>,
+  ): FilterOption[] =>
+    Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({
+        value,
+        label: labels?.[value] ?? value,
+        count,
+      }));
+
+  return {
+    sphere: toOptions(buckets.sphere, SPHERE_LABELS),
+    city: toOptions(buckets.city),
+    exp: toOptions(buckets.exp, EXP_LABELS),
+    format: toOptions(buckets.format, FORMAT_LABELS),
+    type: toOptions(buckets.type, TYPE_LABELS),
+  };
+}
+
+export async function listVacancyFilterOptions(): Promise<VacancyFacets> {
   const rows = await listVacancies({ fields: "card", limit: 1000 });
   const sphereCounts = countOptions(rows, "sphere");
   const cityCounts = countOptions(rows, "city");
@@ -161,6 +236,123 @@ export function diversifyVacanciesByCompany(rows: VacancyRow[]): VacancyRow[] {
   );
 
   return [...featured, ...positioned.map((p) => p.row)];
+}
+
+const emptyToNull = (v?: string[]) => {
+  const clean = v?.filter(Boolean) ?? [];
+  return clean.length ? clean : null;
+};
+
+/** RPC отсутствует в базе (миграция не применена или другая схема). Это не
+    ошибка: вызывающий уходит на прежний ILIKE-путь. */
+function isMissingRpc(error: { code?: string; message?: string }): boolean {
+  const code = String(error.code ?? "");
+  const msg = String(error.message ?? "").toLowerCase();
+  return (
+    code === "PGRST202" ||
+    msg.includes("could not find the function") ||
+    msg.includes("does not exist")
+  );
+}
+
+export type VacancySearchPage = {
+  rows: VacancyRow[];
+  /** Всего совпадений в названии/компании/городе/стеке (или всего вакансий,
+      если запроса нет). Считается до пагинации. */
+  totalPrimary: number;
+  /** Всего совпадений только в тексте описания. */
+  totalMentions: number;
+};
+
+export type VacancySearchParams = VacancyFilters & {
+  page?: number;
+  perPage?: number;
+  /** 1 - основная выдача, 2 - блок «упоминают в описании». */
+  onlyTier?: 1 | 2;
+};
+
+/**
+ * Страница выдачи через RPC `search_vacancies` (миграции 20260809000000 и
+ * 20260809120000): websearch_to_tsquery по взвешенному tsvector, ранжирование
+ * ts_rank_cd, алиасы запроса, фильтры и пагинация - всё на стороне базы.
+ * Заменяет прежний ILIKE '%q%', который выдавал 90% нерелевантного (замеры и
+ * разбор - docs/SEARCH_AUDIT.md).
+ *
+ * Возвращает null, если функции в базе нет - вызывающий тогда собирает
+ * страницу сам из listVacancies(). Пустой rows это валидное «ничего не
+ * найдено», с отсутствием RPC его не путаем.
+ */
+export async function searchVacanciesPage(
+  params: VacancySearchParams,
+): Promise<VacancySearchPage | null> {
+  if (!isPublicSupabaseConfigured()) return null;
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb: any = supabase;
+
+  const needle = params.q?.trim() ?? "";
+  const perPage = params.perPage && params.perPage > 0 ? params.perPage : 20;
+  const page = params.page && params.page > 0 ? params.page : 1;
+
+  const { data, error } = await sb.rpc("search_vacancies", {
+    q: needle || null,
+    q_alts: needle ? expandQuery(needle) : null,
+    spheres: emptyToNull(params.sphere),
+    cities: emptyToNull(params.city),
+    exps: emptyToNull(params.exp),
+    formats: emptyToNull(params.format),
+    types: emptyToNull(params.type),
+    salary_from: params.salaryFrom ?? null,
+    salary_to: params.salaryTo ?? null,
+    include_archived: Boolean(params.includeArchived),
+    only_tier: params.onlyTier ?? null,
+    page,
+    per_page: perPage,
+  });
+
+  if (error) {
+    if (!isMissingRpc(error)) console.error("searchVacanciesPage", error.message);
+    return null;
+  }
+
+  const raw = (data ?? []) as Record<string, unknown>[];
+  const rows = raw.map((r) => normalizeVacancyRow(r));
+  // Тоталы приходят одинаковыми в каждой строке (оконные функции до LIMIT).
+  const first = raw[0];
+  return {
+    rows,
+    totalPrimary: Number(first?.total_primary ?? 0),
+    totalMentions: Number(first?.total_mentions ?? 0),
+  };
+}
+
+/**
+ * Фолбэк на опечатки: триграммное сходство по названию. Вызывать только когда
+ * обычный поиск дал ноль - иначе размывает точную выдачу.
+ */
+export async function searchVacanciesFuzzy(
+  q: string,
+  limit = 12,
+): Promise<VacancyRow[]> {
+  const needle = q.trim();
+  if (!needle || !isPublicSupabaseConfigured()) return [];
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb: any = supabase;
+
+  const { data, error } = await sb.rpc("search_vacancies_fuzzy", {
+    q: needle,
+    max_rows: limit,
+  });
+  if (error) {
+    if (!isMissingRpc(error)) console.error("searchVacanciesFuzzy", error.message);
+    return [];
+  }
+  return ((data ?? []) as unknown[]).map((r) =>
+    normalizeVacancyRow(r as Record<string, unknown>),
+  );
 }
 
 export async function listVacancies(
