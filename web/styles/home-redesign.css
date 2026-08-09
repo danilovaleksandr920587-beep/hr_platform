@@ -1610,7 +1610,10 @@ a.cl-cta-btn--ghost:hover {
      осиротевший разделитель). */
   .cl-hero-stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Первой колонке нужно больше места: «531 вакансия» почти вдвое длиннее
+       соседних «AI-разбор» и «Зарплаты». При равных 1fr строка не влезала
+       в колонку и наезжала на разделитель. */
+    grid-template-columns: 1.2fr 1fr 1fr;
     gap: 0;
   }
 
@@ -1622,12 +1625,16 @@ a.cl-cta-btn--ghost:hover {
   }
 
   .cl-hero-stat + .cl-hero-stat {
-    padding-left: 14px;
+    padding-left: 10px;
     border-left: 1px solid rgba(13, 15, 8, 0.2);
   }
 
   .cl-hero-stat-num {
-    font-size: 15px;
+    /* Тянется за шириной экрана: фиксированные 15px не влезали на 320-375px. */
+    font-size: clamp(11px, 3.6vw, 15px);
+    /* Аварийный перенос вместо наезда на соседнюю колонку, если счётчик
+       вырастет до 4 знаков. */
+    white-space: normal;
   }
 
   .cl-hero-stat-label {
