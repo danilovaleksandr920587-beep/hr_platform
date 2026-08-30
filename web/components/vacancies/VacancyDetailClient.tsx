@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SAVED_ITEMS_EVENT, isVacancySaved, setVacancySaved } from "@/lib/client/saved-items";
+import { track } from "@/lib/client/track";
+import { directionFromVacancy } from "@/lib/taxonomy/directions";
 import type { VacancyDescriptionBlock } from "@/lib/types";
 
 /** Шлёт событие вакансии, не блокируя навигацию (sendBeacon с fetch-фолбэком). */
@@ -81,6 +83,12 @@ export function VacancyDetailClient(props: Props) {
   const preserveLineBreaks = { whiteSpace: "pre-line" as const };
   const isArchived = props.isArchived ?? false;
   const similarHref = `/vacancies?sphere=${encodeURIComponent(props.sphere)}`;
+  // Направление считаем канонически: внутри sphere='it' сидят QA и DevOps.
+  const direction = directionFromVacancy({
+    sphere: props.sphere,
+    title: props.title,
+    skills: props.skills,
+  });
 
   useEffect(() => {
     const sync = () => setSaved(isVacancySaved(props.slug, props.viewerScope));
@@ -100,16 +108,32 @@ export function VacancyDetailClient(props: Props) {
       // sessionStorage недоступен - всё равно шлём один раз за монтирование
     }
     trackVacancyEvent(props.slug, "view");
-  }, [props.slug]);
+    track("vacancy_view", {
+      entityType: "vacancy",
+      entityId: props.slug,
+      direction,
+      city: props.city ?? null,
+      props: { company: props.company },
+    });
+  }, [props.slug, direction, props.city, props.company]);
 
   function toggleSave() {
     const next = !saved;
     setVacancySaved(props.slug, next, props.viewerScope);
     setSaved(next);
+    if (next) {
+      track("vacancy_save", { entityType: "vacancy", entityId: props.slug, direction });
+    }
   }
 
   function onApplyClick() {
     trackVacancyEvent(props.slug, "apply");
+    track("vacancy_apply_click", {
+      entityType: "vacancy",
+      entityId: props.slug,
+      direction,
+      props: { apply_mode: props.applyMode ?? "external", company: props.company },
+    });
   }
 
   async function copyLink() {

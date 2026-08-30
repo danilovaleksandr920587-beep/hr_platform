@@ -41,6 +41,7 @@
 | `/api/vacancies/by-slugs` | POST | Карточки вакансий по списку slug (для сохранёнок) |
 | `/api/articles/by-slugs` | POST | Карточки статей по списку slug |
 | `/api/vacancies/[slug]/track` | POST | Трекинг `{event:'view'\|'apply'}` для дашборда работодателя. Публичный, всегда 204. Инкремент в `vacancy_stats` (dedup просмотров - на клиенте через sessionStorage) |
+| `/api/track` | POST | Внутренняя аналитика: батч до 20 событий (`{events, referrer, search}`), пишет в `analytics_events`. Публичный, всегда 204, ответ не ждёт вставки (`after()`). Боты режутся по User-Agent, rate-limit 60 запросов/мин на `cl_aid`. Канал, устройство и `account_id` считаются на сервере, с клиента не принимаются. См. `docs/ANALYTICS.md` |
 | `/api/placement-request` | POST | Заявка на платное размещение с лендинга `/for-companies` (письмо владельцу платформы) |
 
 ## B2B: компании и команда (Auth; роль проверяет `lib/company/guard.ts`)

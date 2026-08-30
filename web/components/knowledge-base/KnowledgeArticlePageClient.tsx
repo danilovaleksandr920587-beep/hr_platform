@@ -7,6 +7,7 @@ import {
   isArticleSaved,
   setArticleSaved,
 } from "@/lib/client/saved-items";
+import { ArticleReadTracker } from "@/components/analytics/ArticleReadTracker";
 
 type RelatedArticle = {
   slug: string;
@@ -21,6 +22,7 @@ type Props = {
   slug: string;
   title: string;
   category: string;
+  catSlug: string;
   level: string;
   excerpt: string;
   readTime: number;
@@ -214,6 +216,7 @@ export function KnowledgeArticlePageClient(props: Props) {
 
   return (
     <div className="kbad">
+      <ArticleReadTracker slug={props.slug} catSlug={props.catSlug} level={props.level} />
       <div className="kbad-progress-bar" aria-hidden>
         <div className="kbad-progress-fill" style={{ width: `${progress}%` }} />
       </div>

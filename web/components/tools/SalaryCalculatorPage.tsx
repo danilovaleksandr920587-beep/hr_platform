@@ -14,6 +14,8 @@ import {
   type SalaryCity,
   type SalaryLevel,
 } from "@/lib/data/salary";
+import { track } from "@/lib/client/track";
+import { directionFromSalaryKey } from "@/lib/taxonomy/directions";
 
 const LEVEL_KEYS = Object.keys(LEVEL_LABELS) as SalaryLevel[];
 const CITY_KEYS = Object.keys(CITY_LABELS) as SalaryCity[];
@@ -107,7 +109,16 @@ export function SalaryCalculatorPage() {
               </div>
             </div>
 
-            <button className="calc-btn" type="button" onClick={() => setCalculated(true)}>Рассчитать зарплату</button>
+            <button className="calc-btn" type="button" onClick={() => {
+              setCalculated(true);
+              track("tool_finish", {
+                entityType: "tool",
+                entityId: "salary_calculator",
+                direction: directionFromSalaryKey(dirKey),
+                level,
+                props: { city },
+              });
+            }}>Рассчитать зарплату</button>
           </div>
         </div>
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { SUPPORT_EMAIL } from "@/lib/support";
+import { track } from "@/lib/client/track";
 
 const PACKAGES = ["Размещение", "Бутик", "Сезон"] as const;
 
@@ -25,7 +26,14 @@ export function PlacementButton({
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className={className} onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className={className}
+        onClick={() => {
+          setOpen(true);
+          track("company_lead_click", { props: { package: packageName, stage: "open" } });
+        }}
+      >
         {children}
       </button>
       {open ? (
@@ -96,6 +104,7 @@ function PlacementModal({
         return;
       }
       setStatus("done");
+      track("company_lead_click", { props: { package: form.packageName, stage: "sent" } });
     } catch {
       setStatus("error");
       setError("Сеть недоступна. Попробуйте ещё раз.");

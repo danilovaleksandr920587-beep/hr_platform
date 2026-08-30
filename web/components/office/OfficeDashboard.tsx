@@ -7,6 +7,8 @@ import { InlineResumeAnalyzer } from "@/components/office/InlineResumeAnalyzer";
 import type { VacancyRow, ArticleRow } from "@/lib/types";
 import { EXP_LABELS, FORMAT_LABELS, TYPE_LABELS } from "@/lib/vacancy-labels";
 import { getSalaryForProfile, salaryAsOfLabel } from "@/lib/data/salary";
+import { track } from "@/lib/client/track";
+import { directionFromProfile, levelFromProfile } from "@/lib/taxonomy/directions";
 
 type OfficeProfile = {
   firstName: string;
@@ -358,6 +360,13 @@ export function OfficeDashboard({ userScope, email, displayName, matchedVacancie
     setStudentUniLabel(!uniText ? "" : matched ? matched.label : studentUniLabel);
     setStudentStudyYear(formStudyYear);
     setStudentGradYear(formGradYear);
+
+    track("profile_completed", {
+      direction: directionFromProfile(formDir),
+      level: levelFromProfile(formLvl),
+      city: formCity || null,
+      format: formFmt || null,
+    });
 
     // Also cache in localStorage as fallback
     try {

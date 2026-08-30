@@ -67,6 +67,9 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 | `/company/settings` | `app/company/settings/page.tsx` | Профиль компании (только owner) |
 | `/company-invite` | `app/company-invite/page.tsx` | Принятие приглашения по токену (?token=) |
 | `/admin/moderation` | `app/admin/moderation/page.tsx` | Очередь модерации (только PLATFORM_ADMIN_EMAILS) |
+| `/admin/analytics` | `app/admin/analytics/page.tsx` | Внутренний дашборд: обзор (KPI, визиты по дням, воронка, каналы, типы страниц). Только PLATFORM_ADMIN_EMAILS, noindex. Он же корень поддомена `stats.lab-career.ru` |
+| `/admin/analytics/directions` | `app/admin/analytics/directions/page.tsx` | Спрос против предложения по направлениям + запросы, которые словарь не узнал |
+| `/admin/analytics/content` | `app/admin/analytics/content/page.tsx` | Кластеры базы знаний, дочитывания, переход «статья → вакансия» |
 | `/admin/universities` | `app/admin/universities/page.tsx` | Онбординг вузов: создать вуз, скрыть/активировать, инвайт owner ЦКС (только PLATFORM_ADMIN_EMAILS) |
 
 Активная компания: первая из членств аккаунта (`lib/company/active-company.ts`),
@@ -100,4 +103,10 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 
 1. `www.lab-career.ru` -> `lab-career.ru` (308)
 2. Legacy-редиректы: `/vacancy.html?slug=X` -> `/vacancies/X`, `/kb-article.html?id=X` -> `/knowledge-base/X` (308)
-3. Guard личного кабинета (`/office*`)
+3. Поддомен `stats.lab-career.ru`: rewrite корня и остальных путей в
+   `/admin/analytics*`, плюс заголовок `X-Robots-Tag: noindex`. Пропускаются
+   как есть `/admin`, `/api`, `/_next`, `/login` - иначе на поддомене не
+   заработали бы вход и сам раздел
+4. Guard личного кабинета (`/office*`)
+5. Куки внутренней аналитики `cl_aid` (12 мес) и `cl_sid` (30 мин,
+   продлевается) - `lib/analytics/middleware-identity.ts`. Ботам не выдаются

@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ymGoal } from "@/lib/client/metrika";
+import { track } from "@/lib/client/track";
 
 const DISMISS_KEY = "tg_bar_dismissed_until";
 const DISMISS_DAYS = 14;
@@ -26,7 +28,6 @@ const ARTICLES_CHANNEL = {
   goal: "tg_sticky_article",
 };
 
-const YM_ID = 108774421;
 
 export function TgStickyBar() {
   const pathname = usePathname() ?? "/";
@@ -79,15 +80,8 @@ export function TgStickyBar() {
   }
 
   function handleClick() {
-    try {
-      (window as unknown as { ym?: (...args: unknown[]) => void }).ym?.(
-        YM_ID,
-        "reachGoal",
-        channel.goal,
-      );
-    } catch {
-      // метрика не загрузилась — не критично
-    }
+    ymGoal(channel.goal);
+    track("tg_click", { props: { channel: channel.goal } });
   }
 
   if (!mounted || hidden) return null;

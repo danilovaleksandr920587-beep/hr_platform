@@ -9,6 +9,7 @@ import {
   OAUTH_STATE_COOKIE_NAME,
 } from "@/lib/auth/cookies";
 import { isPasswordAuthConfigured } from "@/lib/auth/config";
+import { recordServerEvent } from "@/lib/analytics/server";
 
 function safeNext(raw: string | null, fallback = "/office") {
   if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return fallback;
@@ -88,7 +89,7 @@ async function handleYandex(code: string, next: string): Promise<NextResponse> {
     }
 
     const sql = getSql();
-    type Row = { id: string; email: string; display_name: string };
+    type Row = { id: string; email: string; display_name: string; inserted: boolean };
 
     // Яндекс подтверждает владение email на своей стороне -> аккаунт сразу verified.
     const rows = (await sql`
@@ -98,13 +99,23 @@ async function handleYandex(code: string, next: string): Promise<NextResponse> {
         set display_name = excluded.display_name,
             email_verified = true,
             email_verified_at = coalesce(careerlab_accounts.email_verified_at, now())
-      returning id, email, display_name
+      -- xmax = 0 у строки, которую именно вставили (а не обновили конфликтом)
+      returning id, email, display_name, (xmax = 0) as inserted
     `) as Row[];
 
     const row = rows[0];
     if (!row) {
       console.error("[auth:yandex] upsert returned no row");
       return NextResponse.redirect(`${origin}/login?error=auth`);
+    }
+
+    if (row.inserted) {
+      await recordServerEvent({
+        event: "register_success",
+        path: "/login",
+        pageType: "login",
+        props: { method: "yandex" },
+      });
     }
 
     const token = await signAuthToken({ id: row.id, email: row.email, displayName: row.display_name });

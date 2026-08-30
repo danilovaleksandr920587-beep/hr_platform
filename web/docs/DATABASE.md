@@ -78,6 +78,8 @@ rejected/archived), `status_reason`, `apply_mode` (external/internal).
 | `user_checklist_progress` | account_id, ... | Прогресс чек-листа |
 | `user_resume_analyses` | account_id, score, result_json, target_role | История AI-анализов резюме |
 | `search_queries` | q, results_count, mentions_count, fuzzy_used, filters jsonb, created_at | Лог поисковых запросов по вакансиям. Миграция `20260809120100_*` (роль postgres). Пишется из `after()` на странице `/vacancies` (`lib/search/log.ts`), ошибки проглатываются. Главный отчёт: запросы с `results_count = 0` - список дыр в словаре алиасов |
+| `analytics_events` | created_at, event, anon_id, session_id, account_id, page_type, path, entity_type, entity_id, direction, level, city, format, channel, referrer_host, utm, device, props | Сырые события внутренней аналитики. Миграция `20260830000000_*` (роль postgres). Пишется из `/api/track` и `lib/analytics/server.ts`. Ретеншен 90 дней. IP не хранится, `anon_id` - first-party cookie `cl_aid` из middleware. Разрезы: `docs/ANALYTICS.md` |
+| `analytics_daily` | day, event, direction, page_type, channel, device, events, uniq_anon, uniq_sessions | Суточные агрегаты, живут бессрочно (сырьё чистится). Пересчёт функцией `analytics_rollup(days)` из cron, миграция `20260830000100_*` |
 | `vacancy_stats` | vacancy_slug (PK), views, apply_clicks, updated_at | Просмотры и клики «Откликнуться» вакансий (для дашборда работодателя). Миграция `20260713010000_*` (роль postgres). Инкремент через `/api/vacancies/[slug]/track`, связь с vacancies по slug без FK (`lib/company/stats.ts`) |
 
 ВАЖНО: при изменении этих таблиц менять схему нужно руками в БД - и лучше

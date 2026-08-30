@@ -1,8 +1,7 @@
 "use client";
 
 import Script from "next/script";
-
-const METRIKA_ID = 108774421;
+import { METRIKA_ID } from "@/lib/client/metrika";
 
 /**
  * Яндекс.Метрика. Грузится сразу для всех посетителей: счётчик и

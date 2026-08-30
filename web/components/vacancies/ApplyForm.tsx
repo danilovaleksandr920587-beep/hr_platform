@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { track } from "@/lib/client/track";
 
 const inputStyle = {
   width: "100%" as const,
@@ -43,6 +44,7 @@ export function ApplyForm({ slug, vacancyTitle }: { slug: string; vacancyTitle: 
         return;
       }
       setDone(true);
+      track("application_submit", { entityType: "vacancy", entityId: slug });
     } catch {
       setError("Ошибка сети. Попробуйте ещё раз.");
     } finally {

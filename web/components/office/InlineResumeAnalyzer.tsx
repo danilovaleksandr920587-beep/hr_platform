@@ -9,6 +9,7 @@ import {
   formatAnalysisDate,
 } from "@/lib/client/resume-analysis";
 import type { ResumeAnalysisResult } from "@/lib/client/resume-analysis";
+import { track } from "@/lib/client/track";
 
 const LEVELS = ["Стажёр", "Junior", "Middle", "Senior"];
 const ROLES = ["Автоопределение", "Маркетинг", "Аналитика", "Frontend", "Product", "Другая роль"];
@@ -144,6 +145,12 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
 
   async function analyze() {
     if (!consent) return;
+    track("tool_start", {
+      entityType: "tool",
+      entityId: "resume_analyzer",
+      level,
+      props: { target_role: targetRole },
+    });
     setAnalyzing(true);
     setAiError(null);
     setLoadingStep(0);
@@ -179,6 +186,12 @@ export function InlineResumeAnalyzer({ userScope, onScoreChange }: Props) {
     setAnalyzing(false);
     setHistoryDetail(null);
     onScoreChange?.(finalResult.score);
+    track("tool_finish", {
+      entityType: "tool",
+      entityId: "resume_analyzer",
+      level,
+      props: { score: finalResult.score, target_role: targetRole },
+    });
   }
 
   const canAnalyze = resumeText.trim().length >= 100 && consent;

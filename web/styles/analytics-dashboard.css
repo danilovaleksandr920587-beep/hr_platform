@@ -1,0 +1,191 @@
+/* Внутренний дашборд аналитики (/admin/analytics, он же stats.lab-career.ru).
+   Отдельный файл: раздел закрытый, стили не должны цепляться к публичным. */
+
+.an-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.an-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.an-title {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.an-sub {
+  color: #6b7280;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.an-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.an-tab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #e2e5e0;
+  background: #fff;
+  color: #23281c;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.an-tab:hover { border-color: #c8cec1; }
+
+.an-tab.is-active {
+  background: #23281c;
+  border-color: #23281c;
+  color: #fff;
+}
+
+.an-period {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.an-period a {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e5e0;
+  color: #23281c;
+  text-decoration: none;
+}
+
+.an-period a.is-active {
+  background: #d7f000;
+  border-color: #c4db00;
+  font-weight: 600;
+}
+
+.an-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.an-card {
+  border: 1px solid #e8eae4;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fff;
+}
+
+.an-card-value {
+  font-family: var(--font-unbounded), system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.an-card-label {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.an-delta { font-size: 12px; margin-top: 6px; }
+.an-delta--up { color: #2d6a00; }
+.an-delta--down { color: #c0392b; }
+.an-delta--flat { color: #9ca3af; }
+
+.an-panel {
+  border: 1px solid #e8eae4;
+  border-radius: 14px;
+  padding: 16px;
+  background: #fff;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+.an-panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.an-panel-note {
+  color: #6b7280;
+  font-size: 12px;
+  margin: -4px 0 12px;
+}
+
+.an-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 620px;
+}
+
+.an-table th,
+.an-table td {
+  padding: 8px 10px;
+  text-align: right;
+  border-bottom: 1px solid #f0f1ed;
+  white-space: nowrap;
+}
+
+.an-table th:first-child,
+.an-table td:first-child {
+  text-align: left;
+  white-space: normal;
+}
+
+.an-table th {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 12px;
+  border-bottom: 1px solid #e2e5e0;
+}
+
+.an-table tbody tr:hover { background: #fafbf7; }
+
+.an-bar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: #d7f000;
+  min-width: 2px;
+}
+
+.an-bar-cell { width: 120px; }
+
+.an-gap--under { color: #c0392b; font-weight: 600; }
+.an-gap--over { color: #2d6a00; }
+
+.an-empty {
+  color: #6b7280;
+  font-size: 13px;
+  padding: 10px 0;
+}
+
+.an-chart {
+  width: 100%;
+  height: 160px;
+  display: block;
+}
+
+.an-legend {
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 6px;
+}

@@ -196,6 +196,7 @@ export default async function ArticlePage({ params }: PageProps) {
           slug={row.slug}
           title={row.title}
           category={row.category}
+          catSlug={row.cat_slug}
           level={row.level}
           excerpt={row.excerpt}
           readTime={row.read_time}

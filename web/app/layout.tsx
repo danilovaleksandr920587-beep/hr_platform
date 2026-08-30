@@ -7,6 +7,7 @@ import "../styles/company-portal.css";
 import "./globals.css";
 import { CookieBanner } from "@/components/CookieBanner";
 import { YandexMetrika } from "@/components/YandexMetrika";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TgStickyBar } from "@/components/TgStickyBar";
 import { SavedItemsToast } from "@/components/SavedItemsToast";
@@ -62,6 +63,7 @@ export default function RootLayout({
     >
       <body className={`${golos.className} careerlab-site`}>
         <YandexMetrika />
+        <AnalyticsTracker />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

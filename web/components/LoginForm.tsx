@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { track } from "@/lib/client/track";
 
 function MailIcon() {
   return (
@@ -144,6 +145,7 @@ export function LoginForm({
       return;
     }
     setStatus("loading");
+    track("register_start", { props: { method: "email" } });
     try {
       const res = await postJsonWithTimeout("/api/auth/register", {
         email: email.trim(),
@@ -158,6 +160,7 @@ export function LoginForm({
         setStatus("idle");
         return;
       }
+      track("register_success", { props: { method: "email" } });
       redirectWithFallback();
     } catch (err) {
       setMessageTone("error");

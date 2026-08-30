@@ -37,6 +37,38 @@ pm2 status && pm2 logs lab-career --lines 50
 nginx -t && systemctl reload nginx
 ```
 
+## Поддомен статистики (stats.lab-career.ru)
+
+Тот же процесс Next и та же сессия: nginx проксирует поддомен на 3000, а
+middleware переписывает корень в `/admin/analytics` (см. PAGES.md). Отдельного
+приложения нет.
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name stats.lab-career.ru;
+    # сертификат добавляет certbot --nginx -d stats.lab-career.ru
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Перед выпуском сертификата нужна A-запись `stats` на 155.212.216.117.
+
+## Cron: агрегаты аналитики
+
+```
+5 4 * * * /var/www/hr_platform/web/scripts/analytics-rollup.sh >> /var/log/analytics-rollup.log 2>&1
+```
+
+Считает `analytics_daily` за последние 3 суток и удаляет сырые
+`analytics_events` старше 90 дней (функция `analytics_rollup`, см. DATABASE.md).
+
 ## Известные особенности
 
 - Кеш Next.js агрессивный (`s-maxage=31536000` на prerender-страницах),
