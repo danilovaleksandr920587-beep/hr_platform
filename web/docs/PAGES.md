@@ -69,7 +69,10 @@ Guard: `middleware.ts` -> `lib/auth/office-guard.ts` - без session-cookie
 | `/admin/moderation` | `app/admin/moderation/page.tsx` | Очередь модерации (только PLATFORM_ADMIN_EMAILS) |
 | `/admin/analytics` | `app/admin/analytics/page.tsx` | Внутренний дашборд: обзор (KPI, визиты по дням, воронка, каналы, типы страниц). Только PLATFORM_ADMIN_EMAILS, noindex. Он же корень поддомена `stats.lab-career.ru` |
 | `/admin/analytics/directions` | `app/admin/analytics/directions/page.tsx` | Спрос против предложения по направлениям + запросы, которые словарь не узнал |
+| `/admin/analytics/vacancies` | `app/admin/analytics/vacancies/page.tsx` | Что смотрят: разрезы по типу занятости, опыту, формату, зарплате, городу, возрасту, источнику и компании; топ, низкий CTR, «мёртвый груз» |
 | `/admin/analytics/content` | `app/admin/analytics/content/page.tsx` | Кластеры базы знаний, дочитывания, переход «статья → вакансия» |
+| `/admin/analytics/users` | `app/admin/analytics/users/page.tsx` | Регистрации по месяцам и неделям, активация, «признаки жизни», когорты удержания, состав аудитории по анкете |
+| `/admin/analytics/tools` | `app/admin/analytics/tools/page.tsx` | Анализатор резюме (запуски, доводимость, баллы), калькулятор, поиск: нулевая выдача и использование фильтров |
 | `/admin/universities` | `app/admin/universities/page.tsx` | Онбординг вузов: создать вуз, скрыть/активировать, инвайт owner ЦКС (только PLATFORM_ADMIN_EMAILS) |
 
 Активная компания: первая из членств аккаунта (`lib/company/active-company.ts`),

@@ -6,7 +6,10 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { href: "/admin/analytics", label: "Обзор" },
   { href: "/admin/analytics/directions", label: "Направления" },
+  { href: "/admin/analytics/vacancies", label: "Вакансии" },
   { href: "/admin/analytics/content", label: "Контент" },
+  { href: "/admin/analytics/users", label: "Пользователи" },
+  { href: "/admin/analytics/tools", label: "Инструменты и поиск" },
 ];
 
 export function AnalyticsTabs() {

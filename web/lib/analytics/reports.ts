@@ -2,9 +2,11 @@ import "server-only";
 import { getSql } from "@/lib/db/postgres";
 import {
   DIRECTIONS,
+  DIRECTION_LABELS,
   directionFromProfile,
   directionFromSearchQuery,
   directionFromVacancy,
+  isDirection,
   type DirectionKey,
 } from "@/lib/taxonomy/directions";
 
@@ -382,6 +384,661 @@ export async function getContentReport(days: Period): Promise<ContentReport> {
       articleSessions,
       alsoVacancy,
       rate: articleSessions ? (100 * alsoVacancy) / articleSessions : null,
+    },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Вакансии                                                                    */
+/* -------------------------------------------------------------------------- */
+
+type VacancyAttrs = {
+  slug: string;
+  title: string;
+  company: string;
+  direction: DirectionKey | null;
+  employmentType: string | null;
+  exp: string | null;
+  format: string | null;
+  city: string | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  source: string | null;
+  publishedAt: string | null;
+};
+
+type Counts = { views: number; apply: number };
+
+export type SliceRow = {
+  key: string;
+  label: string;
+  vacancies: number;
+  views: number;
+  apply: number;
+  ctr: number | null;
+  viewsPerVacancy: number | null;
+};
+
+export type VacanciesReport = {
+  hasEvents: boolean;
+  byEmploymentType: SliceRow[];
+  byExp: SliceRow[];
+  byFormat: SliceRow[];
+  byCity: SliceRow[];
+  bySalary: SliceRow[];
+  bySource: SliceRow[];
+  byCompany: SliceRow[];
+  byAge: SliceRow[];
+  top: { slug: string; title: string; company: string; views: number; apply: number; ctr: number | null }[];
+  worstCtr: { slug: string; title: string; company: string; views: number; apply: number; ctr: number | null }[];
+  deadStock: { slug: string; title: string; company: string; ageDays: number }[];
+};
+
+const EMPLOYMENT_LABELS: Record<string, string> = {
+  internship: "Стажировка",
+  project: "Проектная работа",
+  parttime: "Подработка",
+  // Парсер кладёт и fulltime, хотя в документированном списке типов его нет.
+  fulltime: "Полная занятость",
+};
+
+const EXP_LABELS_LOCAL: Record<string, string> = {
+  none: "Без опыта",
+  lt1: "До 1 года",
+  "1-3": "1-3 года",
+  gte3: "От 3 лет",
+};
+
+const FORMAT_LABELS_LOCAL: Record<string, string> = {
+  remote: "Удалённо",
+  hybrid: "Гибрид",
+  office: "Офис",
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  parser: "Парсер",
+  company: "Кабинет компании",
+};
+
+/** Ведро зарплаты: важно не точное значение, а есть ли вилка вообще. */
+function salaryBucket(v: VacancyAttrs): string {
+  const from = v.salaryMin ?? 0;
+  if (!v.salaryMin && !v.salaryMax) return "hidden";
+  if (from < 50_000) return "lt50";
+  if (from < 100_000) return "50-100";
+  if (from < 150_000) return "100-150";
+  return "gte150";
+}
+
+const SALARY_LABELS: Record<string, string> = {
+  hidden: "Не указана",
+  lt50: "До 50 тыс",
+  "50-100": "50-100 тыс",
+  "100-150": "100-150 тыс",
+  gte150: "От 150 тыс",
+};
+
+function ageBucket(publishedAt: string | null): string {
+  if (!publishedAt) return "unknown";
+  const days = (Date.now() - new Date(publishedAt).getTime()) / 86_400_000;
+  if (days <= 7) return "w1";
+  if (days <= 30) return "m1";
+  if (days <= 90) return "m3";
+  return "old";
+}
+
+const AGE_LABELS: Record<string, string> = {
+  w1: "До недели",
+  m1: "1-4 недели",
+  m3: "1-3 месяца",
+  old: "Старше 3 месяцев",
+  unknown: "Без даты",
+};
+
+function buildSlice(
+  vacancies: VacancyAttrs[],
+  counts: Map<string, Counts>,
+  keyOf: (v: VacancyAttrs) => string | null,
+  labels: Record<string, string> | ((key: string) => string),
+  limit?: number,
+): SliceRow[] {
+  const acc = new Map<string, { vacancies: number; views: number; apply: number }>();
+  for (const v of vacancies) {
+    const key = keyOf(v);
+    if (!key) continue;
+    const cur = acc.get(key) ?? { vacancies: 0, views: 0, apply: 0 };
+    const c = counts.get(v.slug);
+    cur.vacancies += 1;
+    cur.views += c?.views ?? 0;
+    cur.apply += c?.apply ?? 0;
+    acc.set(key, cur);
+  }
+  const rows = [...acc.entries()]
+    .map(([key, v]) => ({
+      key,
+      label: typeof labels === "function" ? labels(key) : (labels[key] ?? key),
+      vacancies: v.vacancies,
+      views: v.views,
+      apply: v.apply,
+      ctr: v.views ? (100 * v.apply) / v.views : null,
+      viewsPerVacancy: v.vacancies ? v.views / v.vacancies : null,
+    }))
+    .sort((a, b) => b.views - a.views || b.vacancies - a.vacancies);
+  return limit ? rows.slice(0, limit) : rows;
+}
+
+async function loadVacancyAttrs(): Promise<VacancyAttrs[]> {
+  const sql = getSql();
+  // employment_type и source читаем через to_jsonb: в старой схеме их нет,
+  // а прямая ссылка на несуществующую колонку уронила бы запрос.
+  const rows = (await sql`
+    select slug, title, company, sphere, exp, format, city, skills,
+           salary_min, salary_max, published_at,
+           coalesce(to_jsonb(v) ->> 'employment_type', to_jsonb(v) ->> 'type') as employment_type,
+           to_jsonb(v) ->> 'source' as source
+    from public.vacancies v
+    where is_published = true and coalesce(is_archived, false) = false
+  `) as Record<string, unknown>[];
+
+  return rows.map((r) => ({
+    slug: String(r.slug),
+    title: String(r.title ?? ""),
+    company: String(r.company ?? ""),
+    direction: directionFromVacancy({
+      sphere: r.sphere as string | null,
+      title: r.title as string | null,
+      skills: r.skills as string[] | null,
+    }),
+    employmentType: (r.employment_type as string | null) ?? null,
+    exp: (r.exp as string | null) ?? null,
+    format: (r.format as string | null) ?? null,
+    city: (r.city as string | null) ?? null,
+    salaryMin: r.salary_min == null ? null : Number(r.salary_min),
+    salaryMax: r.salary_max == null ? null : Number(r.salary_max),
+    source: (r.source as string | null) ?? null,
+    publishedAt: r.published_at ? String(r.published_at) : null,
+  }));
+}
+
+/**
+ * Счётчики по вакансиям: сначала события за период, если их нет - накопительные
+ * vacancy_stats. Второй источник без времени и без отсечения ботов, поэтому в
+ * интерфейсе рядом стоит оговорка.
+ */
+async function loadVacancyCounts(days: Period): Promise<{ counts: Map<string, Counts>; hasEvents: boolean }> {
+  const sql = getSql();
+  const eventRows = (await sql`
+    select entity_id as slug,
+           count(*) filter (where event = 'vacancy_view')::int        as views,
+           count(*) filter (where event = 'vacancy_apply_click')::int as apply
+    from public.analytics_events
+    where created_at >= now() - make_interval(days => ${days})
+      and entity_type = 'vacancy'
+      and entity_id is not null
+    group by 1
+  `) as { slug: string; views: number; apply: number }[];
+
+  const counts = new Map<string, Counts>();
+  let total = 0;
+  for (const r of eventRows) {
+    counts.set(r.slug, { views: r.views, apply: r.apply });
+    total += r.views;
+  }
+  if (total > 0) return { counts, hasEvents: true };
+
+  const legacy = (await sql`
+    select vacancy_slug, views, apply_clicks from public.vacancy_stats
+  `) as { vacancy_slug: string; views: number | string; apply_clicks: number | string }[];
+  const fallback = new Map<string, Counts>();
+  for (const r of legacy) {
+    fallback.set(r.vacancy_slug, {
+      views: Number(r.views) || 0,
+      apply: Number(r.apply_clicks) || 0,
+    });
+  }
+  return { counts: fallback, hasEvents: false };
+}
+
+export async function getVacanciesReport(days: Period): Promise<VacanciesReport> {
+  const [vacancies, { counts, hasEvents }] = await Promise.all([
+    loadVacancyAttrs(),
+    loadVacancyCounts(days),
+  ]);
+
+  const withCounts = vacancies.map((v) => ({
+    v,
+    c: counts.get(v.slug) ?? { views: 0, apply: 0 },
+  }));
+
+  const ranked = withCounts
+    .map(({ v, c }) => ({
+      slug: v.slug,
+      title: v.title,
+      company: v.company,
+      views: c.views,
+      apply: c.apply,
+      ctr: c.views ? (100 * c.apply) / c.views : null,
+    }))
+    .sort((a, b) => b.views - a.views);
+
+  const medianViews = (() => {
+    const vals = ranked.map((r) => r.views).sort((a, b) => a - b);
+    return vals.length ? vals[Math.floor(vals.length / 2)] : 0;
+  })();
+
+  return {
+    hasEvents,
+    byEmploymentType: buildSlice(vacancies, counts, (v) => v.employmentType, EMPLOYMENT_LABELS),
+    byExp: buildSlice(vacancies, counts, (v) => v.exp, EXP_LABELS_LOCAL),
+    byFormat: buildSlice(vacancies, counts, (v) => v.format, FORMAT_LABELS_LOCAL),
+    byCity: buildSlice(vacancies, counts, (v) => v.city?.trim() || null, (k) => k, 12),
+    bySalary: buildSlice(vacancies, counts, salaryBucket, SALARY_LABELS),
+    bySource: buildSlice(vacancies, counts, (v) => v.source, SOURCE_LABELS),
+    byCompany: buildSlice(vacancies, counts, (v) => v.company?.trim() || null, (k) => k, 15),
+    byAge: buildSlice(vacancies, counts, (v) => ageBucket(v.publishedAt), AGE_LABELS),
+    top: ranked.slice(0, 20),
+    worstCtr: ranked
+      .filter((r) => r.views >= Math.max(5, medianViews))
+      .sort((a, b) => (a.ctr ?? 0) - (b.ctr ?? 0))
+      .slice(0, 10),
+    deadStock: withCounts
+      .filter(({ c }) => c.views === 0)
+      .map(({ v }) => ({
+        slug: v.slug,
+        title: v.title,
+        company: v.company,
+        ageDays: v.publishedAt
+          ? Math.round((Date.now() - new Date(v.publishedAt).getTime()) / 86_400_000)
+          : -1,
+      }))
+      .sort((a, b) => b.ageDays - a.ageDays)
+      .slice(0, 15),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Пользователи и удержание                                                    */
+/* -------------------------------------------------------------------------- */
+
+export type UsersReport = {
+  registrationsByWeek: { week: string; count: number }[];
+  registrationsByMonth: { month: string; count: number }[];
+  totalAccounts: number;
+  activation: { step: string; count: number; share: number }[];
+  /** Когорты по неделе регистрации: сколько вернулось на N-й неделе. */
+  cohorts: { cohort: string; size: number; weeks: (number | null)[] }[];
+  cohortDepth: number;
+  /** Исторический суррогат: когда аккаунт в последний раз оставил след в БД. */
+  lastSeen: { bucket: string; count: number; share: number }[];
+  byDirection: { direction: string; label: string; count: number }[];
+  byLevel: { level: string; count: number }[];
+};
+
+const LAST_SEEN_LABELS: Record<string, string> = {
+  d7: "Были активны за 7 дней",
+  d30: "8-30 дней назад",
+  d90: "31-90 дней назад",
+  older: "Больше 90 дней назад",
+  never: "Ни одного действия после регистрации",
+};
+
+export async function getUsersReport(days: Period): Promise<UsersReport> {
+  const sql = getSql();
+
+  const registrationsByWeek = (await sql`
+    select to_char(date_trunc('week', created_at), 'YYYY-MM-DD') as week, count(*)::int as count
+    from public.careerlab_accounts
+    where created_at >= now() - make_interval(days => ${Math.max(days, 90)})
+    group by 1 order by 1
+  `) as { week: string; count: number }[];
+
+  const registrationsByMonth = (await sql`
+    select to_char(date_trunc('month', created_at), 'YYYY-MM') as month, count(*)::int as count
+    from public.careerlab_accounts
+    group by 1 order by 1
+  `) as { month: string; count: number }[];
+
+  const [totals] = (await sql`
+    select
+      count(*)::int as total,
+      count(*) filter (where exists (
+        select 1 from public.user_profiles p
+        where p.account_id = a.id and coalesce(p.direction, '') <> ''
+      ))::int as with_profile,
+      count(*) filter (where exists (
+        select 1 from public.user_resume_analyses r where r.account_id = a.id
+      ))::int as with_resume,
+      count(*) filter (where exists (
+        select 1 from public.user_saved_vacancies s where s.account_id = a.id
+      ))::int as with_saved,
+      count(*) filter (where exists (
+        select 1 from public.applications ap where ap.account_id = a.id
+      ))::int as with_application,
+      count(*) filter (where a.email_verified)::int as verified
+    from public.careerlab_accounts a
+  `) as {
+    total: number;
+    with_profile: number;
+    with_resume: number;
+    with_saved: number;
+    with_application: number;
+    verified: number;
+  }[];
+
+  const total = totals?.total ?? 0;
+  const share = (n: number) => (total ? (100 * n) / total : 0);
+  const activation = [
+    { step: "Зарегистрированы", count: total, share: 100 },
+    { step: "Подтвердили email", count: totals?.verified ?? 0, share: share(totals?.verified ?? 0) },
+    { step: "Заполнили профиль", count: totals?.with_profile ?? 0, share: share(totals?.with_profile ?? 0) },
+    { step: "Сохранили вакансию", count: totals?.with_saved ?? 0, share: share(totals?.with_saved ?? 0) },
+    { step: "Прогнали резюме", count: totals?.with_resume ?? 0, share: share(totals?.with_resume ?? 0) },
+    { step: "Отправили отклик", count: totals?.with_application ?? 0, share: share(totals?.with_application ?? 0) },
+  ];
+
+  // Когорты считаются по событиям, а события пишутся с 30 августа 2026:
+  // до накопления истории таблица будет почти пустой, и это ожидаемо.
+  const cohortDepth = 5;
+  const cohortRows = (await sql`
+    with cohorts as (
+      select id, date_trunc('week', created_at)::date as cohort
+      from public.careerlab_accounts
+      where created_at >= now() - interval '10 weeks'
+    ),
+    activity as (
+      select distinct account_id, date_trunc('week', created_at)::date as week
+      from public.analytics_events
+      where account_id is not null
+    )
+    select to_char(c.cohort, 'YYYY-MM-DD') as cohort,
+           count(distinct c.id)::int as size,
+           ((a.week - c.cohort) / 7)::int as week_index,
+           count(distinct a.account_id)::int as active
+    from cohorts c
+    left join activity a on a.account_id = c.id and a.week >= c.cohort
+    group by 1, 3
+    order by 1
+  `) as { cohort: string; size: number; week_index: number | null; active: number }[];
+
+  const cohortMap = new Map<string, { size: number; weeks: (number | null)[] }>();
+  for (const row of cohortRows) {
+    const entry = cohortMap.get(row.cohort) ?? {
+      size: 0,
+      weeks: Array<number | null>(cohortDepth).fill(null),
+    };
+    entry.size = Math.max(entry.size, row.size);
+    if (row.week_index !== null && row.week_index >= 0 && row.week_index < cohortDepth) {
+      entry.weeks[row.week_index] = row.active;
+    }
+    cohortMap.set(row.cohort, entry);
+  }
+
+  const lastSeenRows = (await sql`
+    with seen as (
+      select a.id, a.created_at,
+        greatest(
+          a.created_at,
+          coalesce((select max(p.updated_at) from public.user_profiles p where p.account_id = a.id), a.created_at),
+          coalesce((select max(c.updated_at) from public.user_checklist_progress c where c.account_id = a.id), a.created_at),
+          coalesce((select max(r.created_at) from public.user_resume_analyses r where r.account_id = a.id), a.created_at),
+          coalesce((select max(ap.created_at) from public.applications ap where ap.account_id = a.id), a.created_at),
+          coalesce((select max(e.created_at) from public.analytics_events e where e.account_id = a.id), a.created_at)
+        ) as last_seen
+      from public.careerlab_accounts a
+    )
+    select case
+        when last_seen = created_at then 'never'
+        when last_seen >= now() - interval '7 days' then 'd7'
+        when last_seen >= now() - interval '30 days' then 'd30'
+        when last_seen >= now() - interval '90 days' then 'd90'
+        else 'older'
+      end as bucket,
+      count(*)::int as count
+    from seen group by 1
+  `) as { bucket: string; count: number }[];
+
+  const profileRows = (await sql`
+    select direction, level, count(*)::int as n
+    from public.user_profiles
+    where coalesce(direction, '') <> ''
+    group by 1, 2
+  `) as { direction: string; level: string; n: number }[];
+
+  const dirAcc = new Map<string, number>();
+  const levelAcc = new Map<string, number>();
+  for (const row of profileRows) {
+    const key = directionFromProfile(row.direction) ?? "other";
+    dirAcc.set(key, (dirAcc.get(key) ?? 0) + row.n);
+    const lvl = row.level?.trim() || "Не указан";
+    levelAcc.set(lvl, (levelAcc.get(lvl) ?? 0) + row.n);
+  }
+
+  return {
+    registrationsByWeek,
+    registrationsByMonth,
+    totalAccounts: total,
+    activation,
+    cohorts: [...cohortMap.entries()]
+      .map(([cohort, v]) => ({ cohort, size: v.size, weeks: v.weeks }))
+      .sort((a, b) => b.cohort.localeCompare(a.cohort)),
+    cohortDepth,
+    lastSeen: lastSeenRows
+      .map((r) => ({
+        bucket: LAST_SEEN_LABELS[r.bucket] ?? r.bucket,
+        count: r.count,
+        share: share(r.count),
+      }))
+      .sort((a, b) => b.count - a.count),
+    byDirection: [...dirAcc.entries()]
+      .map(([direction, count]) => ({
+        direction,
+        label: isDirection(direction) ? DIRECTION_LABELS[direction] : "Другое",
+        count,
+      }))
+      .sort((a, b) => b.count - a.count),
+    byLevel: [...levelAcc.entries()]
+      .map(([level, count]) => ({ level, count }))
+      .sort((a, b) => b.count - a.count),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Инструменты и поиск                                                         */
+/* -------------------------------------------------------------------------- */
+
+export type ToolsReport = {
+  resume: {
+    starts: number;
+    finishes: number;
+    completion: number | null;
+    avgScore: number | null;
+    scoreBuckets: { bucket: string; count: number }[];
+    savedToDb: number;
+    savedToDbAllTime: number;
+  };
+  calculator: {
+    uses: number;
+    byDirection: { label: string; count: number }[];
+    byLevel: { level: string; count: number }[];
+    byCity: { city: string; count: number }[];
+  };
+  search: {
+    total: number;
+    zeroResult: number;
+    zeroShare: number | null;
+    fuzzyUsed: number;
+    topQueries: { q: string; n: number; minResults: number }[];
+    zeroQueries: { q: string; n: number }[];
+    filterUsage: { filter: string; used: number; share: number }[];
+    topFilterValues: { filter: string; value: string; n: number }[];
+  };
+};
+
+const SCORE_BUCKETS = [
+  { key: "lt45", label: "До 45 - слабое резюме" },
+  { key: "45-70", label: "45-70 - среднее" },
+  { key: "gte70", label: "70+ - сильное" },
+];
+
+const FILTER_LABELS: Record<string, string> = {
+  sphere: "Сфера",
+  exp: "Опыт",
+  type: "Тип занятости",
+  format: "Формат",
+  city: "Город",
+};
+
+export async function getToolsReport(days: Period): Promise<ToolsReport> {
+  const sql = getSql();
+
+  const toolRows = (await sql`
+    select entity_id, event, props
+    from public.analytics_events
+    where created_at >= now() - make_interval(days => ${days})
+      and entity_type = 'tool'
+  `) as { entity_id: string; event: string; props: Record<string, unknown> | null }[];
+
+  let starts = 0;
+  let finishes = 0;
+  let scoreSum = 0;
+  let scoreCount = 0;
+  const scoreAcc = new Map<string, number>();
+  let calcUses = 0;
+  const calcDirection = new Map<string, number>();
+  const calcLevel = new Map<string, number>();
+  const calcCity = new Map<string, number>();
+
+  for (const row of toolRows) {
+    if (row.entity_id === "resume_analyzer") {
+      if (row.event === "tool_start") starts += 1;
+      if (row.event === "tool_finish") {
+        finishes += 1;
+        const score = Number(row.props?.score);
+        if (Number.isFinite(score)) {
+          scoreSum += score;
+          scoreCount += 1;
+          const key = score < 45 ? "lt45" : score < 70 ? "45-70" : "gte70";
+          scoreAcc.set(key, (scoreAcc.get(key) ?? 0) + 1);
+        }
+      }
+    }
+    if (row.entity_id === "salary_calculator" && row.event === "tool_finish") {
+      calcUses += 1;
+      const city = String(row.props?.city ?? "");
+      if (city) calcCity.set(city, (calcCity.get(city) ?? 0) + 1);
+    }
+  }
+
+  const calcDims = (await sql`
+    select coalesce(direction, 'unknown') as direction, coalesce(level, 'unknown') as level, count(*)::int as n
+    from public.analytics_events
+    where created_at >= now() - make_interval(days => ${days})
+      and entity_id = 'salary_calculator' and event = 'tool_finish'
+    group by 1, 2
+  `) as { direction: string; level: string; n: number }[];
+  for (const row of calcDims) {
+    const label = isDirection(row.direction) ? DIRECTION_LABELS[row.direction] : "Не определено";
+    calcDirection.set(label, (calcDirection.get(label) ?? 0) + row.n);
+    calcLevel.set(row.level, (calcLevel.get(row.level) ?? 0) + row.n);
+  }
+
+  const [resumeDb] = (await sql`
+    select
+      count(*) filter (where created_at >= now() - make_interval(days => ${days}))::int as period,
+      count(*)::int as all_time
+    from public.user_resume_analyses
+  `) as { period: number; all_time: number }[];
+
+  const [searchTotals] = (await sql`
+    select count(*)::int as total,
+           count(*) filter (where results_count = 0)::int as zero,
+           count(*) filter (where fuzzy_used)::int as fuzzy
+    from public.search_queries
+    where created_at >= now() - make_interval(days => ${days})
+  `) as { total: number; zero: number; fuzzy: number }[];
+
+  const topQueries = (await sql`
+    select lower(q) as q, count(*)::int as n, min(results_count)::int as min_results
+    from public.search_queries
+    where created_at >= now() - make_interval(days => ${days})
+    group by 1 order by n desc, q limit 25
+  `) as { q: string; n: number; min_results: number }[];
+
+  const zeroQueries = (await sql`
+    select lower(q) as q, count(*)::int as n
+    from public.search_queries
+    where created_at >= now() - make_interval(days => ${days}) and results_count = 0
+    group by 1 order by n desc, q limit 25
+  `) as { q: string; n: number }[];
+
+  const [filterCounts] = (await sql`
+    select
+      count(*)::int as total,
+      count(*) filter (where jsonb_array_length(filters->'sphere') > 0)::int as sphere,
+      count(*) filter (where jsonb_array_length(filters->'exp') > 0)::int as exp,
+      count(*) filter (where jsonb_array_length(filters->'type') > 0)::int as type,
+      count(*) filter (where jsonb_array_length(filters->'format') > 0)::int as format,
+      count(*) filter (where jsonb_array_length(filters->'city') > 0)::int as city
+    from public.search_queries
+    where created_at >= now() - make_interval(days => ${days})
+      and jsonb_typeof(filters->'sphere') = 'array'
+  `) as Record<string, number>[];
+
+  const filterValues = (await sql`
+    select f.key as filter, value as value, count(*)::int as n
+    from public.search_queries q
+    cross join lateral (values ('sphere'), ('exp'), ('type'), ('format'), ('city')) as f(key)
+    cross join lateral jsonb_array_elements_text(
+      case when jsonb_typeof(q.filters -> f.key) = 'array' then q.filters -> f.key else '[]'::jsonb end
+    ) as value
+    where q.created_at >= now() - make_interval(days => ${days})
+    group by 1, 2
+    order by n desc
+    limit 20
+  `) as { filter: string; value: string; n: number }[];
+
+  const searchTotal = searchTotals?.total ?? 0;
+  const filterTotal = filterCounts?.total ?? 0;
+
+  return {
+    resume: {
+      starts,
+      finishes,
+      completion: starts ? (100 * finishes) / starts : null,
+      avgScore: scoreCount ? scoreSum / scoreCount : null,
+      scoreBuckets: SCORE_BUCKETS.map((b) => ({ bucket: b.label, count: scoreAcc.get(b.key) ?? 0 })),
+      savedToDb: resumeDb?.period ?? 0,
+      savedToDbAllTime: resumeDb?.all_time ?? 0,
+    },
+    calculator: {
+      uses: calcUses,
+      byDirection: [...calcDirection.entries()]
+        .map(([label, count]) => ({ label, count }))
+        .sort((a, b) => b.count - a.count),
+      byLevel: [...calcLevel.entries()]
+        .map(([level, count]) => ({ level, count }))
+        .sort((a, b) => b.count - a.count),
+      byCity: [...calcCity.entries()]
+        .map(([city, count]) => ({ city, count }))
+        .sort((a, b) => b.count - a.count),
+    },
+    search: {
+      total: searchTotal,
+      zeroResult: searchTotals?.zero ?? 0,
+      zeroShare: searchTotal ? (100 * (searchTotals?.zero ?? 0)) / searchTotal : null,
+      fuzzyUsed: searchTotals?.fuzzy ?? 0,
+      topQueries: topQueries.map((r) => ({ q: r.q, n: r.n, minResults: r.min_results })),
+      zeroQueries,
+      filterUsage: ["sphere", "exp", "type", "format", "city"].map((key) => ({
+        filter: FILTER_LABELS[key] ?? key,
+        used: filterCounts?.[key] ?? 0,
+        share: filterTotal ? (100 * (filterCounts?.[key] ?? 0)) / filterTotal : 0,
+      })).sort((a, b) => b.used - a.used),
+      topFilterValues: filterValues.map((r) => ({
+        filter: FILTER_LABELS[r.filter] ?? r.filter,
+        value: r.value,
+        n: r.n,
+      })),
     },
   };
 }

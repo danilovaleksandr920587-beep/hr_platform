@@ -114,3 +114,56 @@ export function LineChart({ points }: { points: { day: string; value: number }[]
     </>
   );
 }
+
+/** Таблица одного разреза вакансий: строки уже отсортированы репортом. */
+export function SliceTable({
+  title,
+  note,
+  rows,
+  firstColumn = "Значение",
+}: {
+  title: string;
+  note?: string;
+  rows: import("@/lib/analytics/reports").SliceRow[];
+  firstColumn?: string;
+}) {
+  const maxViews = Math.max(1, ...rows.map((r) => r.views));
+  return (
+    <div className="an-panel">
+      <h2 className="an-panel-title">{title}</h2>
+      {note ? <p className="an-panel-note">{note}</p> : null}
+      {rows.length ? (
+        <table className="an-table">
+          <thead>
+            <tr>
+              <th>{firstColumn}</th>
+              <th>Вакансий</th>
+              <th>Просмотров</th>
+              <th>На вакансию</th>
+              <th>Кликов</th>
+              <th>CTR</th>
+              <th className="an-bar-cell">Доля просмотров</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.key}>
+                <td>{r.label}</td>
+                <td>{formatNumber(r.vacancies)}</td>
+                <td>{formatNumber(r.views)}</td>
+                <td>{r.viewsPerVacancy === null ? "-" : r.viewsPerVacancy.toFixed(1)}</td>
+                <td>{formatNumber(r.apply)}</td>
+                <td>{formatPercent(r.ctr)}</td>
+                <td className="an-bar-cell">
+                  <Bar share={(100 * r.views) / maxViews} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="an-empty">Нет данных.</p>
+      )}
+    </div>
+  );
+}
