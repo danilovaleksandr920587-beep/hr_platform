@@ -15,9 +15,13 @@ type Props = {
 /**
  * Просмотр и дочитывание статьи.
  *
- * «Дочитал» = 75 % прокрутки И 30 секунд на странице (определение из
+ * «Дочитал» = 75 % текста статьи И 30 секунд на странице (определение из
  * docs/ANALYTICS.md). Одного скролла мало: до низа коротких статей долистывают
  * за пару секунд, ничего не прочитав.
+ *
+ * Считаем от конца самой статьи (#kbad-article), а не от высоты документа: под
+ * текстом идут похожие статьи, следующие шаги и футер, и 75 % страницы - это
+ * сильно дальше, чем 75 % текста. Тот же ориентир у полосы прогресса чтения.
  */
 export function ArticleReadTracker({ slug, catSlug, level }: Props) {
   useEffect(() => {
@@ -26,6 +30,7 @@ export function ArticleReadTracker({ slug, catSlug, level }: Props) {
       if (!sessionStorage.getItem(key)) {
         sessionStorage.setItem(key, "1");
         track("article_view", {
+          pageType: "article",
           entityType: "article",
           entityId: slug,
           level: level ?? null,
@@ -33,7 +38,12 @@ export function ArticleReadTracker({ slug, catSlug, level }: Props) {
         });
       }
     } catch {
-      track("article_view", { entityType: "article", entityId: slug, props: { cluster: catSlug } });
+      track("article_view", {
+        pageType: "article",
+        entityType: "article",
+        entityId: slug,
+        props: { cluster: catSlug },
+      });
     }
 
     const startedAt = Date.now();
@@ -45,6 +55,7 @@ export function ArticleReadTracker({ slug, catSlug, level }: Props) {
       if (Date.now() - startedAt < READ_SECONDS * 1000) return;
       sent = true;
       track("article_read", {
+        pageType: "article",
         entityType: "article",
         entityId: slug,
         level: level ?? null,
@@ -54,8 +65,13 @@ export function ArticleReadTracker({ slug, catSlug, level }: Props) {
     };
 
     const onScroll = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const article = document.getElementById("kbad-article");
+      const articleBottom = article
+        ? article.offsetTop + article.scrollHeight
+        : document.documentElement.scrollHeight;
+      const scrollable = articleBottom - window.innerHeight;
       if (scrollable <= 0) {
+        // Статья целиком помещается на экран - листать нечего, остаётся время.
         deepEnough = true;
       } else if (window.scrollY / scrollable >= READ_DEPTH) {
         deepEnough = true;
