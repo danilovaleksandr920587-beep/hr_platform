@@ -4,7 +4,11 @@
 .an-wrap {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  /* Шапка сайта - position: fixed (styles/cl-topbar.css), поэтому первый блок
+     страницы нужно опустить руками: иначе вкладки уезжают под неё. Общее
+     правило careerlab-ui.css ловит только main > section.section:first-child,
+     а тут main свой. */
+  padding: calc(60px + env(safe-area-inset-top, 0px) + 24px) 16px 64px;
 }
 
 .an-head {
