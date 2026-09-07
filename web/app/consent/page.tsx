@@ -22,7 +22,7 @@ export default function ConsentPage() {
             </p>
             <p>
               <strong>Оператор:</strong> Данилов Александр Евгеньевич<br />
-              <strong>Email:</strong> danilovalexandr@icloud.com<br />
+              <strong>Email:</strong> a.danilov@lab-career.ru<br />
               <strong>Сайт:</strong> lab-career.ru
             </p>
 
@@ -69,7 +69,7 @@ export default function ConsentPage() {
             <h2>5. Порядок отзыва согласия</h2>
             <p>
               Я вправе отозвать настоящее согласие в любое время, направив письменное заявление на
-              email: <a href="mailto:danilovalexandr@icloud.com">danilovalexandr@icloud.com</a>. После
+              email: <a href="mailto:a.danilov@lab-career.ru">a.danilov@lab-career.ru</a>. После
               получения отзыва оператор прекращает обработку данных и удаляет их в установленные
               законом сроки.
             </p>
@@ -86,7 +86,7 @@ export default function ConsentPage() {
             <h2>7. Контакты</h2>
             <p>
               По вопросам обработки персональных данных обращайтесь:<br />
-              Email: <a href="mailto:danilovalexandr@icloud.com">danilovalexandr@icloud.com</a>
+              Email: <a href="mailto:a.danilov@lab-career.ru">a.danilov@lab-career.ru</a>
             </p>
 
             <p style={{ marginTop: "1.5rem", fontSize: "0.9em", color: "var(--muted)" }}>

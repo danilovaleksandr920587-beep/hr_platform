@@ -3,4 +3,4 @@
  * поэтому значение можно использовать и в серверных, и в клиентских компонентах.
  */
 export const SUPPORT_EMAIL =
-  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "support@lab-career.ru";
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "a.danilov@lab-career.ru";

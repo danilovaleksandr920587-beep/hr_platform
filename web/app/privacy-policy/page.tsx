@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
               <li>потребовать исправления или удаления данных</li>
               <li>отозвать согласие на обработку</li>
             </ul>
-            <p>Для реализации прав: danilovalexandr@icloud.com</p>
+            <p>Для реализации прав: a.danilov@lab-career.ru</p>
 
             <h2>8. Cookie</h2>
             <p>
@@ -82,7 +82,7 @@ export default function PrivacyPolicyPage() {
             <p>
               Данилов Александр Евгеньевич
               <br />
-              Email: danilovalexandr@icloud.com
+              Email: a.danilov@lab-career.ru
             </p>
           </div>
         </div>

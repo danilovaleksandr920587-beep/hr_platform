@@ -62,7 +62,7 @@
 - Лендинг `/for-companies` (бесплатность в hero, FAQ, контакт поддержки),
   ссылки в шапке и футере
 - Поддержка: email из `NEXT_PUBLIC_SUPPORT_EMAIL` (фолбэк
-  support@lab-career.ru), mailto в футере, лендинге и баннерах
+  a.danilov@lab-career.ru), mailto в футере, лендинге и баннерах
   rejected/blocked кабинета компании
 - Дизайн и фазы 2-3: `docs/company-portal-design.md`
 
